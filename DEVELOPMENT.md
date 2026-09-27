@@ -1,4 +1,11 @@
-# Task 01 foundation
+# Dissect development
+
+Task 02 extends the Task 01 foundation with a validated, non-clinical topic demo
+and locally persisted training depth. See the Task 02 section below for current
+content authoring and architecture. Task 01 notes are retained as implementation
+history.
+
+## Task 01 foundation
 
 Use Node.js 22 or newer and npm. Run `npm ci`, then `npm run dev`.
 The lockfile pins dependencies; Next.js 16.3.6 was verified against npm on
@@ -66,3 +73,114 @@ The only structural interpretation is documenting future domain directories unti
 their first implementation, rather than adding empty tracked files. Mobile uses
 always-visible navigation instead of a collapsed menu; the task does not require
 a menu. ESLint 9 is a compatibility pin, not a relaxation of lint checks.
+
+## Task 02 content engine
+
+The new route is `/learn/demo/how-dissect-content-works`, linked from Learn.
+`/learn/[specialty]/[topic]` resolves metadata and content from explicit registry
+imports. Registered topics are statically generated; unregistered paths call
+`notFound()`. Importing the registry validates every topic during development and
+production builds without network access. Registry errors include the source
+module and Zod field path. Duplicate IDs and dangling references are rejected.
+
+`src/lib/training-level.ts` is the single source for training IDs, labels and ranks.
+Schemas, fixture, selector and filtering consume it. The localStorage adapter is
+isolated from its React subscription hook. `useSyncExternalStore` supplies the
+Medical Student server snapshot, then reads the browser value after hydration.
+Selectors stay in sync across the shell, topic rail and browser tabs. Missing or
+invalid storage defaults to Medical Student; denied storage falls back to memory.
+There is no account, remote persistence or global state library.
+
+The route, layout, block renderer and reference components remain Server
+Components. Client boundaries are limited to training state, depth gates,
+advanced reveal and hash-based section navigation. Server-rendered block children
+are composed into the gates. Both the containing block and each claim's minimum
+level apply. Reveal overrides both; it does not change the persisted level and
+resets on reload. Content remains intact in the registry.
+
+Desktop uses section navigation, content and a contextual source rail. Mobile
+places section navigation above content and the context/reference rail below it;
+the header selector and source jump links remain available. Native anchor links
+provide deep links and keyboard access. Active navigation tracks the current
+anchor, not viewport scrolling. Source links target stable reference IDs.
+
+### Authoring boundaries
+
+- `src/schemas/`: strict Reference, ClinicalClaim, TopicMetadata, TopicSection,
+  Topic and nine discriminated content block schemas. Unknown fields fail.
+- `src/content/`: explicitly registered topic modules. No filesystem discovery.
+- `src/lib/`: shared training model, persistence adapter and registry construction.
+- `src/components/content/`, `topic/`, `references/`: generic presentation.
+
+To add a future approved topic, create a content module using the schema input
+type and register it in `src/content/registry.ts`. Use stable kebab-case IDs,
+ordered sections, real calendar dates, supported training levels and HTTP(S)
+source links. Every claim requires at least one reference; blocks may also link
+sources. Reference IDs resolve within that topic. Blocks and claims have unique
+IDs within their respective topic-wide namespaces. Table row widths are checked.
+
+The sole fixture is explicitly NON-CLINICAL and exercises all nine block types.
+Its two references are the real project blueprint and Task 02 specification.
+Evidence-type values are labelled schema demonstrations, not clinical evidence.
+`contentKind` distinguishes a demo review date from an actual clinical review.
+No clinical assertions, examples, risks or treatment guidance have been authored.
+
+### Before Task 03
+
+Agree the clinical author/reviewer and review-date/sign-off process, the initial
+approved UK source set, and how local-policy variation will be reviewed. Decide
+whether draft/unreviewed content needs an explicit publication state before any
+clinical topic is registered. Structural validation cannot verify factual truth
+or that a reference supports a statement; those need editorial review. Keep the
+demo separate from clinical evidence and agree when to remove it from Learn.
+
+### Task 02 validation record
+
+Validated on 28 September 2026:
+
+| Command                | Final result                                                                                                                                                                                          |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run lint`         | Passed, zero warnings.                                                                                                                                                                                |
+| `npm run typecheck`    | Passed, including generated route types.                                                                                                                                                              |
+| `npm test`             | Passed: 15 tests in 7 files.                                                                                                                                                                          |
+| `npm run build`        | Passed; the demo topic is statically generated and registry validation runs at build time.                                                                                                            |
+| `npm run test:e2e`     | Passed: 6 desktop/mobile tests, including persistence, depth reveal, direct load/reload, section/source anchors, 404s and 320px overflow. Final run: 17.0 seconds. No browser errors on valid routes. |
+| `npm run format`       | Passed.                                                                                                                                                                                               |
+| `npm run format:check` | Passed.                                                                                                                                                                                               |
+| `git diff --check`     | Passed.                                                                                                                                                                                               |
+
+An intermediate 320px browser assertion exposed narrow navigation overflow; reduced
+mobile link spacing fixed it. The first route configuration returned 404 correctly
+but logged a Next internal fallback error. Static generation with normal registry
+lookup and `notFound()` removed that error. Final checks passed without either issue.
+
+Inspected desktop and mobile `topic-student.png` and `topic-registrar.png`, plus
+mobile `topic-depth-detail.png` and `topic-sources-detail.png`. Full-page captures
+verify layout; detail captures verify readable tables, sources and controls.
+Generated images remain under the ignored Playwright `test-results/` directory.
+
+No scope deviations or new dependencies. The header's narrow spacing adjustment
+is required by the no-overflow acceptance criterion; Task 01 tokens and visual
+language remain intact. The demo-only `contentKind` field prevents a fictitious
+clinical-review label. Advanced reveal is page-local; only training level persists.
+
+### Task 02 file inventory
+
+- Schemas added: `src/schemas/shared.ts`, `reference.ts`, `clinical-claim.ts`,
+  `content-block.ts`, `topic.ts`, `topic.test.ts`.
+- Models and registry added: `src/lib/training-level.ts`, `training-level.test.ts`,
+  `training-level-storage.ts`, `training-level-storage.test.ts`,
+  `topic-registry.ts`, `topic-registry.test.ts`.
+- Content added: `src/content/registry.ts` and
+  `src/content/demo/how-dissect-content-works.ts`.
+- Topic routes added: `src/app/learn/[specialty]/[topic]/page.tsx` and
+  `not-found.tsx`. Learn listing updated: `src/app/learn/page.tsx`.
+- Components added: `src/components/content/content-renderer.tsx`,
+  `src/components/references/source-badge.tsx`, `reference-list.tsx`,
+  `src/components/topic/section-nav.tsx`, `topic-depth.tsx`, `topic-layout.tsx`,
+  `topic-layout.test.tsx`, and `src/components/navigation/use-training-level.ts`.
+- Navigation updated: `primary-navigation.tsx`, `training-level-selector.tsx`
+  and `training-level-selector.test.tsx` under `src/components/navigation/`.
+- Browser tests: added `tests/e2e/topic.spec.ts`; updated `tests/e2e/shell.spec.ts`.
+- Documentation/configuration: updated this file, `.prettierignore`, and the
+  boundary READMEs in `src/components/`, `src/content/`, `src/lib/`, `src/schemas/`.

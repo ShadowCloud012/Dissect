@@ -1,6 +1,6 @@
 # Content boundary
 
-Task 01 intentionally contains no clinical content. Future validated content lives
-here, separate from UI: `specialties.ts`, `general-surgery/acute-appendicitis/`
-and `theatre/`, as specified by the product blueprint. Do not add these modules
-until their content task is authorised.
+`registry.ts` explicitly imports and validates the sole non-clinical demo under
+`demo/`. Invalid content fails at import time, including during production builds.
+Registry construction is in `src/lib/topic-registry.ts`. No clinical modules have
+been added. Future approved content belongs here, separate from presentation.
