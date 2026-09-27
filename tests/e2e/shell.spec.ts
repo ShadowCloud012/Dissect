@@ -51,7 +51,7 @@ test('shell routes, navigation and local training level work without browser err
     await expect(selector).toHaveValue('cst');
   }
   await page.reload();
-  await expect(selector).toHaveValue('medical-student');
+  await expect(selector).toHaveValue('cst');
   await page.getByRole('link', { name: 'Dissect home' }).click();
   await expect(page).toHaveURL('/');
   await page.screenshot({

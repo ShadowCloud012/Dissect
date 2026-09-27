@@ -1,24 +1,30 @@
 'use client';
 
-import { useState } from 'react';
+import { useId } from 'react';
+import { isTrainingLevel, trainingLevels } from '@/lib/training-level';
+import { useTrainingLevel } from './use-training-level';
 
 export function TrainingLevelSelector() {
-  const [level, setLevel] = useState('medical-student');
+  const { level, setLevel } = useTrainingLevel();
+  const id = useId();
   return (
     <div className="flex flex-wrap items-center gap-2 text-xs">
-      <label htmlFor="training-level" className="text-dissect-muted">
+      <label htmlFor={id} className="text-dissect-muted">
         Training level
       </label>
       <select
-        id="training-level"
+        id={id}
         value={level}
-        onChange={(event) => setLevel(event.target.value)}
+        onChange={(event) => {
+          if (isTrainingLevel(event.target.value)) setLevel(event.target.value);
+        }}
         className="min-h-11 max-w-full rounded-dissect-sm border border-dissect-border bg-dissect-surface px-3 text-sm text-dissect-green-800"
       >
-        <option value="medical-student">Medical Student</option>
-        <option value="foundation">FY1/2</option>
-        <option value="cst">CST</option>
-        <option value="registrar">Registrar</option>
+        {trainingLevels.map(({ id, label }) => (
+          <option key={id} value={id}>
+            {label}
+          </option>
+        ))}
       </select>
     </div>
   );
