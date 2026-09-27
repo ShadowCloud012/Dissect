@@ -27,7 +27,7 @@ export function PrimaryNavigation() {
               ? 'page'
               : undefined
           }
-          className="flex min-h-14 flex-1 items-center justify-center gap-2 border-b-2 border-transparent px-3 text-sm font-medium text-dissect-muted hover:text-dissect-green-800 aria-[current=page]:border-dissect-green-400 aria-[current=page]:text-dissect-green-800 lg:flex-none lg:px-5"
+          className="flex min-h-14 flex-1 items-center justify-center gap-1 border-b-2 border-transparent px-2 text-sm font-medium text-dissect-muted hover:text-dissect-green-800 aria-[current=page]:border-dissect-green-400 aria-[current=page]:text-dissect-green-800 sm:gap-2 sm:px-3 lg:flex-none lg:px-5"
         >
           {href === '/search' && <Search size={16} aria-hidden="true" />}
           {label}
