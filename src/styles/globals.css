@@ -1,0 +1,33 @@
+@import 'tailwindcss';
+@import './tokens.css';
+
+@layer base {
+  body {
+    @apply bg-dissect-paper font-sans text-dissect-ink antialiased;
+  }
+  button,
+  select,
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+  button,
+  select {
+    font: inherit;
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-dissect-green-600);
+    outline-offset: 4px;
+  }
+  ::selection {
+    background: var(--color-dissect-green-100);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation: none !important;
+      transition: none !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}

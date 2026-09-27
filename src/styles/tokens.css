@@ -1,0 +1,31 @@
+@theme {
+  --color-dissect-green-50: #e1f5ee;
+  --color-dissect-green-100: #9fe1cb;
+  --color-dissect-green-200: #5dcaa5;
+  --color-dissect-green-400: #1d9e75;
+  --color-dissect-green-600: #0f6e56;
+  --color-dissect-green-800: #085041;
+  --color-dissect-green-900: #04342c;
+  --color-dissect-paper: #f7f6f3;
+  --color-dissect-surface: #ffffff;
+  --color-dissect-border: #d5d4ce;
+  --color-dissect-subtle: #edecea;
+  --color-dissect-muted: #6b6a65;
+  --color-dissect-ink: #1a1917;
+  --color-dissect-red: #991b1b;
+  --color-dissect-red-soft: #fef2f2;
+  --color-dissect-amber: #92400e;
+  --color-dissect-amber-soft: #fffbeb;
+  --color-dissect-blue: #1e3a8a;
+  --color-dissect-blue-soft: #eff6ff;
+  --color-dissect-purple: #4c1d95;
+  --color-dissect-purple-soft: #f5f3ff;
+  --font-sans: 'DM Sans', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+  --radius-dissect-sm: 6px;
+  --radius-dissect-md: 10px;
+  --radius-dissect-lg: 16px;
+  --radius-dissect-xl: 22px;
+  --shadow-dissect-sm: 0 1px 3px rgb(0 0 0 / 6%), 0 1px 2px rgb(0 0 0 / 4%);
+  --shadow-dissect-md: 0 4px 12px rgb(0 0 0 / 8%);
+}
