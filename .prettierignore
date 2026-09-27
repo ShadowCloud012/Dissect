@@ -1,0 +1,9 @@
+node_modules
+.next
+package-lock.json
+next-env.d.ts
+playwright-report
+test-results
+AGENTS.md
+README.md
+CODEX_FIRST_TASK.md
