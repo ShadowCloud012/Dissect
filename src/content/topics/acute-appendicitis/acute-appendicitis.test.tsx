@@ -8,6 +8,38 @@ import { validateTopic } from '@/schemas/topic';
 import { acuteAppendicitis } from '.';
 
 beforeEach(() => localStorage.clear());
+it('preserves the audited source scopes and research metadata', () => {
+  const topic = validateTopic(acuteAppendicitis);
+  const blocks = topic.sections.flatMap((section) => section.blocks);
+  const block = (id: string) => blocks.find((item) => item.id === id);
+  expect(block('relevant-history')?.referenceIds).toEqual([
+    'appendicitis-textbook',
+  ]);
+  expect(block('anaesthetic-history')?.referenceIds).toEqual([
+    'nhs-anaesthesia',
+  ]);
+  expect(block('peritonitis-plan')?.referenceIds).toEqual([
+    'wses-source-control',
+    'nice-sepsis',
+  ]);
+  expect(JSON.stringify(block('abscess-options'))).toContain(
+    'paediatric patient information',
+  );
+  expect(JSON.stringify(block('abscess-options'))).toContain(
+    'adult management details remain a clinical-review TODO',
+  );
+  expect(JSON.stringify(block('complications-table'))).not.toMatch(
+    /decompression|transfusion|drainage/,
+  );
+  for (const id of ['mesoappendix', 'artery-question', 'base-question']) {
+    expect(block(id)?.referenceIds).toContain('appendectomy-textbook');
+  }
+  for (const id of ['wses-2025', 'appac-follow-up', 'cochrane-mri']) {
+    const reference = topic.references.find((item) => item.id === id);
+    expect(reference?.authors?.length).toBeGreaterThan(0);
+    expect(reference?.publication).toBeTruthy();
+  }
+});
 it('registers the ordered clinical topic, with complete reference linkage and twenty levelled questions', () => {
   const topic = validateTopic(acuteAppendicitis);
   expect(
@@ -78,6 +110,15 @@ it('shows one control, cumulative question depths, advanced reveal and no false 
       .length,
   ).toBeGreaterThan(0);
   const bank = within(screen.getByRole('region', { name: 'Hot Seat' }));
+  expect(screen.getByText('JAMA Surgery · 2026')).toBeInTheDocument();
+  expect(
+    screen.getByText(
+      /Source types describe the publication, not evidence certainty/,
+    ),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByText('Mauro Podda, Marco Ceresoli, Belinda De Simone'),
+  ).toBeInTheDocument();
   for (const [level, count] of [
     ['medical-student', 5],
     ['foundation', 10],

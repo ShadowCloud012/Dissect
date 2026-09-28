@@ -36,6 +36,20 @@ test('appendicitis discovery, editorial status, depth, navigation and sources', 
   await page.reload();
   await expect(selector).toHaveValue('registrar');
   await expect(bank.getByRole('heading', { level: 3 })).toHaveCount(20);
+  await expect(
+    page.getByText(
+      /Source types describe the publication, not evidence certainty/,
+    ),
+  ).toBeVisible();
+  await expect(page.locator('#reference-wses-2025')).toContainText(
+    'Mauro Podda, Marco Ceresoli, Belinda De Simone',
+  );
+  await page
+    .locator('#section-presentation')
+    .screenshot({ path: testInfo.outputPath('appendicitis-history.png') });
+  await page
+    .locator('#section-management')
+    .screenshot({ path: testInfo.outputPath('appendicitis-management.png') });
   await page.screenshot({
     path: testInfo.outputPath('appendicitis-registrar.png'),
     fullPage: true,

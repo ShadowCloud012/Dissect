@@ -1,5 +1,11 @@
 # Dissect development
 
+Task 03A audits claim-to-source scope without changing the content engine or
+review state. See [TASK_03A_REPORT.md](TASK_03A_REPORT.md) for corrections and
+validation. Reference `evidenceType` values describe source type, not evidence
+certainty or proof that a linked claim is supported. Each claim still needs
+editorial assessment against the actual source and named clinical review.
+
 Task 03 adds the first clinical draft, Acute appendicitis, to the Task 02 content
 engine. It remains explicitly awaiting clinical review. See
 [TASK_03_REPORT.md](TASK_03_REPORT.md) for the verified source list, architecture,

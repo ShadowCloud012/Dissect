@@ -11,7 +11,7 @@ export function ReferenceItem({ reference }: { reference: Reference }) {
       {reference.organisation && <p>{reference.organisation}</p>}
       {reference.authors && <p>{reference.authors.join(', ')}</p>}
       <p className="text-dissect-muted">
-        {reference.publication && `${reference.publication} Â· `}
+        {reference.publication && `${reference.publication} · `}
         {reference.year}
       </p>
       <p className="text-xs text-dissect-green-800">
