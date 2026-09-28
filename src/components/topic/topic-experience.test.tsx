@@ -20,42 +20,79 @@ it('renders grouped quick reference, led by theatre, with essentials at every le
   expect(groups).toEqual([
     'quick-snapshot',
     'quick-do-not-miss',
+    'quick-before-theatre',
     'quick-theatre',
     'quick-after-surgery',
   ]);
   const snapshot = within(
     screen.getByRole('region', { name: 'Clinical snapshot' }),
   );
-  // Verbatim authored "At a glance" answer, linked to its deeper page.
-  expect(
-    snapshot.getByText(
-      'Central abdominal pain moving to the right lower abdomen; the pattern is not universal.',
-    ),
-  ).toBeVisible();
+  // Overview names the "what" using verbatim extracts in labelled rows.
+  const row = (label: string) =>
+    snapshot.getByText(label, { selector: 'dt' }).nextElementSibling;
+  expect(row('Typical')).toHaveTextContent(
+    'Central abdominal pain moving to the right lower abdomen · The pattern is not universal',
+  );
+  expect(row('Bloods')).toHaveTextContent('FBC · CRP · U&Es and creatinine');
+  expect(row('Urine')).toHaveTextContent(
+    'Urine testing · Pregnancy testing when pregnancy is possible',
+  );
+  expect(row('Imaging')).toHaveTextContent('Ultrasound · CT · MRI');
+  expect(row('Options')).toHaveTextContent(
+    'Antibiotics alone can be an option in selected uncomplicated disease',
+  );
   expect(snapshot.getByRole('link', { name: /^Presentation/ })).toHaveAttribute(
     'href',
     '/learn/general-surgery/acute-appendicitis/assessment',
   );
-  // Sources appear once per group, not once per answer.
-  expect(snapshot.getAllByRole('link', { name: /^Source:/ })).toHaveLength(1);
+  // Sources from every extracted block stay reachable, listed once per group.
+  expect(snapshot.getByText(/^Sources · \d+$/)).toBeInTheDocument();
+  expect(
+    snapshot.getAllByRole('link', { name: /^Source: Cochrane MRI/ }),
+  ).toHaveLength(1);
   const alert = within(screen.getByRole('region', { name: 'Do not miss' }));
   // Foundation-level deterioration content is essential at every level.
   expect(
     alert.getByRole('heading', { name: /Do not miss deterioration/ }),
   ).toBeVisible();
+  const before = within(screen.getByRole('region', { name: 'Before theatre' }));
+  for (const label of ['Preparation', 'Consent discussion', 'Not yet covered'])
+    expect(
+      before.getByRole('heading', { name: new RegExp(`^${label}`) }),
+    ).toBeVisible();
+  // Missing pre-op content is an explicit editorial gap, not advice.
+  expect(before.getByText(/No fasting rule/)).toBeVisible();
   const theatre = within(
     screen.getByRole('region', { name: 'Going to theatre' }),
   );
   for (const label of [
     'Anatomy & landmarks',
-    'Danger areas',
     'The operation',
+    'Danger areas',
     'What can change the plan',
-    'Consent',
   ])
     expect(
       theatre.getByRole('heading', { name: new RegExp(`^${label}`) }),
     ).toBeVisible();
+  // The operative sequence stays sequential.
+  expect(
+    theatre.getAllByRole('listitem').filter((item) => item.closest('ol')),
+  ).toHaveLength(5);
+  const journey = within(
+    screen.getByRole('navigation', { name: 'Patient journey' }),
+  );
+  expect(journey.getAllByRole('link').map((link) => link.textContent)).toEqual([
+    'Assessment',
+    'Investigations',
+    'Decision',
+    'Pre-op',
+    'Theatre',
+    'Recovery',
+  ]);
+  expect(journey.getByRole('link', { name: 'Pre-op' })).toHaveAttribute(
+    'href',
+    '#quick-before-theatre',
+  );
   expect(theatre.getByRole('link', { name: /^Danger areas/ })).toHaveAttribute(
     'href',
     '/learn/general-surgery/acute-appendicitis/anatomy#block-structures-at-risk',
@@ -107,6 +144,41 @@ it('keeps depth cumulative on subpages and supports active recall with accessibl
     'href',
     '/learn/general-surgery/acute-appendicitis/evidence#reference-appendix-anatomy',
   );
+});
+it('keeps basic operative understanding universal and gates technical rows by depth', async () => {
+  const user = userEvent.setup();
+  render(
+    <>
+      <TrainingLevelSelector />
+      <TopicExperience topic={topic} />
+    </>,
+  );
+  const theatre = within(
+    screen.getByRole('region', { name: 'Going to theatre' }),
+  );
+  const row = (label: string) =>
+    theatre.getByText(label, { selector: 'dt' }).nextElementSibling;
+  // Universal: findings can change the approach; seek senior help.
+  expect(row('Findings')).toHaveTextContent(
+    'Poor visualisation or difficult anatomy may require a changed approach',
+  );
+  expect(row('Seek help')).toBeVisible();
+  // Conversion/strategy reasoning is CST depth, with a visible hint below it.
+  expect(row('Strategy')).toHaveTextContent('Further detail at CST depth');
+  expect(theatre.queryByText(/Device choice/)).not.toBeInTheDocument();
+  const after = within(
+    screen.getByRole('region', { name: 'After surgery · on the ward' }),
+  );
+  expect(
+    after.getByText('Antibiotics', { selector: 'dt' }).nextElementSibling,
+  ).toHaveTextContent('Further detail at FY1/2 depth');
+  await user.selectOptions(screen.getByRole('combobox'), 'cst');
+  expect(row('Strategy')).toHaveTextContent(
+    'Including conversion · Device choice and strategy depend on findings and expertise',
+  );
+  expect(
+    after.getByText('Antibiotics', { selector: 'dt' }).nextElementSibling,
+  ).toHaveTextContent('Distinguish prophylaxis from treatment');
 });
 it('keeps every subpage one tap away from the hub and exposes a quick-jump bar', () => {
   render(<TopicExperience topic={topic} />);

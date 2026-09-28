@@ -4,6 +4,7 @@ import { getCategory, specialties } from '@/content/specialties';
 import { validateTopic } from '@/schemas/topic';
 import {
   localPolicyEntries,
+  quickReferenceBlocks,
   resolveTopicPage,
   selectQuickReference,
   topicHref,
@@ -31,10 +32,12 @@ it('resolves subpages using original sections and selects blocks by identity', (
   expect(owned).toHaveLength(15);
   expect(new Set(owned).size).toBe(15);
   for (const section of owned) expect(topic.sections).toContain(section);
+  // Block entries and every extract resolve to the authored block objects.
   for (const entry of selectQuickReference(topic))
-    expect(topic.sections.flatMap((section) => section.blocks)).toContain(
-      entry.block,
-    );
+    for (const block of quickReferenceBlocks(entry))
+      expect(topic.sections.flatMap((section) => section.blocks)).toContain(
+        block,
+      );
   expect(resolveTopicPage(topic, 'missing')).toBeUndefined();
   expect(topicIndexEntries(topic)).toHaveLength(10);
   expect(
@@ -52,8 +55,12 @@ it('rejects dangling pages, duplicate ownership and invalid item selections', ()
   invalid.experience = structuredClone(topic.experience);
   invalid.experience!.pages[1].sectionIds.push('presentation');
   expect(() => validateTopic(invalid)).toThrow(/one subpage owner/);
+  const itemSelection = () =>
+    invalid.experience!.quickReference.find(
+      (selection) => 'itemIndex' in selection,
+    ) as { itemIndex?: number };
   invalid.experience = structuredClone(topic.experience);
-  invalid.experience!.quickReference[0].itemIndex = 99;
+  itemSelection().itemIndex = 99;
   expect(() => validateTopic(invalid)).toThrow(/item index/);
   invalid.experience = structuredClone(topic.experience);
   invalid.experience!.contexts[0].links[0].page = 'missing';
@@ -64,9 +71,26 @@ it('rejects dangling pages, duplicate ownership and invalid item selections', ()
   invalid.experience = structuredClone(topic.experience);
   invalid.experience!.quickReferenceGroups.push({ id: 'unused', title: 'X' });
   expect(() => validateTopic(invalid)).toThrow(/Empty quick-reference group/);
+  // at-a-glance has four rows, so row index 4 does not exist.
   invalid.experience = structuredClone(topic.experience);
-  invalid.experience!.quickReference[0].itemIndex = 4;
+  itemSelection().itemIndex = 4;
   expect(() => validateTopic(invalid)).toThrow(/item index/);
+  // Extracts must be verbatim fragments of their source block.
+  const extracts = () =>
+    invalid.experience!.quickReference.find((selection) => 'rows' in selection)!
+      .rows as { extracts: { text: string; blockId: string }[] }[];
+  invalid.experience = structuredClone(topic.experience);
+  extracts()[0].extracts[0].text = 'Pain always starts centrally';
+  expect(() => validateTopic(invalid)).toThrow(/not verbatim/);
+  invalid.experience = structuredClone(topic.experience);
+  extracts()[0].extracts[0].blockId = 'missing';
+  expect(() => validateTopic(invalid)).toThrow(/Unknown extract block/);
+  invalid.experience = structuredClone(topic.experience);
+  invalid.experience!.journey.push({ label: 'X', page: 'missing' });
+  expect(() => validateTopic(invalid)).toThrow(/Unknown journey page/);
+  invalid.experience = structuredClone(topic.experience);
+  invalid.experience!.journey.push({ label: 'X' });
+  expect(() => validateTopic(invalid)).toThrow(/needs a page or a group/);
   invalid.experience = structuredClone(topic.experience);
   invalid.experience!.related[0].page = 'missing';
   expect(() => validateTopic(invalid)).toThrow(/Unknown related page/);

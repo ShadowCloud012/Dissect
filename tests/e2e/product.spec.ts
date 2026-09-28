@@ -72,6 +72,24 @@ for (const width of [320, 375, 390, 430])
       }),
     ).toBeInViewport();
     await page.screenshot({ path: info.outputPath(`overview-${width}.png`) });
+    await page.screenshot({
+      path: info.outputPath(`overview-${width}-full.png`),
+      fullPage: true,
+    });
+    // The journey's Pre-op step jumps to the Before theatre group.
+    await page
+      .getByRole('navigation', { name: 'Patient journey' })
+      .getByRole('link', { name: 'Pre-op' })
+      .click();
+    await expect(
+      page.getByRole('heading', { name: /Before theatre/ }),
+    ).toBeInViewport();
+    info.annotations.push({
+      type: 'overview-height',
+      description: String(
+        await page.evaluate(() => document.documentElement.scrollHeight),
+      ),
+    });
     // One sticky row: quick jump plus the full page menu.
     const menu = page.getByRole('navigation', { name: 'Mobile topic pages' });
     await menu.locator('summary').click();
