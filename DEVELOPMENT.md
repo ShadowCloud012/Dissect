@@ -1,9 +1,10 @@
 # Dissect development
 
-Task 02 extends the Task 01 foundation with a validated, non-clinical topic demo
-and locally persisted training depth. See the Task 02 section below for current
-content authoring and architecture. Task 01 notes are retained as implementation
-history.
+Task 03 adds the first clinical draft, Acute appendicitis, to the Task 02 content
+engine. It remains explicitly awaiting clinical review. See
+[TASK_03_REPORT.md](TASK_03_REPORT.md) for the verified source list, architecture,
+schema changes, file inventory, validation results, inspected screenshots and
+required clinical review. Earlier task notes below are implementation history.
 
 ## Task 01 foundation
 
