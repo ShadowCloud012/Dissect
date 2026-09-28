@@ -5,6 +5,8 @@ import {
   OperativeStepList,
   ComplicationCards,
   ConsentPanel,
+  LabelledCards,
+  EscalationPoint,
 } from './surgical-patterns';
 import type { ContentBlock } from '@/schemas/content-block';
 import type { Reference } from '@/schemas/reference';
@@ -183,50 +185,120 @@ export function ContentRenderer({
   presentation?: BlockPresentation[];
   references: Reference[];
 }) {
+  const styleOf = (block: ContentBlock) =>
+    presentation.find((item) => item.blockId === block.id);
+  // Consecutive blocks that share a presentation group render as one grid.
+  const runs: { group?: string; blocks: ContentBlock[] }[] = [];
+  for (const block of blocks) {
+    const group = styleOf(block)?.group;
+    const last = runs.at(-1);
+    if (group && last?.group === group) last.blocks.push(block);
+    else runs.push({ group, blocks: [block] });
+  }
+  const renderBlock = (block: ContentBlock) => {
+    const style = styleOf(block);
+    return (
+      <LevelContent
+        key={block.id}
+        minimumLevel={block.minimumLevel}
+        anchorId={`block-${block.id}`}
+      >
+        <div
+          id={`block-${block.id}`}
+          className={`content-block space-y-2 text-base leading-7 wrap-break-word ${style ? `pattern-${style.variant}` : ''}`}
+        >
+          {style && style.label !== ownTitle(block) && (
+            <h3 className="block-label">{style.label}</h3>
+          )}
+          <StyledBody
+            block={block}
+            style={style}
+            references={references}
+            evidenceHref={evidenceHref}
+          />
+          {block.localPolicyMayVary && (
+            <p className="text-sm font-medium text-dissect-amber">
+              Local policy may vary.
+            </p>
+          )}
+          {block.referenceIds.length > 0 && (
+            <Sources
+              ids={block.referenceIds}
+              references={references}
+              evidenceHref={evidenceHref}
+            />
+          )}
+        </div>
+      </LevelContent>
+    );
+  };
   return (
     <div className="space-y-6">
-      {blocks.map((block) => {
-        const style = presentation.find((item) => item.blockId === block.id);
-        return (
-          <LevelContent key={block.id} minimumLevel={block.minimumLevel}>
-            <div
-              id={`block-${block.id}`}
-              className={`content-block space-y-2 text-base leading-7 wrap-break-word ${style ? `pattern-${style.variant}` : ''}`}
-            >
-              {style && <h3 className="block-label">{style.label}</h3>}
-              {style?.variant === 'steps' && block.type === 'checklist' ? (
-                <OperativeStepList
-                  items={block.items}
-                  labels={style.itemLabels}
-                />
-              ) : style?.variant === 'consent' && block.type === 'checklist' ? (
-                <ConsentPanel items={block.items} labels={style.itemLabels} />
-              ) : style?.variant === 'complications' &&
-                block.type === 'table' ? (
-                <ComplicationCards block={block} />
-              ) : (
-                <BlockBody
-                  block={block}
-                  references={references}
-                  evidenceHref={evidenceHref}
-                />
-              )}
-              {block.localPolicyMayVary && (
-                <p className="text-sm font-medium text-dissect-amber">
-                  Local policy may vary.
-                </p>
-              )}
-              {block.referenceIds.length > 0 && (
-                <Sources
-                  ids={block.referenceIds}
-                  references={references}
-                  evidenceHref={evidenceHref}
-                />
-              )}
+      {runs.map((run) =>
+        run.group ? (
+          <div
+            key={run.blocks[0].id}
+            role="group"
+            aria-label={run.group}
+            className="block-group"
+          >
+            <p className="eyebrow" aria-hidden="true">
+              {run.group}
+            </p>
+            <div className="block-group-grid">
+              {run.blocks.map(renderBlock)}
             </div>
-          </LevelContent>
-        );
-      })}
+          </div>
+        ) : (
+          run.blocks.map(renderBlock)
+        ),
+      )}
     </div>
+  );
+}
+function ownTitle(block: ContentBlock) {
+  if (block.type === 'definition') return block.term;
+  return 'title' in block ? block.title : undefined;
+}
+function StyledBody({
+  block,
+  style,
+  references,
+  evidenceHref,
+}: {
+  block: ContentBlock;
+  style?: BlockPresentation;
+  evidenceHref?: string;
+  references: Reference[];
+}) {
+  switch (style?.variant) {
+    case 'steps':
+      if (block.type === 'checklist')
+        return (
+          <OperativeStepList items={block.items} labels={style.itemLabels} />
+        );
+      break;
+    case 'consent':
+      if (block.type === 'checklist')
+        return <ConsentPanel items={block.items} labels={style.itemLabels} />;
+      break;
+    case 'complications':
+      if (block.type === 'table') return <ComplicationCards block={block} />;
+      break;
+    case 'cards':
+      if ('items' in block && style.itemLabels)
+        return <LabelledCards items={block.items} labels={style.itemLabels} />;
+      break;
+    case 'escalation':
+      if (block.type === 'warning')
+        return <EscalationPoint title={block.title} text={block.text} />;
+      break;
+  }
+  return (
+    <BlockBody
+      block={block}
+      references={references}
+      evidenceHref={evidenceHref}
+    />
   );
 }

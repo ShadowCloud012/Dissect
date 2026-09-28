@@ -1,6 +1,13 @@
 'use client';
 
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+} from 'react';
 import {
   canShowContent,
   defaultTrainingLevel,
@@ -47,13 +54,47 @@ export function TrainingLevelSummary() {
     </p>
   );
 }
+function subscribeToHash(callback: () => void) {
+  window.addEventListener('hashchange', callback);
+  window.addEventListener('popstate', callback);
+  return () => {
+    window.removeEventListener('hashchange', callback);
+    window.removeEventListener('popstate', callback);
+  };
+}
+function useHash() {
+  return useSyncExternalStore(
+    subscribeToHash,
+    () => window.location.hash,
+    () => '',
+  );
+}
 export function LevelContent({
   minimumLevel,
+  anchorId,
   children,
 }: {
   minimumLevel: TrainingLevel;
+  // A direct link to this anchor reveals it even above the selected depth.
+  anchorId?: string;
   children: ReactNode;
 }) {
   const { level, showAdvanced } = useContext(DepthContext);
-  return canShowContent(level, minimumLevel, showAdvanced) ? children : null;
+  const hash = useHash();
+  const allowed = canShowContent(level, minimumLevel, showAdvanced);
+  const linked = !allowed && !!anchorId && hash === `#${anchorId}`;
+  useEffect(() => {
+    if (linked) document.getElementById(anchorId!)?.scrollIntoView();
+  }, [linked, anchorId]);
+  if (allowed) return children;
+  if (!linked) return null;
+  return (
+    <div className="linked-depth">
+      <p className="eyebrow">
+        Shown from a direct link · above your selected depth (
+        {trainingLevels.find((entry) => entry.id === minimumLevel)!.label})
+      </p>
+      {children}
+    </div>
+  );
 }

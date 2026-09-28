@@ -32,7 +32,8 @@ export function OperativeStepList({
     <ol className="operative-steps">
       {items.map((item, index) => (
         <li key={item}>
-          <span className="step-number" aria-hidden="true">
+          <span className="step-number">
+            <span className="sr-only">Step </span>
             {String(index + 1).padStart(2, '0')}
           </span>
           <details open>
@@ -46,22 +47,66 @@ export function OperativeStepList({
     </ol>
   );
 }
+// Labelled cards for authored list items (e.g. history categories, structures).
+export function LabelledCards({
+  items,
+  labels,
+}: {
+  items: string[];
+  labels: string[];
+}) {
+  return (
+    <dl className="labelled-cards">
+      {items.map((item, index) => (
+        <div key={item}>
+          <dt className="eyebrow">{labels[index]}</dt>
+          <dd className="mt-1">{item}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+export function EscalationPoint({
+  title,
+  text,
+}: {
+  title: string;
+  text: string;
+}) {
+  return (
+    <div className="escalation-point">
+      <p className="escalation-flag">
+        <span aria-hidden="true">!</span> Escalate
+      </p>
+      <p className="font-semibold">{title}</p>
+      <p>{text}</p>
+    </div>
+  );
+}
 export function ComplicationCards({
   block,
 }: {
   block: Extract<ContentBlock, { type: 'table' }>;
 }) {
+  const [, ...detailColumns] = block.columns;
   return (
     <div>
       <p className="mb-4 text-sm text-dissect-muted">{block.caption}</p>
-      <dl className="complication-grid">
-        {block.rows.map(([name, description]) => (
-          <div key={name}>
-            <dt className="font-semibold">{name}</dt>
-            <dd className="mt-2 text-sm leading-6">{description}</dd>
-          </div>
+      <ul className="complication-grid">
+        {block.rows.map(([name, ...details]) => (
+          <li key={name}>
+            <h4 className="font-semibold">{name}</h4>
+            <dl>
+              {details.map((detail, index) => (
+                <div key={detailColumns[index]} className="mt-2">
+                  <dt className="eyebrow">{detailColumns[index]}</dt>
+                  <dd className="mt-1 text-sm leading-6">{detail}</dd>
+                </div>
+              ))}
+            </dl>
+          </li>
         ))}
-      </dl>
+      </ul>
     </div>
   );
 }
@@ -88,5 +133,48 @@ export function ConsentPanel({
         </li>
       ))}
     </ol>
+  );
+}
+type PathwayNode = { label: string; href: string; depth?: string };
+// Semantic, link-based overview: it orients readers to authored content and
+// never states recommendations of its own.
+export function DecisionPathway({
+  id,
+  title,
+  caption,
+  steps,
+  branches,
+}: {
+  id: string;
+  title: string;
+  caption: string;
+  steps: PathwayNode[];
+  branches: PathwayNode[];
+}) {
+  const node = ({ label, href, depth }: PathwayNode) => (
+    <a href={href}>
+      <span>{label}</span>
+      {depth && <span className="pathway-depth">{depth}</span>}
+    </a>
+  );
+  return (
+    <figure className="decision-pathway" aria-labelledby={`pathway-${id}`}>
+      <figcaption>
+        <h2 id={`pathway-${id}`} className="text-lg font-semibold">
+          {title}
+        </h2>
+        <p className="mt-1 text-sm text-dissect-muted">{caption}</p>
+      </figcaption>
+      <ol className="pathway-steps">
+        {steps.map((step) => (
+          <li key={step.href}>{node(step)}</li>
+        ))}
+      </ol>
+      <ul className="pathway-branches" aria-label="Situations covered below">
+        {branches.map((branch) => (
+          <li key={branch.href}>{node(branch)}</li>
+        ))}
+      </ul>
+    </figure>
   );
 }
