@@ -3,6 +3,7 @@ import { topicRegistry } from '@/content/registry';
 import { getCategory, specialties } from '@/content/specialties';
 import { validateTopic } from '@/schemas/topic';
 import {
+  localPolicyEntries,
   resolveTopicPage,
   selectQuickReference,
   topicHref,
@@ -57,4 +58,39 @@ it('rejects dangling pages, duplicate ownership and invalid item selections', ()
   invalid.experience = structuredClone(topic.experience);
   invalid.experience!.contexts[0].links[0].page = 'missing';
   expect(() => validateTopic(invalid)).toThrow(/Unknown related page/);
+  invalid.experience = structuredClone(topic.experience);
+  invalid.experience!.related[0].page = 'missing';
+  expect(() => validateTopic(invalid)).toThrow(/Unknown related page/);
+  invalid.experience = structuredClone(topic.experience);
+  invalid.experience!.pathways[0].branches[0].blockId = 'symptom-pattern';
+  expect(() => validateTopic(invalid)).toThrow(/belong to its page/);
+  invalid.experience = structuredClone(topic.experience);
+  delete invalid.experience!.presentation.find(
+    (item) => item.variant === 'cards',
+  )!.itemLabels;
+  expect(() => validateTopic(invalid)).toThrow(/Cards require/);
+});
+it('exposes quick-jump pages and locates every local-policy block on its owning page', () => {
+  expect(
+    topic.experience!.pages.filter((page) => page.quickJump).map((p) => p.slug),
+  ).toEqual([
+    'assessment',
+    'investigations',
+    'management',
+    'appendicectomy',
+    'complications',
+  ]);
+  const entries = localPolicyEntries(topic);
+  const flagged = topic.sections
+    .flatMap((section) => section.blocks)
+    .filter((block) => block.localPolicyMayVary);
+  expect(entries.map((entry) => entry.anchor)).toEqual(
+    flagged.map((block) => `block-${block.id}`),
+  );
+  for (const entry of entries) {
+    const owned = resolveTopicPage(topic, entry.page.slug)!.sections.flatMap(
+      (section) => section.blocks.map((block) => `block-${block.id}`),
+    );
+    expect(owned).toContain(entry.anchor);
+  }
 });

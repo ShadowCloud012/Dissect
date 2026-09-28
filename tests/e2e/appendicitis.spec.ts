@@ -32,23 +32,34 @@ test('specialty browsing, canonical discovery and all topic routes', async ({
   await page.getByRole('link', { name: /Specialty General Surgery/ }).click();
   await expect(page).toHaveURL('/learn/general-surgery');
   await page.reload();
-  for (const category of [
-    'Emergency General Surgery',
-    'Colorectal',
-    'All topics',
+  const categories = page.getByRole('navigation', {
+    name: 'Topic categories',
+  });
+  for (const [category, query] of [
+    ['Emergency General Surgery', '?category=emergency-general-surgery'],
+    ['Colorectal', '?category=colorectal'],
+    ['All topics', ''],
   ]) {
-    const button = page.getByRole('button', { name: new RegExp(category) });
-    await button.click();
-    await expect(button).toHaveAttribute('aria-pressed', 'true');
+    const link = categories.getByRole('link', { name: new RegExp(category) });
+    await link.click();
+    await expect(page).toHaveURL(`/learn/general-surgery${query}`);
+    // Category views are real URLs that survive a refresh.
+    await page.reload();
+    await expect(link).toHaveAttribute('aria-current', 'true');
     await expect(
-      page.getByRole('link', { name: /Acute appendicitis/ }),
+      page
+        .getByRole('region', { name: 'Available topics' })
+        .getByRole('link', { name: /Acute appendicitis/ }),
     ).toHaveAttribute('href', base);
   }
   await page.screenshot({
     path: info.outputPath('specialty.png'),
     fullPage: true,
   });
-  await page.getByRole('link', { name: /Acute appendicitis/ }).click();
+  await page
+    .getByRole('region', { name: 'Available topics' })
+    .getByRole('link', { name: /Acute appendicitis/ })
+    .click();
   await expect(page).toHaveURL(base);
   await expect(
     page.getByRole('heading', { name: 'Quick reference' }),
@@ -109,7 +120,7 @@ test('specialty browsing, canonical discovery and all topic routes', async ({
     .click();
   await expect(page).toHaveURL(base);
   await page
-    .getByRole('link', { name: /Source: Appendicitis/, exact: true })
+    .getByRole('link', { name: /^Source: NHS overview/ })
     .first()
     .click();
   await expect(page).toHaveURL(`${base}/evidence#reference-nhs-appendicitis`);
@@ -178,6 +189,20 @@ test('mobile quick navigation, depth, keyboard recall and operative disclosures'
         fullPage: true,
       });
   }
+  await page.goto(base);
+  const quickJump = page.getByRole('navigation', { name: 'Quick jump' });
+  await quickJump.getByRole('link', { name: 'Manage', exact: true }).click();
+  await expect(page).toHaveURL(`${base}/management`);
+  await expect(
+    quickJump.getByRole('link', { name: 'Manage', exact: true }),
+  ).toHaveAttribute('aria-current', 'page');
+  // A pathway link to content above the selected depth reveals that block.
+  await page
+    .getByRole('figure', { name: 'How the management content fits together' })
+    .getByRole('link', { name: /Mass or abscess/ })
+    .click();
+  await expect(page).toHaveURL(`${base}/management#block-abscess-options`);
+  await expect(page.getByText(/appendiceal mass is treated/)).toBeInViewport();
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page
     .getByRole('navigation', { name: 'Mobile topic pages', exact: true })

@@ -62,6 +62,89 @@ it('keeps depth cumulative on subpages and supports active recall with accessibl
     '/learn/general-surgery/acute-appendicitis/evidence#reference-appendix-anatomy',
   );
 });
+it('links the hub to every subpage, related content and a quick-jump bar', () => {
+  render(<TopicExperience topic={topic} />);
+  const directory = within(
+    screen.getByRole('navigation', { name: 'Go deeper' }),
+  );
+  for (const page of topic.experience!.pages)
+    expect(
+      directory.getByRole('link', { name: new RegExp(`^${page.title}`) }),
+    ).toHaveAttribute(
+      'href',
+      `/learn/general-surgery/acute-appendicitis/${page.slug}`,
+    );
+  const related = within(
+    screen.getByRole('region', { name: 'Related' }),
+  ).getAllByRole('link');
+  expect(related.map((link) => link.getAttribute('href'))).toEqual(
+    topic.experience!.related.map(
+      (item) => `/learn/general-surgery/acute-appendicitis/${item.page}`,
+    ),
+  );
+  const jump = within(screen.getByRole('navigation', { name: 'Quick jump' }));
+  expect(jump.getAllByRole('link').map((link) => link.textContent)).toEqual([
+    'Overview',
+    'Assess',
+    'Investigate',
+    'Manage',
+    'Operate',
+    'Complications',
+  ]);
+  expect(jump.getByRole('link', { name: 'Overview' })).toHaveAttribute(
+    'aria-current',
+    'page',
+  );
+});
+it('renders a linked management pathway and reveals deep-linked advanced blocks', () => {
+  window.location.hash = '#block-abscess-options';
+  const { unmount } = render(
+    <TopicExperience topic={topic} pageSlug="management" />,
+  );
+  const pathway = within(
+    screen.getByRole('figure', {
+      name: 'How the management content fits together',
+    }),
+  );
+  expect(
+    pathway.getByRole('link', { name: /Mass or abscess/ }),
+  ).toHaveAttribute('href', '#block-abscess-options');
+  expect(
+    pathway.getByRole('link', { name: /Mass or abscess/ }),
+  ).toHaveTextContent('Registrar depth');
+  // Registrar block is above the default depth, but the direct link reveals it.
+  expect(screen.getByText(/appendiceal mass is treated/)).toBeVisible();
+  expect(screen.getByText(/Shown from a direct link/)).toBeVisible();
+  expect(screen.queryByText(/APPAC studied/)).not.toBeInTheDocument();
+  unmount();
+  window.location.hash = '';
+});
+it('groups investigations and imaging modalities', () => {
+  render(<TopicExperience topic={topic} pageSlug="investigations" />);
+  const imaging = within(
+    screen.getByRole('group', { name: 'Imaging modalities' }),
+  );
+  // The definition term already names this block, so no duplicate label.
+  expect(imaging.getAllByText('Ultrasound')).toHaveLength(1);
+  expect(imaging.getByRole('heading', { name: 'MRI' })).toBeVisible();
+  expect(
+    screen.getByRole('group', { name: 'Bloods & urine' }),
+  ).toBeInTheDocument();
+});
+it('lists local-policy content on the evidence page with deep links', () => {
+  render(<TopicExperience topic={topic} pageSlug="evidence" />);
+  const list = within(
+    screen.getByRole('region', {
+      name: 'Content that may vary by local policy',
+    }),
+  );
+  expect(
+    list.getByRole('link', { name: /Follow the applicable policy/ }),
+  ).toHaveAttribute(
+    'href',
+    '/learn/general-surgery/acute-appendicitis/management#block-antimicrobial-policy',
+  );
+});
 it('preserves draft status and exposes the bibliography on its own page', () => {
   render(<TopicExperience topic={topic} pageSlug="evidence" />);
   expect(screen.getByRole('heading', { name: 'References' })).toBeVisible();
