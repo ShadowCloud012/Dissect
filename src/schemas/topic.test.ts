@@ -14,9 +14,11 @@ describe('topic validation', () => {
   });
   it('reports malformed content with source and field path', () => {
     const topic = fixture();
-    topic.metadata.lastClinicallyReviewed = '2026-02-30';
+    if (topic.metadata.contentKind !== 'non-clinical-demo')
+      throw new Error('Expected demo');
+    topic.metadata.demoReviewedAt = '2026-02-30';
     expect(() => validateTopic(topic, 'broken-fixture.ts')).toThrow(
-      /broken-fixture.ts:[\s\S]*metadata.lastClinicallyReviewed/,
+      /broken-fixture.ts:[\s\S]*metadata.demoReviewedAt/,
     );
   });
   it('rejects unknown fields rather than silently stripping them', () => {

@@ -4,6 +4,7 @@ import { createContext, useContext, useState, type ReactNode } from 'react';
 import {
   canShowContent,
   defaultTrainingLevel,
+  trainingLevels,
   type TrainingLevel,
 } from '@/lib/training-level';
 import { useTrainingLevel } from '@/components/navigation/use-training-level';
@@ -20,7 +21,7 @@ export function TopicDepth({ children }: { children: ReactNode }) {
     <DepthContext value={{ level, showAdvanced }}>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-dissect-border pb-5">
         <p className="max-w-lg text-sm text-dissect-muted">
-          Training level changes depth, not factual truth. Higher-level examples
+          Training level changes depth, not factual truth. Higher-level content
           remain available.
         </p>
         <Button
@@ -32,6 +33,18 @@ export function TopicDepth({ children }: { children: ReactNode }) {
       </div>
       {children}
     </DepthContext>
+  );
+}
+export function TrainingLevelSummary() {
+  const { level } = useTrainingLevel();
+  return (
+    <p className="text-sm text-dissect-muted">
+      Current depth:{' '}
+      <span className="font-medium text-dissect-text">
+        {trainingLevels.find((entry) => entry.id === level)!.label}
+      </span>
+      . Change this in the header or reveal advanced content.
+    </p>
   );
 }
 export function LevelContent({

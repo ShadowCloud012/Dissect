@@ -13,7 +13,7 @@ export const howDissectContentWorks = {
     category: 'Platform guide',
     summary:
       'A non-clinical demonstration of structured sections, learning depth and source access.',
-    lastClinicallyReviewed: '2026-09-28',
+    demoReviewedAt: '2026-09-28',
     keywords: ['demo', 'content', 'references'],
     aliases: ['Content engine demo'],
     contentKind: 'non-clinical-demo',

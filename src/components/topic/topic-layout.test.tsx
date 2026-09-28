@@ -3,13 +3,17 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, expect, it } from 'vitest';
 import { topicRegistry } from '@/content/registry';
 import { TopicLayout } from './topic-layout';
+import { TrainingLevelSelector } from '@/components/navigation/training-level-selector';
 beforeEach(() => localStorage.clear());
 it('renders two depths, reveals advanced blocks and claims, and links sources', async () => {
   const user = userEvent.setup();
   render(
-    <TopicLayout
-      topic={topicRegistry.getTopic('demo', 'how-dissect-content-works')!}
-    />,
+    <>
+      <TrainingLevelSelector />
+      <TopicLayout
+        topic={topicRegistry.getTopic('demo', 'how-dissect-content-works')!}
+      />
+    </>,
   );
   expect(screen.getByText('Structured topic')).toBeVisible();
   expect(

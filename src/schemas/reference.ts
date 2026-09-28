@@ -8,12 +8,14 @@ export const evidenceTypes = [
   'expert-consensus',
   'textbook',
   'local-policy',
+  'patient-information',
 ] as const;
 export const referenceSchema = z.strictObject({
   id: stableIdSchema,
   organisation: textSchema.optional(),
   authors: z.array(textSchema).min(1).optional(),
   title: textSchema,
+  shortTitle: textSchema.optional(),
   publication: textSchema.optional(),
   year: z.number().int().min(1).max(9999),
   url: z.url({ protocol: /^https?$/ }).optional(),

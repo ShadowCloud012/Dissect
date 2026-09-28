@@ -32,6 +32,16 @@ function BlockBody({
   references: Reference[];
 }): ReactNode {
   switch (block.type) {
+    case 'question':
+      return (
+        <div>
+          <h3 className="font-semibold">{block.question}</h3>
+          <p className="mt-2">
+            <span className="font-medium">Model answer: </span>
+            {block.answer}
+          </p>
+        </div>
+      );
     case 'prose':
       return (
         <div className="space-y-3">
@@ -163,6 +173,11 @@ export function ContentRenderer({
             className="space-y-2 text-base leading-7 wrap-break-word"
           >
             <BlockBody block={block} references={references} />
+            {block.localPolicyMayVary && (
+              <p className="text-sm font-medium text-dissect-amber">
+                Local policy may vary.
+              </p>
+            )}
             {block.referenceIds.length > 0 && (
               <Sources ids={block.referenceIds} references={references} />
             )}

@@ -6,8 +6,16 @@ const common = {
   id: stableIdSchema,
   minimumLevel: trainingLevelSchema,
   referenceIds: z.array(stableIdSchema).default([]),
+  localPolicyMayVary: z.boolean().optional(),
 };
 export const contentBlockSchema = z.discriminatedUnion('type', [
+  z.strictObject({
+    ...common,
+    type: z.literal('question'),
+    question: textSchema,
+    answer: textSchema,
+    referenceIds: z.array(stableIdSchema).min(1),
+  }),
   z.strictObject({
     ...common,
     type: z.literal('prose'),

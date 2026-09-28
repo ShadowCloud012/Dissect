@@ -1,10 +1,10 @@
 import type { Topic } from '@/schemas/topic';
 import { ContentRenderer } from '@/components/content/content-renderer';
 import { ReferenceList } from '@/components/references/reference-list';
-import { TrainingLevelSelector } from '@/components/navigation/training-level-selector';
 import { Badge } from '@/components/ui/badge';
 import { SectionNav } from './section-nav';
-import { TopicDepth } from './topic-depth';
+import { TopicDepth, TrainingLevelSummary } from './topic-depth';
+import { EditorialStatus } from './editorial-status';
 
 export function TopicLayout({ topic }: { topic: Topic }) {
   const { metadata, sections, references } = topic;
@@ -22,9 +22,14 @@ export function TopicLayout({ topic }: { topic: Topic }) {
         <p className="mt-3 text-lg leading-8 text-dissect-muted">
           {metadata.summary}
         </p>
+        {metadata.contentKind === 'clinical' && (
+          <div className="mt-5">
+            <EditorialStatus metadata={metadata} />
+          </div>
+        )}
       </header>
       <div className="grid min-w-0 gap-8 lg:grid-cols-[180px_minmax(0,1fr)_260px]">
-        <div>
+        <div className="self-start lg:sticky lg:top-6 lg:max-h-[calc(100dvh-3rem)] lg:overflow-y-auto">
           <p className="mb-2 font-mono text-xs text-dissect-muted">
             ON THIS PAGE
           </p>
@@ -65,6 +70,11 @@ export function TopicLayout({ topic }: { topic: Topic }) {
                     references={references}
                   />
                 </div>
+                {section.showReferences && (
+                  <div className="mt-6">
+                    <ReferenceList references={references} />
+                  </div>
+                )}
               </section>
             ))}
           </TopicDepth>
@@ -73,17 +83,18 @@ export function TopicLayout({ topic }: { topic: Topic }) {
           aria-label="Topic context"
           className="min-w-0 space-y-6 border-t border-dissect-border pt-6 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-5"
         >
-          <TrainingLevelSelector />
-          <p className="text-xs leading-6 text-dissect-muted">
-            {metadata.contentKind === 'non-clinical-demo'
-              ? 'Demo review date (not a clinical review)'
-              : 'Last clinically reviewed'}
-            <br />
-            <time dateTime={metadata.lastClinicallyReviewed}>
-              {metadata.lastClinicallyReviewed}
-            </time>
-          </p>
-          <ReferenceList references={references} />
+          <TrainingLevelSummary />
+          {metadata.contentKind === 'non-clinical-demo' && (
+            <EditorialStatus metadata={metadata} />
+          )}
+          {sections.some((section) => section.showReferences) ? (
+            <p className="text-sm leading-6 text-dissect-muted">
+              Sources are linked beside the content. Full details and editorial
+              limitations appear in Evidence and references.
+            </p>
+          ) : (
+            <ReferenceList references={references} />
+          )}
         </aside>
       </div>
     </article>
