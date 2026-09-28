@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { specialties } from '@/content/specialties';
 import { topicRegistry } from '@/content/registry';
+import { UpcomingSpecialties } from '@/components/navigation/upcoming-specialties';
 export const metadata = { title: 'Learn' };
 export default function LearnPage() {
   return (
@@ -8,8 +9,8 @@ export default function LearnPage() {
       <p className="eyebrow">Dissect / Surgical reference</p>
       <h1 className="browse-title">Learn</h1>
       <p className="browse-intro">
-        Start with your specialty. Move from the clinical question to the
-        operation, the evidence and the next thing to revise.
+        Start with your specialty. Move from the patient in front of you to the
+        operation — its anatomy, steps and decisions — and the care after it.
       </p>
       <div className="mt-10 border-t border-dissect-border">
         {specialties
@@ -31,7 +32,7 @@ export default function LearnPage() {
                   {topicRegistry.countTopics(specialty.slug) === 1
                     ? 'topic'
                     : 'topics'}{' '}
-                  · Reference, operative learning &amp; revision
+                  · Clinical reference &amp; operative understanding
                 </p>
               </div>
               <span aria-hidden="true" className="text-2xl">
@@ -40,9 +41,7 @@ export default function LearnPage() {
             </Link>
           ))}
       </div>
-      <p className="mt-8 text-sm text-dissect-muted">
-        More specialties will be added as reviewed content becomes available.
-      </p>
+      <UpcomingSpecialties />
       <details className="mt-12 text-sm">
         <summary className="disclosure-trigger">
           About the content format

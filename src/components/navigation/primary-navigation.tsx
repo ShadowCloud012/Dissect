@@ -2,22 +2,15 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Search } from 'lucide-react';
 
-const links = [
-  { href: '/learn', label: 'Learn' },
-  { href: '/practice', label: 'Practice' },
-  { href: '/theatre', label: 'Theatre' },
-  { href: '/search', label: 'Search' },
-];
+// Only working product areas. Practice, Theatre and Search keep their
+// placeholder routes but return here once they are built.
+const links = [{ href: '/learn', label: 'Learn' }];
 
 export function PrimaryNavigation() {
   const pathname = usePathname();
   return (
-    <nav
-      aria-label="Primary"
-      className="flex w-full border-t border-dissect-subtle lg:w-auto lg:border-t-0"
-    >
+    <nav aria-label="Primary" className="flex self-stretch">
       {links.map(({ href, label }) => (
         <Link
           key={href}
@@ -27,9 +20,8 @@ export function PrimaryNavigation() {
               ? 'page'
               : undefined
           }
-          className="flex min-h-14 flex-1 items-center justify-center gap-1 border-b-2 border-transparent px-2 text-sm font-medium text-dissect-muted hover:text-dissect-green-800 aria-[current=page]:border-dissect-green-400 aria-[current=page]:text-dissect-green-800 sm:gap-2 sm:px-3 lg:flex-none lg:px-5"
+          className="flex items-center border-b-2 border-transparent px-3 text-sm font-medium text-dissect-muted hover:text-dissect-green-800 aria-[current=page]:border-dissect-green-400 aria-[current=page]:text-dissect-green-800 lg:px-5"
         >
-          {href === '/search' && <Search size={16} aria-hidden="true" />}
           {label}
         </Link>
       ))}

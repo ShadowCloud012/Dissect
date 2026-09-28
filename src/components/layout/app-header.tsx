@@ -5,18 +5,20 @@ import { TrainingLevelSelector } from '@/components/navigation/training-level-se
 export function AppHeader() {
   return (
     <header className="border-b border-dissect-border bg-dissect-surface">
-      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-4 px-4 sm:px-8 lg:flex-nowrap">
+      <div className="mx-auto flex min-h-14 max-w-7xl items-stretch gap-x-2 px-4 sm:gap-x-6 sm:px-8 lg:min-h-16">
         <Link
           href="/"
           aria-label="Dissect home"
-          className="flex min-h-16 items-center text-2xl font-semibold tracking-tight"
+          className="flex items-center text-xl font-semibold tracking-tight sm:text-2xl"
         >
           Dis<span className="text-dissect-green-600">sect</span>
         </Link>
-        <div className="order-3 w-full lg:order-none lg:w-auto">
+        <div className="flex flex-1">
           <PrimaryNavigation />
         </div>
-        <TrainingLevelSelector />
+        <div className="flex items-center">
+          <TrainingLevelSelector />
+        </div>
       </div>
     </header>
   );

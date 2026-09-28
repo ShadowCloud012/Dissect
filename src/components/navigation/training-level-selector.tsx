@@ -9,7 +9,8 @@ export function TrainingLevelSelector() {
   const id = useId();
   return (
     <div className="flex flex-wrap items-center gap-2 text-xs">
-      <label htmlFor={id} className="text-dissect-muted">
+      <label htmlFor={id} className="sr-only text-dissect-muted sm:not-sr-only">
+        {/* Visually hidden on narrow screens; still the select's name. */}
         Training level
       </label>
       <select
@@ -18,7 +19,7 @@ export function TrainingLevelSelector() {
         onChange={(event) => {
           if (isTrainingLevel(event.target.value)) setLevel(event.target.value);
         }}
-        className="min-h-11 max-w-full rounded-dissect-sm border border-dissect-border bg-dissect-surface px-3 text-sm text-dissect-green-800"
+        className="min-h-11 max-w-full rounded-dissect-sm border border-dissect-border bg-dissect-surface px-2 text-sm text-dissect-green-800 sm:px-3"
       >
         {trainingLevels.map(({ id, label }) => (
           <option key={id} value={id}>
