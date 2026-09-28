@@ -14,7 +14,7 @@ export function TopicLayout({ topic }: { topic: Topic }) {
         <Badge>
           {metadata.contentKind === 'non-clinical-demo'
             ? 'NON-CLINICAL DEMO'
-            : metadata.category}
+            : metadata.categories.join(' / ')}
         </Badge>
         <h1 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
           {metadata.title}

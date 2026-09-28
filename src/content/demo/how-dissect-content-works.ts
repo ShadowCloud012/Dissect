@@ -10,7 +10,7 @@ export const howDissectContentWorks = {
     slug: 'how-dissect-content-works',
     title: 'How Dissect content works',
     specialty: 'demo',
-    category: 'Platform guide',
+    categories: ['platform-guide'],
     summary:
       'A non-clinical demonstration of structured sections, learning depth and source access.',
     demoReviewedAt: '2026-09-28',

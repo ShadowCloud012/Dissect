@@ -4,6 +4,7 @@ import { managementSections } from './management';
 import { operativeCareSections } from './operative-care';
 import { questionsEvidenceSections } from './questions-evidence';
 import { references } from './references';
+import { experience } from './experience';
 
 export const acuteAppendicitis = {
   metadata: {
@@ -11,7 +12,7 @@ export const acuteAppendicitis = {
     slug: 'acute-appendicitis',
     title: 'Acute appendicitis',
     specialty: 'general-surgery',
-    category: 'Emergency General Surgery',
+    categories: ['emergency-general-surgery', 'colorectal'],
     summary:
       'Assessment, management and operative understanding, with UK sources and progressively deeper learning.',
     keywords: [
@@ -38,4 +39,5 @@ export const acuteAppendicitis = {
     ...questionsEvidenceSections,
   ],
   references,
+  experience,
 } satisfies Topic;

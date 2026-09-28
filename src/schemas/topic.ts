@@ -2,13 +2,17 @@ import { z } from 'zod';
 import { contentBlockSchema } from './content-block';
 import { referenceSchema } from './reference';
 import { dateSchema, stableIdSchema, textSchema } from './shared';
+import { topicExperienceSchema } from './topic-experience';
 
 const metadataFields = {
   id: stableIdSchema,
   slug: stableIdSchema,
   title: textSchema,
   specialty: stableIdSchema,
-  category: textSchema,
+  categories: z
+    .array(stableIdSchema)
+    .min(1)
+    .refine((ids) => new Set(ids).size === ids.length, 'Duplicate category ID'),
   summary: textSchema,
   keywords: z.array(textSchema).min(1),
   aliases: z.array(textSchema).optional(),
@@ -65,8 +69,80 @@ export const topicSchema = z
     metadata: topicMetadataSchema,
     sections: z.array(topicSectionSchema).min(1),
     references: z.array(referenceSchema),
+    experience: topicExperienceSchema.optional(),
   })
   .superRefine((topic, context) => {
+    if (topic.experience) {
+      const experience = topic.experience;
+      const pageIds = new Set(experience.pages.map((page) => page.slug));
+      const blocks = topic.sections.flatMap((section) => section.blocks);
+      const fail = (message: string) =>
+        context.addIssue({ code: 'custom', path: ['experience'], message });
+      if (pageIds.size !== experience.pages.length) fail('Duplicate page slug');
+      if (!pageIds.has('evidence'))
+        fail('Topic experience requires an evidence page');
+      if (!topic.sections.some((section) => section.id === 'overview'))
+        fail('Topic experience requires an overview section');
+      const assigned = experience.pages.flatMap((page) => page.sectionIds);
+      if (new Set(assigned).size !== assigned.length)
+        fail('Sections must have one subpage owner');
+      for (const id of assigned)
+        if (!topic.sections.some((section) => section.id === id))
+          fail(`Unknown section: ${id}`);
+      for (const section of topic.sections)
+        if (section.id !== 'overview' && !assigned.includes(section.id))
+          fail(`Unassigned section: ${section.id}`);
+      for (const selection of experience.quickReference) {
+        const block = blocks.find((block) => block.id === selection.blockId);
+        const page = experience.pages.find(
+          (page) => page.slug === selection.page,
+        );
+        if (!block || !page) {
+          fail('Unknown quick-reference block/page');
+          continue;
+        }
+        if (block.type === 'question' || block.type === 'claimGroup')
+          fail('Quick reference requires a concise factual block');
+        if (
+          !topic.sections.some(
+            (section) =>
+              page.sectionIds.includes(section.id) &&
+              section.blocks.includes(block),
+          )
+        )
+          fail('Quick reference must link to its owning page');
+        if (
+          selection.itemIndex !== undefined &&
+          (!('items' in block) || selection.itemIndex >= block.items.length)
+        )
+          fail('Invalid quick-reference item index');
+      }
+      for (const contextPanel of experience.contexts)
+        for (const link of contextPanel.links)
+          if (!pageIds.has(link.page))
+            fail(`Unknown related page: ${link.page}`);
+      const styled = experience.presentation.map((item) => item.blockId);
+      if (new Set(styled).size !== styled.length)
+        fail('Duplicate presentation block');
+      for (const item of experience.presentation) {
+        const block = blocks.find((block) => block.id === item.blockId);
+        if (!block) fail(`Unknown presentation block: ${item.blockId}`);
+        if (
+          item.itemLabels &&
+          (!block ||
+            !('items' in block) ||
+            item.itemLabels.length !== block.items.length)
+        )
+          fail('Item labels must match authored items');
+        if (
+          (item.variant === 'steps' || item.variant === 'consent') &&
+          block?.type !== 'checklist'
+        )
+          fail('Steps/consent require a checklist');
+        if (item.variant === 'complications' && block?.type !== 'table')
+          fail('Complications require a table');
+      }
+    }
     if (
       topic.metadata.contentKind === 'clinical' &&
       topic.references.length === 0
