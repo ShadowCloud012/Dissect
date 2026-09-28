@@ -62,10 +62,10 @@ test('specialty browsing, canonical discovery and all topic routes', async ({
     .click();
   await expect(page).toHaveURL(base);
   await expect(
-    page.getByRole('heading', { name: 'Quick reference' }),
+    page.getByRole('heading', { name: 'Clinical snapshot' }),
   ).toBeVisible();
   await expect(
-    page.getByRole('heading', { name: 'Do not miss deterioration' }),
+    page.getByRole('heading', { name: /Do not miss deterioration/ }),
   ).toBeVisible();
   await page.screenshot({ path: info.outputPath('hub.png'), fullPage: true });
   await page

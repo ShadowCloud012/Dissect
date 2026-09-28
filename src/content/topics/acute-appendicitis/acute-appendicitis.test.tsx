@@ -34,6 +34,29 @@ it('preserves the audited source scopes and research metadata', () => {
   for (const id of ['mesoappendix', 'artery-question', 'base-question']) {
     expect(block(id)?.referenceIds).toContain('appendectomy-textbook');
   }
+  // Theatre-first depth: core operative anatomy, danger areas and the
+  // sequence are student-level; judgement and strategy changes stay advanced.
+  expect(
+    Object.fromEntries(
+      [
+        'appendix-origin',
+        'mesoappendix',
+        'structures-at-risk',
+        'operation-outline',
+        'operative-sequence',
+        'operative-judgement',
+        'unexpected-findings',
+      ].map((id) => [id, block(id)?.minimumLevel]),
+    ),
+  ).toEqual({
+    'appendix-origin': 'medical-student',
+    mesoappendix: 'medical-student',
+    'structures-at-risk': 'medical-student',
+    'operation-outline': 'medical-student',
+    'operative-sequence': 'medical-student',
+    'operative-judgement': 'cst',
+    'unexpected-findings': 'registrar',
+  });
   for (const id of ['wses-2025', 'appac-follow-up', 'cochrane-mri']) {
     const reference = topic.references.find((item) => item.id === id);
     expect(reference?.authors?.length).toBeGreaterThan(0);

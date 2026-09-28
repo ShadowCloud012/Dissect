@@ -9,7 +9,7 @@ test('shell routes, navigation and local training level work without browser err
     if (message.type() === 'error') errors.push(message.text());
   });
   const routes = [
-    ['/', 'Learn surgery the way surgeons think.'],
+    ['/', 'Know the patient. Understand the operation.'],
     ['/learn', 'Learn'],
     ['/practice', 'Practice'],
     ['/theatre', 'Theatre'],
@@ -40,16 +40,14 @@ test('shell routes, navigation and local training level work without browser err
   await expect(page.getByRole('main')).toBeFocused();
   const selector = page.getByRole('combobox', { name: 'Training level' });
   await selector.selectOption('cst');
-  for (const label of ['Learn', 'Practice', 'Theatre', 'Search']) {
-    const link = page
-      .getByRole('navigation', { name: 'Primary' })
-      .getByRole('link', { name: label, exact: true });
-    await expect(link).toBeVisible();
-    await link.click();
-    await expect(page).toHaveURL(new RegExp(`/${label.toLowerCase()}$`));
-    await expect(link).toHaveAttribute('aria-current', 'page');
-    await expect(selector).toHaveValue('cst');
-  }
+  const primary = page.getByRole('navigation', { name: 'Primary' });
+  // Unbuilt areas keep their routes but are not offered as navigation.
+  await expect(primary.getByRole('link')).toHaveText(['Learn']);
+  const learn = primary.getByRole('link', { name: 'Learn', exact: true });
+  await learn.click();
+  await expect(page).toHaveURL(/\/learn$/);
+  await expect(learn).toHaveAttribute('aria-current', 'page');
+  await expect(selector).toHaveValue('cst');
   await page.reload();
   await expect(selector).toHaveValue('cst');
   await page.getByRole('link', { name: 'Dissect home' }).click();
@@ -58,7 +56,7 @@ test('shell routes, navigation and local training level work without browser err
     path: testInfo.outputPath('shell.png'),
     fullPage: true,
   });
-  await page.getByRole('link', { name: 'Explore Learn' }).click();
-  await expect(page).toHaveURL('/learn');
+  await page.getByRole('link', { name: 'Explore General Surgery' }).click();
+  await expect(page).toHaveURL('/learn/general-surgery');
   expect(errors).toEqual([]);
 });

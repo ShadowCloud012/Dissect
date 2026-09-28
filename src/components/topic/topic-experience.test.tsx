@@ -6,23 +6,69 @@ import { TopicExperience } from './topic-experience';
 import { TrainingLevelSelector } from '@/components/navigation/training-level-selector';
 const topic = topicRegistry.getTopic('general-surgery', 'acute-appendicitis')!;
 beforeEach(() => localStorage.clear());
-it('renders a concise hub, essential deterioration at every level and contextual links', () => {
+it('renders grouped quick reference, led by theatre, with essentials at every level', () => {
   render(
     <>
       <TrainingLevelSelector />
       <TopicExperience topic={topic} />
     </>,
   );
+  const groups = screen
+    .getAllByRole('region')
+    .map((region) => region.getAttribute('aria-labelledby'))
+    .filter((id) => id?.startsWith('quick-'));
+  expect(groups).toEqual([
+    'quick-snapshot',
+    'quick-do-not-miss',
+    'quick-theatre',
+    'quick-after-surgery',
+  ]);
+  const snapshot = within(
+    screen.getByRole('region', { name: 'Clinical snapshot' }),
+  );
+  // Verbatim authored "At a glance" answer, linked to its deeper page.
   expect(
-    screen.getByRole('heading', { name: 'Quick reference' }),
+    snapshot.getByText(
+      'Central abdominal pain moving to the right lower abdomen; the pattern is not universal.',
+    ),
   ).toBeVisible();
+  expect(snapshot.getByRole('link', { name: /^Presentation/ })).toHaveAttribute(
+    'href',
+    '/learn/general-surgery/acute-appendicitis/assessment',
+  );
+  // Sources appear once per group, not once per answer.
+  expect(snapshot.getAllByRole('link', { name: /^Source:/ })).toHaveLength(1);
+  const alert = within(screen.getByRole('region', { name: 'Do not miss' }));
+  // Foundation-level deterioration content is essential at every level.
   expect(
-    screen.getByRole('heading', { name: 'Do not miss deterioration' }),
+    alert.getByRole('heading', { name: /Do not miss deterioration/ }),
   ).toBeVisible();
-  expect(screen.getByRole('heading', { name: 'On the ward' })).toBeVisible();
+  const theatre = within(
+    screen.getByRole('region', { name: 'Going to theatre' }),
+  );
+  for (const label of [
+    'Anatomy & landmarks',
+    'Danger areas',
+    'The operation',
+    'What can change the plan',
+    'Consent',
+  ])
+    expect(
+      theatre.getByRole('heading', { name: new RegExp(`^${label}`) }),
+    ).toBeVisible();
+  expect(theatre.getByRole('link', { name: /^Danger areas/ })).toHaveAttribute(
+    'href',
+    '/learn/general-surgery/acute-appendicitis/anatomy#block-structures-at-risk',
+  );
   expect(
-    screen.getByRole('heading', { name: 'Going to theatre' }),
-  ).toBeVisible();
+    within(
+      screen.getByRole('region', { name: 'After surgery · on the ward' }),
+    ).getByRole('navigation', { name: 'On the ward: go deeper' }),
+  ).toBeInTheDocument();
+  // Hub content is not level-gated, so the depth toolbar is omitted.
+  expect(
+    screen.queryByRole('button', { name: /advanced content/ }),
+  ).not.toBeInTheDocument();
   expect(screen.getAllByRole('combobox')).toHaveLength(1);
   expect(
     screen.queryByRole('heading', { name: 'References' }),
@@ -62,18 +108,37 @@ it('keeps depth cumulative on subpages and supports active recall with accessibl
     '/learn/general-surgery/acute-appendicitis/evidence#reference-appendix-anatomy',
   );
 });
-it('links the hub to every subpage, related content and a quick-jump bar', () => {
+it('keeps every subpage one tap away from the hub and exposes a quick-jump bar', () => {
   render(<TopicExperience topic={topic} />);
   const directory = within(
-    screen.getByRole('navigation', { name: 'Go deeper' }),
+    screen.getByRole('navigation', { name: 'All pages in this topic' }),
   );
   for (const page of topic.experience!.pages)
-    expect(
-      directory.getByRole('link', { name: new RegExp(`^${page.title}`) }),
-    ).toHaveAttribute(
+    expect(directory.getByRole('link', { name: page.title })).toHaveAttribute(
       'href',
       `/learn/general-surgery/acute-appendicitis/${page.slug}`,
     );
+  // Related links would duplicate the hub directory, so they live on subpages.
+  expect(
+    screen.queryByRole('region', { name: 'Related' }),
+  ).not.toBeInTheDocument();
+  const jump = within(screen.getByRole('navigation', { name: 'Quick jump' }));
+  expect(jump.getAllByRole('link').map((link) => link.textContent)).toEqual([
+    'Overview',
+    'Assess',
+    'Investigate',
+    'Manage',
+    'Anatomy',
+    'Operate',
+    'Complications',
+  ]);
+  expect(jump.getByRole('link', { name: 'Overview' })).toHaveAttribute(
+    'aria-current',
+    'page',
+  );
+});
+it('shows related content and a route back to the overview on subpages', () => {
+  render(<TopicExperience topic={topic} pageSlug="management" />);
   const related = within(
     screen.getByRole('region', { name: 'Related' }),
   ).getAllByRole('link');
@@ -82,19 +147,12 @@ it('links the hub to every subpage, related content and a quick-jump bar', () =>
       (item) => `/learn/general-surgery/acute-appendicitis/${item.page}`,
     ),
   );
-  const jump = within(screen.getByRole('navigation', { name: 'Quick jump' }));
-  expect(jump.getAllByRole('link').map((link) => link.textContent)).toEqual([
-    'Overview',
-    'Assess',
-    'Investigate',
-    'Manage',
-    'Operate',
-    'Complications',
-  ]);
-  expect(jump.getByRole('link', { name: 'Overview' })).toHaveAttribute(
-    'aria-current',
-    'page',
-  );
+  expect(
+    screen.getByRole('link', { name: /Acute appendicitis overview/ }),
+  ).toHaveAttribute('href', '/learn/general-surgery/acute-appendicitis');
+  expect(
+    screen.getByRole('navigation', { name: 'Previous and next page' }),
+  ).toBeInTheDocument();
 });
 it('renders a linked management pathway and reveals deep-linked advanced blocks', () => {
   window.location.hash = '#block-abscess-options';

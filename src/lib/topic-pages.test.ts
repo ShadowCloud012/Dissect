@@ -59,6 +59,15 @@ it('rejects dangling pages, duplicate ownership and invalid item selections', ()
   invalid.experience!.contexts[0].links[0].page = 'missing';
   expect(() => validateTopic(invalid)).toThrow(/Unknown related page/);
   invalid.experience = structuredClone(topic.experience);
+  invalid.experience!.quickReference[0].group = 'missing';
+  expect(() => validateTopic(invalid)).toThrow(/Unknown quick-reference group/);
+  invalid.experience = structuredClone(topic.experience);
+  invalid.experience!.quickReferenceGroups.push({ id: 'unused', title: 'X' });
+  expect(() => validateTopic(invalid)).toThrow(/Empty quick-reference group/);
+  invalid.experience = structuredClone(topic.experience);
+  invalid.experience!.quickReference[0].itemIndex = 4;
+  expect(() => validateTopic(invalid)).toThrow(/item index/);
+  invalid.experience = structuredClone(topic.experience);
   invalid.experience!.related[0].page = 'missing';
   expect(() => validateTopic(invalid)).toThrow(/Unknown related page/);
   invalid.experience = structuredClone(topic.experience);
@@ -77,6 +86,7 @@ it('exposes quick-jump pages and locates every local-policy block on its owning 
     'assessment',
     'investigations',
     'management',
+    'anatomy',
     'appendicectomy',
     'complications',
   ]);
