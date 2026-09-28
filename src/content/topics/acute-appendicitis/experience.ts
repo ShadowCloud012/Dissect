@@ -6,6 +6,8 @@ export const experience = {
     {
       slug: 'assessment',
       title: 'Assessment',
+      shortTitle: 'Assess',
+      quickJump: true,
       description: 'Presentation, examination and important alternatives.',
       group: 'Clinical',
       sectionIds: ['presentation', 'assessment', 'differential-diagnoses'],
@@ -15,6 +17,8 @@ export const experience = {
     {
       slug: 'investigations',
       title: 'Investigations',
+      shortTitle: 'Investigate',
+      quickJump: true,
       description: 'Tests, imaging and the diagnosis in context.',
       group: 'Clinical',
       sectionIds: ['investigations', 'imaging', 'diagnosis-and-severity'],
@@ -24,6 +28,8 @@ export const experience = {
     {
       slug: 'management',
       title: 'Management',
+      shortTitle: 'Manage',
+      quickJump: true,
       description: 'Initial care, treatment options and special situations.',
       group: 'Clinical',
       sectionIds: ['management', 'special-situations'],
@@ -42,6 +48,8 @@ export const experience = {
     {
       slug: 'appendicectomy',
       title: 'Appendicectomy',
+      shortTitle: 'Operate',
+      quickJump: true,
       description: 'Preparation, sequence and operative judgement.',
       group: 'Operative',
       sectionIds: ['laparoscopic-appendicectomy'],
@@ -60,6 +68,7 @@ export const experience = {
     {
       slug: 'complications',
       title: 'Complications',
+      quickJump: true,
       description:
         'Patient-information context and supported response principles.',
       group: 'Operative',
@@ -176,7 +185,17 @@ export const experience = {
     {
       blockId: 'symptom-pattern',
       label: 'Presentation pattern',
-      variant: 'fact',
+      itemLabels: [
+        'Pain history',
+        'Associated features',
+        'Atypical presentations',
+      ],
+      variant: 'cards',
+    },
+    {
+      blockId: 'deterioration',
+      label: 'Red flags · escalate',
+      variant: 'escalation',
     },
     {
       blockId: 'relevant-history',
@@ -202,22 +221,45 @@ export const experience = {
     {
       blockId: 'inflammatory-markers',
       label: 'Bloods · inflammatory markers',
+      group: 'Bloods & urine',
       variant: 'fact',
     },
     {
       blockId: 'urine-pregnancy',
       label: 'Urine & pregnancy testing',
+      group: 'Bloods & urine',
       variant: 'fact',
     },
     {
       blockId: 'renal-tests',
       label: 'Bloods · renal function',
+      group: 'Bloods & urine',
       variant: 'fact',
     },
     { blockId: 'sepsis-tests', label: 'Further assessment', variant: 'plain' },
-    { blockId: 'ultrasound', label: 'Ultrasound', variant: 'fact' },
-    { blockId: 'ct-findings', label: 'CT', variant: 'fact' },
-    { blockId: 'mri', label: 'MRI', variant: 'fact' },
+    {
+      blockId: 'imaging-choice',
+      label: 'Imaging in context',
+      variant: 'plain',
+    },
+    {
+      blockId: 'ultrasound',
+      label: 'Ultrasound',
+      group: 'Imaging modalities',
+      variant: 'fact',
+    },
+    {
+      blockId: 'ct-findings',
+      label: 'CT',
+      group: 'Imaging modalities',
+      variant: 'fact',
+    },
+    {
+      blockId: 'mri',
+      label: 'MRI',
+      group: 'Imaging modalities',
+      variant: 'fact',
+    },
     {
       blockId: 'diagnostic-synthesis',
       label: 'Bring the findings together',
@@ -256,18 +298,19 @@ export const experience = {
     },
     {
       blockId: 'appendix-origin',
-      label: 'Origin, landmarks & position',
-      variant: 'fact',
+      label: 'Structures & landmarks',
+      itemLabels: ['Origin & relations', 'Finding the base & tip'],
+      variant: 'cards',
     },
     {
       blockId: 'mesoappendix',
-      label: 'Mesoappendix · vascular relationship',
+      label: 'Relational anatomy · mesoappendix',
       variant: 'fact',
     },
     {
       blockId: 'structures-at-risk',
-      label: 'Why it matters in theatre',
-      variant: 'pathway',
+      label: 'Danger areas · why it matters in theatre',
+      variant: 'danger',
     },
     {
       blockId: 'operative-sequence',
@@ -321,6 +364,42 @@ export const experience = {
       blockId: 'consent-depth',
       label: 'Patient preferences & understanding',
       variant: 'fact',
+    },
+  ],
+  pathways: [
+    {
+      id: 'management-overview',
+      page: 'management',
+      title: 'How the management content fits together',
+      caption:
+        'Orientation to the sections below — not a treatment algorithm. Follow the linked content, senior advice and local policy.',
+      steps: [
+        {
+          label: 'Initial support, analgesia & senior involvement',
+          blockId: 'initial-support',
+        },
+      ],
+      branches: [
+        { label: 'Discuss treatment options', blockId: 'operative-pathway' },
+        {
+          label: 'Generalised peritonitis or deterioration',
+          blockId: 'peritonitis-plan',
+        },
+        { label: 'Mass or abscess', blockId: 'abscess-options' },
+      ],
+    },
+  ],
+  related: [
+    {
+      kind: 'procedure',
+      title: 'Laparoscopic appendicectomy',
+      page: 'appendicectomy',
+    },
+    { kind: 'anatomy', title: 'Surgical anatomy', page: 'anatomy' },
+    {
+      kind: 'complication',
+      title: 'Complications after appendicectomy',
+      page: 'complications',
     },
   ],
 } satisfies TopicExperience;

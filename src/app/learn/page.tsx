@@ -27,8 +27,11 @@ export default function LearnPage() {
                   {specialty.description}
                 </p>
                 <p className="mt-4 font-mono text-xs">
-                  {topicRegistry.countTopics(specialty.slug)} topic · Reference,
-                  operative learning &amp; revision
+                  {topicRegistry.countTopics(specialty.slug)}{' '}
+                  {topicRegistry.countTopics(specialty.slug) === 1
+                    ? 'topic'
+                    : 'topics'}{' '}
+                  · Reference, operative learning &amp; revision
                 </p>
               </div>
               <span aria-hidden="true" className="text-2xl">

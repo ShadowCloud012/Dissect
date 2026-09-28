@@ -1,6 +1,9 @@
 import Link from 'next/link';
 import type { Topic } from '@/schemas/topic';
 import type { ContentBlock } from '@/schemas/content-block';
+import type { relatedKinds } from '@/schemas/topic-experience';
+
+type RelatedKind = (typeof relatedKinds)[number];
 import { selectQuickReference, topicHref } from '@/lib/topic-pages';
 import { Sources } from '@/components/content/content-renderer';
 
@@ -19,7 +22,7 @@ function QuickAnswer({
       return itemIndex !== undefined ? (
         <p>{block.items[itemIndex]}</p>
       ) : (
-        <ul>
+        <ul className="list-disc space-y-1 pl-5">
           {block.items.map((item) => (
             <li key={item}>{item}</li>
           ))}
@@ -93,6 +96,38 @@ export function QuickReference({ topic }: { topic: Topic }) {
           ),
         )}
       </div>
+    </section>
+  );
+}
+const relatedKindLabels: Record<RelatedKind, string> = {
+  'related-condition': 'Related condition',
+  procedure: 'Procedure',
+  anatomy: 'Anatomy',
+  complication: 'Complications',
+  'theatre-skill': 'Theatre skill',
+};
+export function RelatedContent({ topic }: { topic: Topic }) {
+  const related = topic.experience?.related ?? [];
+  if (related.length === 0) return null;
+  return (
+    <section aria-labelledby="related-heading" className="related-content">
+      <h2 id="related-heading" className="text-xl font-semibold">
+        Related
+      </h2>
+      <ul>
+        {related.map((item) => (
+          <li key={`${item.kind}-${item.page}`}>
+            <span className="taxonomy-tag">{relatedKindLabels[item.kind]}</span>
+            <Link
+              className="related-link"
+              href={`${topicHref(topic.metadata)}/${item.page}`}
+            >
+              {item.title}
+              <span aria-hidden="true">→</span>
+            </Link>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

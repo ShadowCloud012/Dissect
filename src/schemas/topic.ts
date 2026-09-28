@@ -141,7 +141,30 @@ export const topicSchema = z
           fail('Steps/consent require a checklist');
         if (item.variant === 'complications' && block?.type !== 'table')
           fail('Complications require a table');
+        if (
+          item.variant === 'cards' &&
+          (!block || !('items' in block) || !item.itemLabels)
+        )
+          fail('Cards require a list block with item labels');
       }
+      const pageOwnsBlock = (pageSlug: string, blockId: string) => {
+        const page = experience.pages.find((entry) => entry.slug === pageSlug);
+        return topic.sections.some(
+          (section) =>
+            page?.sectionIds.includes(section.id) &&
+            section.blocks.some((block) => block.id === blockId),
+        );
+      };
+      for (const pathway of experience.pathways) {
+        if (!pageIds.has(pathway.page))
+          fail(`Unknown pathway page: ${pathway.page}`);
+        for (const node of [...pathway.steps, ...pathway.branches])
+          if (!pageOwnsBlock(pathway.page, node.blockId))
+            fail(`Pathway block must belong to its page: ${node.blockId}`);
+      }
+      for (const related of experience.related)
+        if (!pageIds.has(related.page))
+          fail(`Unknown related page: ${related.page}`);
     }
     if (
       topic.metadata.contentKind === 'clinical' &&
