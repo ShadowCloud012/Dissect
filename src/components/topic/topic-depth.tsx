@@ -40,7 +40,7 @@ export function TrainingLevelSummary() {
   return (
     <p className="text-sm text-dissect-muted">
       Current depth:{' '}
-      <span className="font-medium text-dissect-text">
+      <span className="font-medium text-dissect-ink">
         {trainingLevels.find((entry) => entry.id === level)!.label}
       </span>
       . Change this in the header or reveal advanced content.

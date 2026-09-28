@@ -30,7 +30,7 @@ export default function RootLayout({
         <footer className="border-t border-dissect-border px-5 py-6 text-xs leading-6 text-dissect-muted sm:px-8">
           <div className="mx-auto flex max-w-6xl flex-wrap justify-between gap-x-8 gap-y-2">
             <p>Dissect · Surgical education</p>
-            <p>Foundation preview · No clinical content published</p>
+            <p>Clinical drafts are awaiting review</p>
           </div>
         </footer>
       </body>

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { topicRegistry } from '@/content/registry';
 import { Badge } from '@/components/ui/badge';
+import { EditorialStatus } from '@/components/topic/editorial-status';
 export const metadata = { title: 'Learn' };
 export default function LearnPage() {
   return (
@@ -10,8 +11,8 @@ export default function LearnPage() {
         Learn
       </h1>
       <p className="mt-5 max-w-2xl text-lg leading-8 text-dissect-muted">
-        Surgical knowledge, organised around clinical topics and procedures. No
-        clinical content is published yet.
+        Surgical knowledge, organised around clinical topics and procedures.
+        Clinical drafts are clearly labelled while awaiting review.
       </p>
       <ul className="mt-10 max-w-2xl">
         {topicRegistry.listTopics().map((topic) => (
@@ -21,6 +22,14 @@ export default function LearnPage() {
                 ? 'NON-CLINICAL DEMO'
                 : topic.category}
             </Badge>
+            {topic.contentKind === 'clinical' && (
+              <p className="mt-3 text-sm font-medium">
+                {topic.specialty
+                  .split('-')
+                  .map((word) => word[0].toUpperCase() + word.slice(1))
+                  .join(' ')}
+              </p>
+            )}
             <h2 className="mt-3 text-xl font-semibold">
               <Link
                 className="inline-flex min-h-11 items-center text-dissect-green-800 underline underline-offset-4"
@@ -30,6 +39,11 @@ export default function LearnPage() {
               </Link>
             </h2>
             <p className="mt-2 leading-7 text-dissect-muted">{topic.summary}</p>
+            {topic.contentKind === 'clinical' && (
+              <div className="mt-3">
+                <EditorialStatus metadata={topic} />
+              </div>
+            )}
           </li>
         ))}
       </ul>

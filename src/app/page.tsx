@@ -22,9 +22,9 @@ export default function HomePage() {
         Explore Learn <ArrowRight size={18} aria-hidden="true" />
       </Link>
       <div className="mt-16 max-w-2xl border-t border-dissect-border pt-8">
-        <Alert title="Foundation preview">
-          The Dissect shell is ready to explore. Reference material and practice
-          experiences have not been added yet.
+        <Alert title="Clinical reference preview">
+          The first clinical topic is available in Learn as a draft awaiting
+          clinical review.
         </Alert>
       </div>
     </div>
