@@ -24,7 +24,7 @@ export const operativeCareSections = [
         paragraphs: [
           'The mesoappendix carries the appendicular arterial supply. Its relationship to the terminal ileum and caecum matters during dissection; identify the base and adjacent bowel before division.',
         ],
-        referenceIds: ['appendix-anatomy'],
+        referenceIds: ['appendix-anatomy', 'appendectomy-textbook'],
       },
       {
         id: 'structures-at-risk',
@@ -33,7 +33,11 @@ export const operativeCareSections = [
         paragraphs: [
           'Adjacent bowel, bladder and vessels can be injured during surgery. Relate the variable appendix position and exposure to the structures actually in view.',
         ],
-        referenceIds: ['leicester-appendicectomy', 'appendix-anatomy'],
+        referenceIds: [
+          'leicester-appendicectomy',
+          'appendix-anatomy',
+          'appendectomy-textbook',
+        ],
       },
     ],
   },
@@ -113,7 +117,7 @@ export const operativeCareSections = [
           'Review progress, pain and the wound; support return to drinking, eating and activity as recovery allows.',
           'Give clear instructions for symptoms requiring help and how to access it. Persistent vomiting, increasing wound pain/redness or fever need reassessment.',
         ],
-        referenceIds: ['gstt-recovery'],
+        referenceIds: ['gstt-recovery', 'nhs-appendicitis'],
       },
       {
         id: 'postoperative-review',
@@ -127,6 +131,7 @@ export const operativeCareSections = [
         ],
         referenceIds: [
           'rcs-gsp',
+          'nice-sepsis',
           'nice-perioperative',
           'nice-fluids',
           'nice-vte',
@@ -149,7 +154,11 @@ export const operativeCareSections = [
         paragraphs: [
           'Judge readiness from recovery, oral intake, pain control and the agreed home-care plan rather than a fixed discharge time. Explain wound care, activity advice and who to contact if recovery worsens.',
         ],
-        referenceIds: ['gstt-recovery'],
+        referenceIds: [
+          'gstt-recovery',
+          'nhs-appendicitis',
+          'nice-perioperative',
+        ],
       },
       {
         id: 'histology-follow-up',
@@ -170,31 +179,23 @@ export const operativeCareSections = [
         id: 'complications-table',
         type: 'table',
         minimumLevel: 'medical-student',
-        caption: 'Recognise a deviation from expected recovery',
-        columns: [
-          'Complication / recognition',
-          'Why it matters / broad response',
-        ],
+        caption:
+          'Complications described in patient information — not a treatment protocol',
+        columns: ['Complication', 'Patient-information context'],
         rows: [
+          ['Wound infection', 'Redness, pus or fever may occur.'],
           [
-            'Wound infection: redness, discharge or fever',
-            'Infection needs clinical review and treatment.',
+            'Collection',
+            'An infected collection can develop inside the abdomen after surgery.',
           ],
           [
-            'Collection: persistent pain or fever',
-            'Possible deep infection: surgical review; imaging, antibiotics or drainage may be needed.',
+            'Bleeding',
+            'Bleeding can occur at the wound or inside the abdomen.',
           ],
+          ['Ileus', 'Bowel function can be slow to recover after surgery.'],
           [
-            'Bleeding: clinical deterioration or visible blood loss',
-            'May require transfusion or further surgery: urgent assessment.',
-          ],
-          [
-            'Ileus: distension, vomiting, delayed bowel recovery',
-            'Impaired bowel function: reassess and support hydration; decompression may be needed.',
-          ],
-          [
-            'Bowel injury: unexpected or worsening postoperative illness',
-            'May present late and need further surgery: urgent senior review.',
+            'Bowel injury',
+            'Injury may be recognised during surgery or afterwards.',
           ],
         ],
         referenceIds: ['leicester-appendicectomy'],
@@ -213,9 +214,9 @@ export const operativeCareSections = [
         type: 'prose',
         minimumLevel: 'medical-student',
         paragraphs: [
-          'New leg pain/swelling or breathlessness needs prompt assessment for possible VTE. Prevention requires individual VTE/bleeding assessment, appropriate prophylaxis and mobilisation.',
+          'New calf pain or breathlessness needs prompt assessment for possible VTE. Prevention requires individual VTE/bleeding assessment, appropriate prophylaxis and mobilisation.',
         ],
-        referenceIds: ['nice-vte'],
+        referenceIds: ['gstt-recovery', 'nice-vte'],
       },
       {
         id: 'anaesthetic-complications',
@@ -231,10 +232,17 @@ export const operativeCareSections = [
         type: 'prose',
         minimumLevel: 'cst',
         paragraphs: [
-          'For suspected wound cellulitis, select treatment for likely organisms using microbiology and local resistance information. Do not treat unexplained deterioration as a superficial infection without clinical reassessment.',
+          'For suspected wound cellulitis, select treatment for likely organisms using microbiology and local resistance information.',
         ],
         localPolicyMayVary: true,
         referenceIds: ['nice-ssi'],
+      },
+      {
+        id: 'complication-management-todo',
+        type: 'sourceNote',
+        minimumLevel: 'cst',
+        text: 'Clinical-review TODO: verify technical assessment and treatment pathways for postoperative collections, bleeding, ileus and bowel injury. The patient-information table is not a management algorithm.',
+        referenceIds: [],
       },
     ],
   },

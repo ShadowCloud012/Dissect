@@ -99,6 +99,8 @@ export const references = [
   },
   {
     id: 'wses-2025',
+    authors: ['Mauro Podda', 'Marco Ceresoli', 'Belinda De Simone'],
+    publication: 'JAMA Surgery',
     organisation: 'World Society of Emergency Surgery',
     title:
       'Diagnosis and Treatment of Acute Appendicitis: 2025 Edition of the World Society of Emergency Surgery Jerusalem Guidelines',
@@ -107,11 +109,13 @@ export const references = [
     url: 'https://doi.org/10.1001/jamasurg.2025.6218',
     evidenceType: 'guideline',
     notes:
-      'Published 28 January 2026 in JAMA Surgery. Latest edition verified for this draft. Accessible abstract used; detailed recommendation tables require clinician verification against the full text.',
+      'First three authors listed. Published 28 January 2026. Latest edition verified for this draft. Accessible abstract used; detailed recommendation tables require clinician verification against the full text.',
     accessedAt: '2026-09-28',
   },
   {
     id: 'appac-follow-up',
+    authors: ['Paulina Salminen', 'Roosa Salminen', 'Johanna Kallio'],
+    publication: 'JAMA',
     title:
       'Antibiotic Therapy for Uncomplicated Acute Appendicitis: Ten-Year Follow-Up of the APPAC Randomized Clinical Trial',
     shortTitle: 'APPAC follow-up',
@@ -119,11 +123,13 @@ export const references = [
     url: 'https://jamanetwork.com/journals/jama/fullarticle/2844116',
     evidenceType: 'primary-study',
     notes:
-      'JAMA. Finnish trial follow-up in adults with CT-confirmed uncomplicated disease; its results are not universal eligibility criteria.',
+      'First three authors listed. Finnish trial follow-up in adults with CT-confirmed uncomplicated disease; its results are not universal eligibility criteria.',
     accessedAt: '2026-09-28',
   },
   {
     id: 'cochrane-mri',
+    authors: ['D’Souza N', 'Hicks G', 'Beable R', 'Higginson A', 'Rud B'],
+    publication: 'Cochrane Database of Systematic Reviews',
     organisation: 'Cochrane',
     title:
       'Magnetic resonance imaging (MRI) for diagnosis of acute appendicitis',
@@ -229,5 +235,32 @@ export const references = [
     accessedAt: '2026-09-28',
     notes:
       'Page reviewed 29 November 2024. Patient-facing preparation, recovery and adverse effects.',
+  },
+  {
+    id: 'wses-source-control',
+    title:
+      'Source control in emergency general surgery: WSES, GAIS, SIS-E, SIS-A guidelines',
+    shortTitle: 'Surgical source control',
+    authors: ['Federico Coccolini', 'Massimo Sartelli', 'Robert Sawyer'],
+    publication: 'World Journal of Emergency Surgery',
+    year: 2023,
+    url: 'https://doi.org/10.1186/s13017-023-00509-4',
+    evidenceType: 'guideline',
+    notes:
+      'First three authors listed. Published 21 July 2023. Full-text principles of diffuse peritonitis, source control and resuscitation; not a UK appendicitis-specific protocol.',
+    accessedAt: '2026-09-28',
+  },
+  {
+    id: 'nice-antimicrobial-stewardship',
+    organisation: 'NICE',
+    title:
+      'Antimicrobial stewardship: systems and processes for effective antimicrobial medicine use (NG15)',
+    shortTitle: 'NICE NG15',
+    year: 2015,
+    url: 'https://www.nice.org.uk/guidance/ng15/chapter/recommendations',
+    evidenceType: 'guideline',
+    notes:
+      'Recommendations 1.1.24, 1.1.27 and 1.1.35–36: local/national guidance, microbiology, individual prescribing factors and documented departures. Not an appendicitis regimen.',
+    accessedAt: '2026-09-28',
   },
 ] satisfies Reference[];

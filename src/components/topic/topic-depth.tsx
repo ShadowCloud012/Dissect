@@ -22,7 +22,7 @@ export function TopicDepth({ children }: { children: ReactNode }) {
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-dissect-border pb-5">
         <p className="max-w-lg text-sm text-dissect-muted">
           Training level changes depth, not factual truth. Higher-level content
-          remain available.
+          remains available.
         </p>
         <Button
           aria-pressed={showAdvanced}

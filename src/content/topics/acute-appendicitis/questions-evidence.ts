@@ -86,7 +86,7 @@ export const questionsEvidenceSections = [
         question: 'Where should antibiotic choice come from?',
         answer:
           'The local antimicrobial formulary/pathway, accounting for allergy and microbiology; this topic supplies no universal regimen.',
-        referenceIds: ['nice-ssi'],
+        referenceIds: ['nice-antimicrobial-stewardship'],
       },
       {
         id: 'discharge-question',
@@ -105,7 +105,7 @@ export const questionsEvidenceSections = [
         question: 'Why identify the mesoappendix before dividing it?',
         answer:
           'It contains the appendicular vascular supply; deliberate identification and control matter.',
-        referenceIds: ['appendix-anatomy'],
+        referenceIds: ['appendix-anatomy', 'appendectomy-textbook'],
       },
       {
         id: 'port-question',
@@ -124,7 +124,7 @@ export const questionsEvidenceSections = [
         question: 'What should be established before dividing the base?',
         answer:
           'Identify the appendix–caecum junction and adjacent bowel, then choose secure control appropriate to the findings.',
-        referenceIds: ['appendix-anatomy'],
+        referenceIds: ['appendix-anatomy', 'appendectomy-textbook'],
       },
       {
         id: 'help-question',

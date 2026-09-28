@@ -11,11 +11,11 @@ export function ReferenceItem({ reference }: { reference: Reference }) {
       {reference.organisation && <p>{reference.organisation}</p>}
       {reference.authors && <p>{reference.authors.join(', ')}</p>}
       <p className="text-dissect-muted">
-        {reference.publication && `${reference.publication} · `}
+        {reference.publication && `${reference.publication} Â· `}
         {reference.year}
       </p>
       <p className="text-xs text-dissect-green-800">
-        Evidence type: {reference.evidenceType.replaceAll('-', ' ')}
+        Source type: {reference.evidenceType.replaceAll('-', ' ')}
       </p>
       {reference.notes && (
         <p className="mt-2 text-xs text-dissect-muted">{reference.notes}</p>
@@ -51,6 +51,10 @@ export function ReferenceList({ references }: { references: Reference[] }) {
       <h2 id="references-heading" className="mb-3 text-lg font-semibold">
         References
       </h2>
+      <p className="mb-3 text-sm text-dissect-muted">
+        Source types describe the publication, not evidence certainty. A source
+        type does not establish that every linked claim is supported.
+      </p>
       <ol className="list-inside list-decimal">
         {references.map((reference) => (
           <ReferenceItem key={reference.id} reference={reference} />

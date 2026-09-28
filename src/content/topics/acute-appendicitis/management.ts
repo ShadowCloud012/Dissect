@@ -38,7 +38,7 @@ export const managementSections = [
         type: 'prose',
         minimumLevel: 'medical-student',
         paragraphs: [
-          'MRI avoids ionising radiation and can help assess suspected appendicitis, including in pregnancy and children. Many patients in the Cochrane review had an inconclusive ultrasound first. Reported accuracy was promising, but study quality limits certainty. Modality choice needs radiology input and an appropriate local pathway.',
+          'MRI avoids ionising radiation and can help assess suspected appendicitis, including in pregnancy and children. Many patients in the Cochrane review had an inconclusive ultrasound first. Reported accuracy was promising, but study quality limits certainty. This review does not establish a universal imaging pathway.',
         ],
         localPolicyMayVary: true,
         referenceIds: ['cochrane-mri'],
@@ -67,7 +67,7 @@ export const managementSections = [
         rows: [
           [
             'Uncomplicated',
-            'Inflammation without perforation, abscess or purulent peritonitis.',
+            'Typically inflammation without perforation, abscess or purulent peritonitis; classification details vary.',
           ],
           [
             'Complicated',
@@ -102,7 +102,7 @@ export const managementSections = [
         paragraphs: [
           'Laparoscopic appendicectomy remains a standard operative pathway. Antibiotics alone can be an option in selected uncomplicated disease; the choice requires an informed discussion rather than a universal treatment rule.',
         ],
-        referenceIds: ['wses-2025'],
+        referenceIds: ['wses-2025', 'rcs-consent'],
       },
       {
         id: 'initial-support',
@@ -134,7 +134,7 @@ export const managementSections = [
           'Choose antimicrobial agents, doses and allergy alternatives through local policy. NICE supports local-formulary surgical prophylaxis and treatment in addition to prophylaxis for infected/dirty surgery; this is not an appendicitis-specific prescription.',
         ],
         localPolicyMayVary: true,
-        referenceIds: ['nice-ssi'],
+        referenceIds: ['nice-ssi', 'nice-antimicrobial-stewardship'],
       },
       {
         id: 'nonoperative-discussion',
@@ -150,16 +150,16 @@ export const managementSections = [
         type: 'prose',
         minimumLevel: 'foundation',
         paragraphs: [
-          'Generalised peritonitis or physiological deterioration requires urgent senior surgical assessment and resuscitation, with a plan to control the source of infection. Do not substitute an uncomplicated-disease antibiotic pathway for assessment of a deteriorating patient.',
+          'Generalised peritonitis needs urgent surgical assessment for source control. Assess physiological deterioration through the applicable sepsis pathway, with resuscitation guided by clinical need. The surgical source-control guideline supports timely intervention alongside resuscitation when required.',
         ],
-        referenceIds: ['nice-sepsis'],
+        referenceIds: ['wses-source-control', 'nice-sepsis'],
       },
       {
         id: 'abscess-options',
         type: 'prose',
         minimumLevel: 'registrar',
         paragraphs: [
-          'For an appendiceal mass or abscess, treatment may involve antibiotics, drainage or surgery. Plan with the senior team; anatomy and the patient’s course matter. The CUH source illustrates a paediatric pathway, not a national adult protocol.',
+          'In CUH’s paediatric patient information, an appendiceal mass is treated with fluids and antibiotics, with later discussion of whether surgery is needed. An abscess may require drainage as well as antibiotics. This is a local paediatric example; adult management details remain a clinical-review TODO.',
         ],
         localPolicyMayVary: true,
         referenceIds: ['cuh-children'],
@@ -184,7 +184,7 @@ export const managementSections = [
         type: 'prose',
         minimumLevel: 'registrar',
         paragraphs: [
-          'In pregnancy, MRI offers imaging without ionising radiation when further assessment is needed. Cochrane includes pregnant patients but highlights limitations in the evidence; it does not establish a universal imaging sequence. Agree the pathway with the relevant specialist teams.',
+          'In pregnancy, MRI offers imaging without ionising radiation when further assessment is needed. Cochrane includes pregnant patients but highlights limitations in the evidence; it does not establish a universal imaging sequence.',
         ],
         localPolicyMayVary: true,
         referenceIds: ['cochrane-mri'],
