@@ -1,8 +1,15 @@
 import Link from 'next/link';
+import type { ReactNode } from 'react';
 import type { Topic } from '@/schemas/topic';
+import { trainingLevels } from '@/lib/training-level';
+import { LevelContent } from '@/components/topic/topic-depth';
 import type { ContentBlock } from '@/schemas/content-block';
 import type { relatedKinds } from '@/schemas/topic-experience';
-import { groupQuickReference, topicHref } from '@/lib/topic-pages';
+import {
+  groupQuickReference,
+  topicHref,
+  topicJourney,
+} from '@/lib/topic-pages';
 import { Sources } from '@/components/content/content-renderer';
 
 type RelatedKind = (typeof relatedKinds)[number];
@@ -50,89 +57,215 @@ function QuickAnswer({
       return null;
   }
 }
+type QuickGroup = ReturnType<typeof groupQuickReference>[number];
+type QuickEntry = QuickGroup['entries'][number];
+type ExtractRows = Extract<QuickEntry, { kind: 'extracts' }>['rows'];
+
+// Display-only capitalisation of a verbatim fragment.
+const sentenceCase = (text: string) =>
+  text.charAt(0).toUpperCase() + text.slice(1);
+function ExtractList({
+  rows,
+  numbered,
+}: {
+  rows: ExtractRows;
+  numbered?: boolean;
+}) {
+  const body = (row: ExtractRows[number]) =>
+    row.extracts.map((extract) => sentenceCase(extract.text)).join(' · ');
+  // Level-sensitive rows leave a visible hint rather than vanishing; the
+  // entry heading links to the full page where the detail can be revealed.
+  const gate = (row: ExtractRows[number], shown: ReactNode, hint: ReactNode) =>
+    row.minimumLevel ? (
+      <LevelContent
+        key={row.label}
+        minimumLevel={row.minimumLevel}
+        fallback={hint}
+      >
+        {shown}
+      </LevelContent>
+    ) : (
+      shown
+    );
+  const hintText = (row: ExtractRows[number]) =>
+    row.minimumLevel
+      ? `Further detail at ${trainingLevels.find((level) => level.id === row.minimumLevel)!.label} depth`
+      : null;
+  return numbered ? (
+    <ol className="quick-rows quick-rows-numbered">
+      {rows.map((row, index) =>
+        gate(
+          row,
+          <li key={row.label}>
+            <span className="quick-row-label">
+              <span aria-hidden="true">{index + 1} </span>
+              {row.label}
+            </span>
+            <span>{body(row)}</span>
+          </li>,
+          <li key={row.label} className="depth-hint">
+            {hintText(row)}
+          </li>,
+        ),
+      )}
+    </ol>
+  ) : (
+    <dl className="quick-rows">
+      {rows.map((row) =>
+        gate(
+          row,
+          <div key={row.label}>
+            <dt className="quick-row-label">{row.label}</dt>
+            <dd>{body(row)}</dd>
+          </div>,
+          <div key={row.label}>
+            <dt className="quick-row-label">{row.label}</dt>
+            <dd className="depth-hint">{hintText(row)}</dd>
+          </div>,
+        ),
+      )}
+    </dl>
+  );
+}
+function QuickEntryCard({ entry }: { entry: QuickEntry }) {
+  const note = entry.kind === 'block' && entry.block.type === 'sourceNote';
+  return (
+    <article className="quick-entry" data-note={note || undefined}>
+      <h3>
+        <Link href={entry.href}>
+          {entry.label}
+          <span className="sr-only">, open {entry.pageTitle}</span>
+          <span aria-hidden="true" className="quick-arrow">
+            →
+          </span>
+        </Link>
+      </h3>
+      <div className="text-sm leading-6">
+        {entry.kind === 'extracts' ? (
+          <ExtractList rows={entry.rows} numbered={entry.numbered} />
+        ) : (
+          <QuickAnswer block={entry.block} itemIndex={entry.itemIndex} />
+        )}
+      </div>
+      {entry.localPolicyMayVary && (
+        <p className="mt-1 text-xs font-medium text-dissect-amber">
+          Local policy may vary.
+        </p>
+      )}
+    </article>
+  );
+}
+const phaseLabels = { before: 'Before', during: 'In', after: 'After' };
 export function QuickReference({ topic }: { topic: Topic }) {
-  const base = topicHref(topic.metadata);
+  const groups = groupQuickReference(topic);
+  // Consecutive phased groups share one Before → In → After sequence, a
+  // pattern other procedures can reuse.
+  const runs: { phased: boolean; groups: QuickGroup[] }[] = [];
+  for (const group of groups) {
+    const last = runs.at(-1);
+    if (last && last.phased === !!group.phase) last.groups.push(group);
+    else runs.push({ phased: !!group.phase, groups: [group] });
+  }
   return (
     <div className="quick-reference">
-      {groupQuickReference(topic).map((group) => (
-        <section
-          key={group.id}
-          aria-labelledby={`quick-${group.id}`}
-          className="quick-group"
-          data-tone={group.tone}
-        >
-          <h2 id={`quick-${group.id}`} className="quick-group-title">
-            {group.tone === 'alert' && (
-              <span aria-hidden="true" className="alert-mark">
-                !
-              </span>
-            )}
-            {group.title}
-          </h2>
-          <div className="quick-entries">
-            {group.entries.map((entry) => (
-              <article
-                key={`${entry.block.id}-${entry.itemIndex ?? 'all'}`}
-                className="quick-entry"
-              >
-                <h3>
-                  <Link href={entry.href}>
-                    {entry.label}
-                    <span className="sr-only">, open {entry.pageTitle}</span>
-                    <span aria-hidden="true" className="quick-arrow">
-                      →
-                    </span>
-                  </Link>
-                </h3>
-                <div className="mt-1 text-sm leading-6">
-                  <QuickAnswer
-                    block={entry.block}
-                    itemIndex={entry.itemIndex}
-                  />
-                </div>
-                {entry.block.localPolicyMayVary && (
-                  <p className="mt-1 text-xs font-medium text-dissect-amber">
-                    Local policy may vary.
-                  </p>
-                )}
-              </article>
+      {runs.map((run) =>
+        run.phased ? (
+          <div key={run.groups[0].id} className="periop-sequence">
+            {run.groups.map((group) => (
+              <QuickGroupSection key={group.id} topic={topic} group={group} />
             ))}
           </div>
-          <div className="quick-group-footer">
-            {group.context && (
-              <nav aria-label={`${group.context.title}: go deeper`}>
-                <ul className="quick-context-links">
-                  {group.context.links.map((link) => (
-                    <li key={link.page}>
-                      <Link href={`${base}/${link.page}`}>{link.title}</Link>
-                    </li>
-                  ))}
-                </ul>
-              </nav>
-            )}
-            {group.referenceIds.length > 2 ? (
-              // Long source lists stay one tap away without crowding answers.
-              <details className="quick-sources">
-                <summary className="disclosure-trigger px-2">
-                  Sources · {group.referenceIds.length}
-                </summary>
-                <Sources
-                  ids={group.referenceIds}
-                  references={topic.references}
-                  evidenceHref={`${base}/evidence`}
-                />
-              </details>
-            ) : (
-              <Sources
-                ids={group.referenceIds}
-                references={topic.references}
-                evidenceHref={`${base}/evidence`}
-              />
-            )}
-          </div>
-        </section>
-      ))}
+        ) : (
+          run.groups.map((group) => (
+            <QuickGroupSection key={group.id} topic={topic} group={group} />
+          ))
+        ),
+      )}
     </div>
+  );
+}
+function QuickGroupSection({
+  topic,
+  group,
+}: {
+  topic: Topic;
+  group: QuickGroup;
+}) {
+  const base = topicHref(topic.metadata);
+  return (
+    <section
+      aria-labelledby={`quick-${group.id}`}
+      className="quick-group"
+      data-tone={group.tone}
+      data-phase={group.phase}
+    >
+      <h2 id={`quick-${group.id}`} className="quick-group-title">
+        {group.tone === 'alert' && (
+          <span aria-hidden="true" className="alert-mark">
+            !
+          </span>
+        )}
+        {group.phase && (
+          <span aria-hidden="true" className="phase-marker">
+            {phaseLabels[group.phase]}
+          </span>
+        )}
+        {group.title}
+      </h2>
+      <div className="quick-entries">
+        {group.entries.map((entry) => (
+          <QuickEntryCard key={`${entry.label}-${entry.page}`} entry={entry} />
+        ))}
+      </div>
+      <div className="quick-group-footer">
+        {group.context && (
+          <nav aria-label={`${group.context.title}: go deeper`}>
+            <ul className="quick-context-links">
+              {group.context.links.map((link) => (
+                <li key={link.page}>
+                  <Link href={`${base}/${link.page}`}>{link.title}</Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
+        {group.referenceIds.length > 2 ? (
+          // Long source lists stay one tap away without crowding answers.
+          <details className="quick-sources">
+            <summary className="disclosure-trigger px-2">
+              Sources · {group.referenceIds.length}
+            </summary>
+            <Sources
+              ids={group.referenceIds}
+              references={topic.references}
+              evidenceHref={`${base}/evidence`}
+            />
+          </details>
+        ) : (
+          <Sources
+            ids={group.referenceIds}
+            references={topic.references}
+            evidenceHref={`${base}/evidence`}
+          />
+        )}
+      </div>
+    </section>
+  );
+}
+// Where the learner is in the surgical episode — orientation, not an algorithm.
+export function PatientJourney({ topic }: { topic: Topic }) {
+  const steps = topicJourney(topic);
+  if (steps.length === 0) return null;
+  return (
+    <nav aria-label="Patient journey" className="patient-journey">
+      <ol>
+        {steps.map((step) => (
+          <li key={step.label}>
+            <Link href={step.href}>{step.label}</Link>
+          </li>
+        ))}
+      </ol>
+    </nav>
   );
 }
 const relatedKindLabels: Record<RelatedKind, string> = {

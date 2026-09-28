@@ -6,6 +6,8 @@ import {
   topicHref,
   resolveTopicPage,
   localPolicyEntries,
+  quickReferenceBlocks,
+  selectQuickReference,
 } from '@/lib/topic-pages';
 import { trainingLevels } from '@/lib/training-level';
 import { ContentRenderer } from '@/components/content/content-renderer';
@@ -15,7 +17,11 @@ import { Breadcrumbs } from '@/components/navigation/breadcrumbs';
 import { EditorialStatus } from './editorial-status';
 import { TopicNavigation } from './topic-navigation';
 import { TopicDepth, TrainingLevelSummary } from './topic-depth';
-import { QuickReference, RelatedContent } from './quick-reference';
+import {
+  PatientJourney,
+  QuickReference,
+  RelatedContent,
+} from './quick-reference';
 
 export function TopicExperience({
   topic,
@@ -37,6 +43,12 @@ export function TopicExperience({
       block.text.startsWith('Clinical-review TODO'),
   );
   const overview = topic.sections.find((section) => section.id === 'overview')!;
+  // Blocks already drawn on by the hub quick reference.
+  const surfaced = new Set(
+    selectQuickReference(topic)
+      .flatMap(quickReferenceBlocks)
+      .map((block) => block.id),
+  );
   const index = resolved ? experience.pages.indexOf(resolved.page) : -1;
   const previous = index > 0 ? experience.pages[index - 1] : undefined;
   const next = resolved ? experience.pages[index + 1] : experience.pages[0];
@@ -96,6 +108,7 @@ export function TopicExperience({
                     evidenceHref={evidenceHref}
                   />
                 </div>
+                <PatientJourney topic={topic} />
                 <QuickReference topic={topic} />
                 <nav
                   aria-labelledby="directory-heading"
@@ -133,10 +146,7 @@ export function TopicExperience({
                   <ContentRenderer
                     blocks={overview.blocks.filter(
                       (block) =>
-                        block.type !== 'definition' &&
-                        !experience.quickReference.some(
-                          (selection) => selection.blockId === block.id,
-                        ),
+                        block.type !== 'definition' && !surfaced.has(block.id),
                     )}
                     references={topic.references}
                     evidenceHref={evidenceHref}
@@ -275,7 +285,9 @@ export function TopicExperience({
           <TrainingLevelSummary />
           <div className="mt-5 border-t border-dissect-border pt-4">
             <p className="eyebrow">Evidence & trust</p>
-            <p className="mt-2 text-sm leading-6 text-dissect-muted">
+            {/* Explanatory repeats are rail-only; the draft banner and source
+                links already carry this on narrower screens. */}
+            <p className="mt-2 hidden text-sm leading-6 text-dissect-muted xl:block">
               Sources sit beside the content. Source type does not establish
               claim support.
             </p>
@@ -285,7 +297,7 @@ export function TopicExperience({
           </div>
           {topic.metadata.contentKind === 'clinical' &&
             topic.metadata.status !== 'clinically-reviewed' && (
-              <p className="mt-4 text-xs leading-5 text-dissect-muted">
+              <p className="mt-4 hidden text-xs leading-5 text-dissect-muted xl:block">
                 Educational reference. No clinical sign-off is implied by this
                 draft.
               </p>

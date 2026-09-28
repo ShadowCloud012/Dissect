@@ -106,27 +106,166 @@ export const experience = {
     },
   ],
   quickReference: [
-    // Clinical snapshot: the authored "At a glance" answers.
+    // Overview = what; subpages = why, when and nuance. Extracts are
+    // verbatim fragments of the named blocks (schema-validated).
     {
-      blockId: 'at-a-glance',
       label: 'Presentation',
       page: 'assessment',
       group: 'snapshot',
-      itemIndex: 0,
+      rows: [
+        {
+          label: 'Typical',
+          extracts: [
+            {
+              text: 'Central abdominal pain moving to the right lower abdomen',
+              blockId: 'at-a-glance',
+            },
+            { text: 'the pattern is not universal', blockId: 'at-a-glance' },
+          ],
+        },
+        {
+          label: 'Ask about',
+          extracts: [
+            {
+              text: 'onset, progression and migration of pain',
+              blockId: 'symptom-pattern',
+            },
+            {
+              text: 'movement or coughing may worsen it',
+              blockId: 'symptom-pattern',
+            },
+          ],
+        },
+        {
+          label: 'Associated',
+          extracts: [
+            {
+              text: 'appetite loss, nausea or vomiting, fever and altered bowel habit',
+              blockId: 'symptom-pattern',
+            },
+          ],
+        },
+        {
+          label: 'Examination',
+          extracts: [
+            {
+              text: 'Right iliac fossa tenderness, guarding or rebound suggest local peritoneal irritation',
+              blockId: 'examination',
+            },
+          ],
+        },
+        {
+          label: 'Atypical',
+          extracts: [
+            {
+              text: 'Children, older adults and pregnant people may have less typical pain',
+              blockId: 'symptom-pattern',
+            },
+          ],
+        },
+      ],
     },
     {
-      blockId: 'at-a-glance',
       label: 'Investigations',
       page: 'investigations',
       group: 'snapshot',
-      itemIndex: 2,
+      rows: [
+        {
+          label: 'Bloods',
+          extracts: [
+            { text: 'FBC', blockId: 'inflammatory-markers' },
+            { text: 'CRP', blockId: 'inflammatory-markers' },
+            { text: 'U&Es and creatinine', blockId: 'renal-tests' },
+          ],
+        },
+        {
+          label: 'Urine',
+          extracts: [
+            { text: 'Urine testing', blockId: 'urine-pregnancy' },
+            {
+              text: 'pregnancy testing when pregnancy is possible',
+              blockId: 'urine-pregnancy',
+            },
+          ],
+        },
+        {
+          label: 'Imaging',
+          extracts: [
+            { text: 'Ultrasound', blockId: 'ultrasound' },
+            { text: 'CT', blockId: 'ct-findings' },
+            { text: 'MRI', blockId: 'mri' },
+          ],
+        },
+        {
+          label: 'Sepsis suspected',
+          extracts: [
+            {
+              text: 'follow the appropriate local pathway for further assessment and investigations',
+              blockId: 'sepsis-tests',
+            },
+          ],
+        },
+        {
+          label: 'Remember',
+          extracts: [
+            {
+              text: 'no single investigation always confirms appendicitis',
+              blockId: 'urine-pregnancy',
+            },
+          ],
+        },
+      ],
     },
     {
-      blockId: 'at-a-glance',
       label: 'Management',
       page: 'management',
       group: 'snapshot',
-      itemIndex: 3,
+      rows: [
+        {
+          label: 'First',
+          extracts: [
+            {
+              text: 'Arrange surgical assessment and senior help appropriate to urgency and your competence',
+              blockId: 'initial-support',
+            },
+          ],
+        },
+        {
+          label: 'Support',
+          extracts: [
+            {
+              text: 'Provide individualised analgesia',
+              blockId: 'initial-support',
+            },
+            {
+              text: 'assess the indication for IV fluids',
+              blockId: 'fluid-support',
+            },
+          ],
+        },
+        {
+          label: 'Options',
+          extracts: [
+            {
+              text: 'Laparoscopic appendicectomy remains a standard operative pathway',
+              blockId: 'operative-pathway',
+            },
+            {
+              text: 'Antibiotics alone can be an option in selected uncomplicated disease',
+              blockId: 'operative-pathway',
+            },
+          ],
+        },
+        {
+          label: 'Decision',
+          extracts: [
+            {
+              text: 'the choice requires an informed discussion rather than a universal treatment rule',
+              blockId: 'operative-pathway',
+            },
+          ],
+        },
+      ],
     },
     {
       blockId: 'at-a-glance',
@@ -142,18 +281,247 @@ export const experience = {
       group: 'do-not-miss',
     },
     {
-      blockId: 'initial-support',
-      label: 'Senior help',
+      label: 'Peritonitis',
       page: 'management',
       group: 'do-not-miss',
-      itemIndex: 0,
+      rows: [
+        {
+          label: 'Escalate',
+          extracts: [
+            {
+              text: 'Generalised peritonitis needs urgent surgical assessment for source control',
+              blockId: 'peritonitis-plan',
+            },
+          ],
+        },
+      ],
     },
     {
-      blockId: 'appendix-origin',
+      label: 'Preparation',
+      page: 'appendicectomy',
+      group: 'before-theatre',
+      rows: [
+        {
+          label: 'Plan',
+          extracts: [
+            {
+              text: 'Agree a perioperative plan with the surgical and anaesthetic teams',
+              blockId: 'initial-support',
+            },
+            {
+              text: 'complete the surgical safety checklist',
+              blockId: 'initial-support',
+            },
+          ],
+        },
+        {
+          label: 'Anaesthetic',
+          extracts: [
+            {
+              text: 'establish medical conditions, current medicines and previous allergic reactions to medicines',
+              blockId: 'anaesthetic-history',
+            },
+          ],
+        },
+        {
+          label: 'Individual risk',
+          extracts: [
+            {
+              text: 'Review frailty, comorbidity and individual perioperative risk',
+              blockId: 'patient-factors',
+            },
+          ],
+        },
+        {
+          label: 'VTE',
+          extracts: [
+            {
+              text: 'Assess VTE and bleeding risk and agree appropriate prophylaxis',
+              blockId: 'operative-preparation',
+            },
+          ],
+        },
+        {
+          label: 'Antimicrobials',
+          extracts: [
+            {
+              text: 'Choose antimicrobial agents, doses and allergy alternatives through local policy',
+              blockId: 'antimicrobial-policy',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      label: 'Consent discussion',
+      page: 'consent',
+      group: 'before-theatre',
+      rows: [
+        {
+          label: 'Why',
+          extracts: [
+            {
+              text: 'Explain why intervention is proposed and what the expected operation involves',
+              blockId: 'supported-decision',
+            },
+          ],
+        },
+        {
+          label: 'Alternatives',
+          extracts: [
+            {
+              text: 'Discuss reasonable alternatives, including non-operative treatment when applicable and what no treatment could mean',
+              blockId: 'supported-decision',
+            },
+          ],
+        },
+        {
+          label: 'Material risks',
+          extracts: [
+            {
+              text: 'Explore what matters to this patient; discuss material risks in that context',
+              blockId: 'supported-decision',
+            },
+          ],
+        },
+        {
+          label: 'Risks to discuss',
+          extracts: [
+            {
+              text: 'Discuss anaesthetic considerations, bleeding, infection, collection, injury to adjacent structures and possible further intervention in relation to this patient',
+              blockId: 'procedure-specific-discussion',
+            },
+          ],
+        },
+        {
+          label: 'May change',
+          extracts: [
+            {
+              text: 'Explain that findings may change the approach',
+              blockId: 'procedure-specific-discussion',
+            },
+          ],
+        },
+        {
+          label: 'Understanding',
+          extracts: [
+            {
+              text: 'Allow questions, check understanding and document the discussion',
+              blockId: 'supported-decision',
+            },
+            {
+              text: 'A signed form does not replace this conversation',
+              blockId: 'supported-decision',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      blockId: 'preoperative-preparation-todo',
+      label: 'Not yet covered',
+      page: 'appendicectomy',
+      group: 'before-theatre',
+    },
+    {
       label: 'Anatomy & landmarks',
       page: 'anatomy',
       group: 'theatre',
-      itemIndex: 1,
+      rows: [
+        {
+          label: 'Origin',
+          extracts: [
+            {
+              text: 'The appendix arises from the posteromedial caecum near the ileocaecal junction',
+              blockId: 'appendix-origin',
+            },
+          ],
+        },
+        {
+          label: 'Find the base',
+          extracts: [
+            {
+              text: 'Following the caecal taeniae to their convergence helps locate the appendiceal base',
+              blockId: 'appendix-origin',
+            },
+          ],
+        },
+        {
+          label: 'Tip',
+          extracts: [
+            {
+              text: 'The tip can lie retrocaecally, in the pelvis or near the ileum',
+              blockId: 'appendix-origin',
+            },
+          ],
+        },
+        {
+          label: 'Blood supply',
+          extracts: [
+            {
+              text: 'The mesoappendix carries the appendicular arterial supply',
+              blockId: 'mesoappendix',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      label: 'The operation',
+      page: 'appendicectomy',
+      group: 'theatre',
+      numbered: true,
+      rows: [
+        {
+          label: 'Position & access',
+          extracts: [
+            {
+              text: 'Position supine, adjusting tilt for exposure',
+              blockId: 'operative-sequence',
+            },
+          ],
+        },
+        {
+          label: 'Explore & identify',
+          extracts: [
+            {
+              text: 'Identify caecum, terminal ileum and appendix before dividing tissue',
+              blockId: 'operative-sequence',
+            },
+          ],
+        },
+        {
+          label: 'Mesoappendix & base',
+          extracts: [
+            {
+              text: 'Expose and control the mesoappendix and its vessels; secure and divide the appendiceal base',
+              blockId: 'operative-sequence',
+            },
+          ],
+        },
+        {
+          label: 'Retrieve & assess',
+          extracts: [
+            {
+              text: 'Retrieve the specimen in a bag; assess contamination',
+              blockId: 'operative-sequence',
+            },
+          ],
+        },
+        {
+          label: 'Inspect & close',
+          extracts: [
+            {
+              text: 'Check haemostasis and the secured base',
+              blockId: 'operative-sequence',
+            },
+            {
+              text: 'close the relevant abdominal-wall layers',
+              blockId: 'operative-sequence',
+            },
+          ],
+        },
+      ],
     },
     {
       blockId: 'structures-at-risk',
@@ -162,30 +530,110 @@ export const experience = {
       group: 'theatre',
     },
     {
-      blockId: 'operation-outline',
-      label: 'The operation',
-      page: 'appendicectomy',
-      group: 'theatre',
-    },
-    {
-      blockId: 'operative-judgement',
       label: 'What can change the plan',
       page: 'appendicectomy',
       group: 'theatre',
+      rows: [
+        {
+          label: 'Findings',
+          extracts: [
+            {
+              text: 'Poor visualisation or difficult anatomy may require a changed approach',
+              blockId: 'operative-judgement',
+            },
+          ],
+        },
+        {
+          label: 'Seek help',
+          extracts: [
+            {
+              text: 'uncertainty is a reason to seek senior help',
+              blockId: 'operative-judgement',
+            },
+          ],
+        },
+        {
+          // Conversion and strategy reasoning stay level-sensitive.
+          label: 'Strategy',
+          minimumLevel: 'cst',
+          extracts: [
+            { text: 'including conversion', blockId: 'operative-judgement' },
+            {
+              text: 'Device choice and strategy depend on findings and expertise',
+              blockId: 'operative-judgement',
+            },
+          ],
+        },
+      ],
     },
     {
-      blockId: 'supported-decision',
-      label: 'Consent',
-      page: 'consent',
-      group: 'theatre',
-      itemIndex: 2,
-    },
-    {
-      blockId: 'recovery-basics',
-      label: 'Postoperative concerns',
+      label: 'On the ward',
       page: 'post-op',
       group: 'after-surgery',
-      itemIndex: 1,
+      rows: [
+        {
+          label: 'Review',
+          extracts: [
+            {
+              text: 'Review observations, symptoms and the operative findings; escalate deterioration promptly',
+              blockId: 'postoperative-review',
+            },
+          ],
+        },
+        {
+          label: 'Comfort & intake',
+          extracts: [
+            {
+              text: 'Individualise analgesia and review fluid/intake needs',
+              blockId: 'postoperative-review',
+            },
+          ],
+        },
+        {
+          label: 'Mobilise',
+          extracts: [
+            {
+              text: 'Encourage mobilisation when appropriate and reassess VTE/bleeding risk',
+              blockId: 'postoperative-review',
+            },
+          ],
+        },
+        {
+          label: 'Antibiotics',
+          minimumLevel: 'foundation',
+          extracts: [
+            {
+              text: 'Distinguish prophylaxis from treatment',
+              blockId: 'postoperative-antibiotics',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      label: 'Reassess promptly',
+      page: 'complications',
+      group: 'after-surgery',
+      rows: [
+        {
+          label: 'Recovery',
+          extracts: [
+            {
+              text: 'Persistent vomiting, increasing wound pain/redness or fever need reassessment',
+              blockId: 'recovery-basics',
+            },
+          ],
+        },
+        {
+          label: 'Possible VTE',
+          extracts: [
+            {
+              text: 'New calf pain or breathlessness needs prompt assessment for possible VTE',
+              blockId: 'vte-complication',
+            },
+          ],
+        },
+      ],
     },
     {
       blockId: 'complications-table',
@@ -193,23 +641,83 @@ export const experience = {
       page: 'complications',
       group: 'after-surgery',
     },
+    {
+      label: 'Discharge & follow-up',
+      page: 'post-op',
+      group: 'after-surgery',
+      rows: [
+        {
+          label: 'Readiness',
+          extracts: [
+            {
+              text: 'Judge readiness from recovery, oral intake, pain control and the agreed home-care plan rather than a fixed discharge time',
+              blockId: 'discharge-plan',
+            },
+          ],
+        },
+        {
+          label: 'Safety-net',
+          extracts: [
+            {
+              text: 'Give clear instructions for symptoms requiring help and how to access it',
+              blockId: 'recovery-basics',
+            },
+          ],
+        },
+        {
+          label: 'Histology',
+          extracts: [
+            {
+              text: 'Ensure responsibility for reviewing and communicating histology is clear',
+              blockId: 'histology-follow-up',
+            },
+          ],
+        },
+      ],
+    },
   ],
   quickReferenceGroups: [
     { id: 'snapshot', title: 'Clinical snapshot' },
     { id: 'do-not-miss', title: 'Do not miss', tone: 'alert' },
     {
+      id: 'before-theatre',
+      title: 'Before theatre',
+      phase: 'before',
+      contextId: 'before-theatre',
+    },
+    {
       id: 'theatre',
       title: 'Going to theatre',
       tone: 'feature',
+      phase: 'during',
       contextId: 'theatre',
     },
     {
       id: 'after-surgery',
       title: 'After surgery · on the ward',
+      phase: 'after',
       contextId: 'ward',
     },
   ],
+  journey: [
+    { label: 'Assessment', page: 'assessment' },
+    { label: 'Investigations', page: 'investigations' },
+    { label: 'Decision', page: 'management' },
+    { label: 'Pre-op', group: 'before-theatre' },
+    { label: 'Theatre', page: 'appendicectomy' },
+    { label: 'Recovery', page: 'post-op' },
+  ],
   contexts: [
+    {
+      id: 'before-theatre',
+      title: 'Before theatre',
+      description: 'From the decision to operate to arriving in theatre.',
+      links: [
+        { title: 'Decision & initial care', page: 'management' },
+        { title: 'Full consent discussion', page: 'consent' },
+        { title: 'Operative preparation', page: 'appendicectomy' },
+      ],
+    },
     {
       id: 'ward',
       title: 'On the ward',
@@ -231,7 +739,6 @@ export const experience = {
           title: 'Positioning, access & operative sequence',
           page: 'appendicectomy',
         },
-        { title: 'Consent discussion', page: 'consent' },
         { title: 'Questions to revise', page: 'hot-seat' },
       ],
     },

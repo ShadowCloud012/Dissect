@@ -1,4 +1,5 @@
 import type { Topic, TopicMetadata } from '@/schemas/topic';
+import { isExtractSelection } from '@/schemas/topic-experience';
 
 export function topicHref(metadata: Pick<TopicMetadata, 'specialty' | 'slug'>) {
   return `/learn/${metadata.specialty}/${metadata.slug}`;
@@ -14,13 +15,39 @@ export function resolveTopicPage(topic: Topic, slug: string) {
       }
     : undefined;
 }
+function findBlock(topic: Topic, id: string) {
+  return topic.sections
+    .flatMap((section) => section.blocks)
+    .find((block) => block.id === id)!;
+}
+// Resolves every quick-reference entry to the authored blocks it draws on.
 export function selectQuickReference(topic: Topic) {
-  return (topic.experience?.quickReference ?? []).map((selection) => ({
-    ...selection,
-    block: topic.sections
-      .flatMap((section) => section.blocks)
-      .find((block) => block.id === selection.blockId)!,
-  }));
+  return (topic.experience?.quickReference ?? []).map((selection) =>
+    isExtractSelection(selection)
+      ? {
+          ...selection,
+          kind: 'extracts' as const,
+          rows: selection.rows.map((row) => ({
+            ...row,
+            extracts: row.extracts.map((extract) => ({
+              ...extract,
+              block: findBlock(topic, extract.blockId),
+            })),
+          })),
+        }
+      : {
+          ...selection,
+          kind: 'block' as const,
+          block: findBlock(topic, selection.blockId),
+        },
+  );
+}
+export function quickReferenceBlocks(
+  entry: ReturnType<typeof selectQuickReference>[number],
+) {
+  return entry.kind === 'block'
+    ? [entry.block]
+    : entry.rows.flatMap((row) => row.extracts.map((extract) => extract.block));
 }
 // Hub groups with resolved links. Sources are de-duplicated per group so each
 // source is listed once beside the answers it supports.
@@ -29,11 +56,22 @@ export function groupQuickReference(topic: Topic) {
   if (!experience) return [];
   const base = topicHref(topic.metadata);
   const entries = selectQuickReference(topic).map((entry) => {
-    const owned = resolveTopicPage(topic, entry.page)!.sections.some(
-      (section) => section.blocks.includes(entry.block),
-    );
+    const owned =
+      entry.kind === 'block' &&
+      resolveTopicPage(topic, entry.page)!.sections.some((section) =>
+        section.blocks.includes(entry.block),
+      );
+    // Flag policy dependence from universally shown content only; gated rows
+    // carry the note on their full page.
+    const universal =
+      entry.kind === 'block'
+        ? [entry.block]
+        : entry.rows
+            .filter((row) => !row.minimumLevel)
+            .flatMap((row) => row.extracts.map((extract) => extract.block));
     return {
       ...entry,
+      localPolicyMayVary: universal.some((block) => block.localPolicyMayVary),
       pageTitle: experience.pages.find((page) => page.slug === entry.page)!
         .title,
       href: `${base}/${entry.page}${owned ? `#block-${entry.block.id}` : ''}`,
@@ -45,13 +83,25 @@ export function groupQuickReference(topic: Topic) {
       ...group,
       entries: members,
       referenceIds: [
-        ...new Set(members.flatMap((entry) => entry.block.referenceIds)),
+        ...new Set(
+          members.flatMap((entry) =>
+            quickReferenceBlocks(entry).flatMap((block) => block.referenceIds),
+          ),
+        ),
       ],
       context: experience.contexts.find(
         (context) => context.id === group.contextId,
       ),
     };
   });
+}
+// Journey steps resolved to hub anchors or subpages.
+export function topicJourney(topic: Topic) {
+  const base = topicHref(topic.metadata);
+  return (topic.experience?.journey ?? []).map((step) => ({
+    label: step.label,
+    href: step.page ? `${base}/${step.page}` : `#quick-${step.group}`,
+  }));
 }
 // Blocks flagged as policy-dependent, located on their owning subpage.
 export function localPolicyEntries(topic: Topic) {

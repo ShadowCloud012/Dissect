@@ -2,7 +2,23 @@ import { z } from 'zod';
 import { contentBlockSchema } from './content-block';
 import { referenceSchema } from './reference';
 import { dateSchema, stableIdSchema, textSchema } from './shared';
-import { topicExperienceSchema } from './topic-experience';
+import { isExtractSelection, topicExperienceSchema } from './topic-experience';
+
+// All authored wording in a block, for verbatim-extract checks.
+const structuralKeys = new Set(['id', 'type', 'minimumLevel', 'referenceIds']);
+function strings(value: unknown): string[] {
+  if (typeof value === 'string') return [value];
+  if (Array.isArray(value)) return value.flatMap(strings);
+  if (value && typeof value === 'object')
+    return Object.entries(value)
+      .filter(([key]) => !structuralKeys.has(key))
+      .flatMap(([, entry]) => strings(entry));
+  return [];
+}
+export function blockText(block: unknown) {
+  return strings(block).join('\n');
+}
+const normalise = (text: string) => text.toLowerCase().replace(/\s+/g, ' ');
 
 const metadataFields = {
   id: stableIdSchema,
@@ -93,6 +109,31 @@ export const topicSchema = z
         if (section.id !== 'overview' && !assigned.includes(section.id))
           fail(`Unassigned section: ${section.id}`);
       for (const selection of experience.quickReference) {
+        if (
+          !experience.quickReferenceGroups.some(
+            (group) => group.id === selection.group,
+          )
+        )
+          fail(`Unknown quick-reference group: ${selection.group}`);
+        if (!pageIds.has(selection.page))
+          fail(`Unknown quick-reference page: ${selection.page}`);
+        if (isExtractSelection(selection)) {
+          for (const row of selection.rows)
+            for (const extract of row.extracts) {
+              const source = blocks.find(
+                (block) => block.id === extract.blockId,
+              );
+              if (!source || source.type === 'question')
+                fail(`Unknown extract block: ${extract.blockId}`);
+              else if (
+                !normalise(blockText(source)).includes(normalise(extract.text))
+              )
+                fail(
+                  `Extract is not verbatim in ${extract.blockId}: "${extract.text}"`,
+                );
+            }
+          continue;
+        }
         const block = blocks.find((block) => block.id === selection.blockId);
         const page = experience.pages.find(
           (page) => page.slug === selection.page,
@@ -125,12 +166,19 @@ export const topicSchema = z
           selection.itemIndex >= itemCount
         )
           fail('Invalid quick-reference item index');
+      }
+      for (const step of experience.journey) {
+        if (!step.page === !step.group)
+          fail(`Journey step needs a page or a group: ${step.label}`);
+        if (step.page && !pageIds.has(step.page))
+          fail(`Unknown journey page: ${step.page}`);
         if (
+          step.group &&
           !experience.quickReferenceGroups.some(
-            (group) => group.id === selection.group,
+            (group) => group.id === step.group,
           )
         )
-          fail(`Unknown quick-reference group: ${selection.group}`);
+          fail(`Unknown journey group: ${step.group}`);
       }
       for (const group of experience.quickReferenceGroups) {
         if (

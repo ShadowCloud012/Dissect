@@ -72,6 +72,13 @@ export const operativeCareSections = [
         referenceIds: ['nice-perioperative', 'nice-vte'],
       },
       {
+        id: 'preoperative-preparation-todo',
+        type: 'sourceNote',
+        minimumLevel: 'medical-student',
+        text: 'Clinical-review TODO: fasting, pre-anaesthetic investigations and other preparation before theatre are not yet sourced for this topic. No fasting rule or preparation checklist is asserted here.',
+        referenceIds: [],
+      },
+      {
         id: 'operative-sequence',
         type: 'checklist',
         minimumLevel: 'medical-student',

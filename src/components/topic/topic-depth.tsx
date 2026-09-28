@@ -80,11 +80,14 @@ function useHash() {
 export function LevelContent({
   minimumLevel,
   anchorId,
+  fallback = null,
   children,
 }: {
   minimumLevel: TrainingLevel;
   // A direct link to this anchor reveals it even above the selected depth.
   anchorId?: string;
+  // Shown instead when the content is above the selected depth.
+  fallback?: ReactNode;
   children: ReactNode;
 }) {
   const { level, showAdvanced } = useContext(DepthContext);
@@ -95,7 +98,7 @@ export function LevelContent({
     if (linked) document.getElementById(anchorId!)?.scrollIntoView();
   }, [linked, anchorId]);
   if (allowed) return children;
-  if (!linked) return null;
+  if (!linked) return fallback;
   return (
     <div className="linked-depth">
       <p className="eyebrow">

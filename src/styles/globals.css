@@ -169,13 +169,16 @@
   }
   /* Hub quick reference: grouped, answer-first. */
   .quick-reference {
-    @apply grid gap-4;
+    @apply grid gap-3 sm:gap-4;
+  }
+  .depth-hint {
+    @apply text-xs text-dissect-muted italic;
   }
   .quick-group {
     @apply min-w-0 border border-dissect-border bg-dissect-surface;
   }
   .quick-group-title {
-    @apply flex items-center gap-2 border-b border-dissect-border px-4 py-2 font-mono text-xs font-medium tracking-wide text-dissect-green-800 uppercase;
+    @apply flex items-center gap-2 border-b border-dissect-border px-3 py-1.5 font-mono text-xs font-medium tracking-wide text-dissect-green-800 uppercase sm:px-4 sm:py-2;
   }
   .quick-group[data-tone='alert'] {
     @apply border-dissect-red/40 border-l-4 border-l-dissect-red bg-dissect-red-soft;
@@ -192,11 +195,67 @@
   .alert-mark {
     @apply inline-flex size-4 items-center justify-center rounded-full bg-dissect-red text-[10px] text-white;
   }
+  .quick-group {
+    @apply scroll-mt-16;
+  }
   .quick-entries {
-    @apply grid sm:grid-cols-[repeat(auto-fit,minmax(13rem,1fr))];
+    @apply grid sm:grid-cols-[repeat(auto-fit,minmax(15rem,1fr))];
   }
   .quick-entry {
-    @apply min-w-0 border-b border-dissect-border px-4 pt-1 pb-3 sm:border-r sm:border-b-0;
+    @apply @container min-w-0 border-b border-dissect-border px-3 pt-0.5 pb-3 sm:border-r sm:border-b-0 sm:px-4;
+  }
+  .quick-entry[data-note] {
+    @apply text-dissect-muted;
+  }
+  .quick-entry[data-note] > div {
+    @apply text-xs leading-5;
+  }
+  .quick-entry[data-note] h3 a {
+    @apply font-medium text-dissect-muted;
+  }
+  /* Labelled rows of verbatim extracts: label column when there is room. */
+  .quick-rows {
+    @apply grid gap-1 sm:gap-1.5;
+  }
+  /* Run-in labels keep narrow cards short; wide cards get a label column. */
+  .quick-rows > div,
+  .quick-rows > li {
+    @apply block @[26rem]:grid @[26rem]:grid-cols-[6.5rem_minmax(0,1fr)] @[26rem]:gap-x-3;
+  }
+  .quick-rows dd {
+    @apply inline @[26rem]:block;
+  }
+  .quick-row-label {
+    @apply mr-1.5 inline pt-px font-mono text-xs leading-5 text-dissect-muted @[26rem]:mr-0 @[26rem]:block;
+  }
+  .quick-rows-numbered > li {
+    @apply border-l-2 border-dissect-green-600 pl-2;
+  }
+  .quick-rows-numbered .quick-row-label {
+    @apply text-dissect-green-800;
+  }
+  /* Before → In → After: one reusable perioperative sequence. */
+  .periop-sequence {
+    @apply grid gap-4;
+  }
+  .phase-marker {
+    @apply border border-current px-1.5 py-px text-[10px] leading-none;
+  }
+  .patient-journey {
+    @apply mb-4;
+  }
+  .patient-journey ol {
+    @apply flex flex-wrap items-center gap-y-1 text-sm;
+  }
+  .patient-journey li {
+    @apply flex items-center;
+  }
+  .patient-journey li + li::before {
+    @apply px-1.5 text-dissect-muted;
+    content: '→' / '';
+  }
+  .patient-journey a {
+    @apply inline-flex min-h-9 items-center text-dissect-green-800 underline decoration-dissect-green-200 underline-offset-4 hover:decoration-dissect-green-800 sm:min-h-8;
   }
   .quick-group[data-tone='alert'] .quick-entry {
     @apply border-dissect-red/20;
@@ -205,7 +264,7 @@
     @apply border-b-0 sm:border-r-0;
   }
   .quick-entry h3 a {
-    @apply inline-flex min-h-11 items-center gap-2 font-semibold hover:text-dissect-green-800;
+    @apply inline-flex min-h-10 items-center gap-2 font-semibold hover:text-dissect-green-800 sm:min-h-11;
   }
   .quick-group[data-tone='alert'] .quick-entry h3 a {
     @apply text-dissect-red;
@@ -231,8 +290,13 @@
   .quick-sources[open] {
     @apply w-full;
   }
+  /* One scrollable row on mobile; wraps where there is room. */
+  .quick-group-footer > nav {
+    @apply max-w-full min-w-0 overflow-x-auto sm:overflow-visible;
+    scrollbar-width: none;
+  }
   .quick-context-links {
-    @apply flex flex-wrap gap-x-1;
+    @apply flex w-max gap-x-1 whitespace-nowrap sm:w-auto sm:flex-wrap sm:whitespace-normal;
   }
   .quick-context-links a {
     @apply inline-flex min-h-11 items-center px-2 text-sm text-dissect-green-800 underline decoration-dissect-green-200 underline-offset-4 hover:decoration-dissect-green-800;
@@ -376,17 +440,21 @@
     @apply font-mono text-xs font-normal text-dissect-muted;
   }
   /* Secondary: every page stays one tap away without competing with answers. */
+  /* Quiet: one wrapped line of links per group on mobile, columns on desktop. */
   .hub-directory {
-    @apply mt-8 border-t border-dissect-border pt-5;
+    @apply mt-6 border-t border-dissect-border pt-4 sm:mt-8 sm:pt-5;
   }
   .hub-directory-grid {
-    @apply mt-3 grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3;
+    @apply mt-2 grid gap-y-1 sm:mt-3 sm:grid-cols-3 sm:gap-x-6 sm:gap-y-4;
+  }
+  .hub-directory-grid section {
+    @apply flex flex-wrap items-baseline gap-x-3 sm:block;
   }
   .hub-directory-grid ul {
-    @apply mt-1;
+    @apply flex flex-wrap gap-x-3 sm:mt-1 sm:block;
   }
   .hub-directory-grid a {
-    @apply flex min-h-11 items-center text-sm text-dissect-green-800 underline decoration-dissect-green-200 underline-offset-4 hover:decoration-dissect-green-800 sm:min-h-9;
+    @apply flex min-h-9 items-center text-sm text-dissect-green-800 underline decoration-dissect-green-200 underline-offset-4 hover:decoration-dissect-green-800;
   }
   .related-content {
     @apply mb-5 border-b border-dissect-border pb-4;
