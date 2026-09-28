@@ -31,3 +31,188 @@
     }
   }
 }
+
+@layer components {
+  .eyebrow {
+    @apply font-mono text-xs tracking-wide text-dissect-muted;
+  }
+  .browse-page {
+    @apply mx-auto max-w-6xl px-4 py-8 sm:px-8 sm:py-14;
+  }
+  .browse-title {
+    @apply mt-4 text-4xl font-semibold tracking-tight sm:text-5xl;
+  }
+  .browse-intro {
+    @apply mt-5 max-w-2xl text-lg leading-8 text-dissect-muted;
+  }
+  .specialty-link {
+    @apply grid grid-cols-[1fr_auto] gap-5 border-b border-dissect-border py-8 hover:bg-dissect-green-50 sm:grid-cols-[100px_1fr_auto];
+  }
+  .specialty-link > .eyebrow {
+    @apply col-span-2 sm:col-span-1;
+  }
+  .specialty-browser {
+    @apply mt-10 grid gap-8 md:grid-cols-[230px_minmax(0,1fr)];
+  }
+  .category-nav {
+    @apply self-start;
+  }
+  .category-nav button {
+    @apply flex min-h-11 w-full items-center justify-between gap-2 border-b border-dissect-border px-3 py-3 text-left text-sm;
+  }
+  .category-nav button[aria-pressed='true'] {
+    @apply border-l-2 border-l-dissect-green-800 bg-dissect-green-50 font-semibold text-dissect-green-800;
+  }
+  .topic-listing {
+    @apply border-y border-dissect-border bg-dissect-surface p-5 sm:p-7;
+  }
+  .taxonomy-tag {
+    @apply border border-dissect-border px-2 py-1 font-mono text-xs text-dissect-muted;
+  }
+  .breadcrumbs ol {
+    @apply flex flex-wrap items-center gap-x-2 text-xs text-dissect-muted;
+  }
+  .breadcrumbs li {
+    @apply flex min-h-11 items-center gap-2;
+  }
+  .breadcrumbs li + li::before {
+    content: '/';
+  }
+  .breadcrumbs a {
+    @apply inline-flex min-h-11 items-center underline decoration-dissect-border underline-offset-4;
+  }
+  .topic-header {
+    @apply border-b border-dissect-border py-5;
+  }
+  .topic-header [role='note'] {
+    @apply text-sm;
+  }
+  .topic-columns {
+    @apply grid min-w-0 gap-6 lg:grid-cols-[176px_minmax(0,1fr)] lg:pt-7 xl:grid-cols-[176px_minmax(0,1fr)_190px];
+  }
+  .desktop-topic-nav {
+    @apply hidden self-start lg:sticky lg:top-5 lg:block lg:max-h-[calc(100dvh-2.5rem)] lg:overflow-y-auto;
+  }
+  .desktop-topic-nav a,
+  .mobile-topic-links a {
+    @apply flex min-h-11 items-center border-l-2 border-transparent px-3 py-2 text-sm;
+  }
+  .desktop-topic-nav a[aria-current='page'],
+  .mobile-topic-links a[aria-current='page'] {
+    @apply border-dissect-green-800 bg-dissect-green-50 font-semibold text-dissect-green-800;
+  }
+  .mobile-topic-nav {
+    @apply sticky top-0 z-20 -mx-4 border-y border-dissect-border bg-dissect-paper px-4 shadow-dissect-sm sm:mx-0 lg:hidden;
+  }
+  .mobile-topic-nav summary {
+    @apply flex items-center justify-between gap-3;
+  }
+  .mobile-topic-nav summary::after {
+    content: '+';
+  }
+  .mobile-topic-nav details[open] summary::after {
+    content: '−';
+  }
+  .mobile-topic-links {
+    @apply max-h-[60dvh] overflow-y-auto pb-3;
+  }
+  .topic-context {
+    @apply min-w-0 self-start border-t border-dissect-border py-5 lg:col-start-2 xl:sticky xl:top-5 xl:col-start-auto xl:border-t-0 xl:border-l xl:py-0 xl:pl-4;
+  }
+  .disclosure-trigger {
+    @apply min-h-11 cursor-pointer py-3 text-sm font-medium text-dissect-green-800;
+  }
+  .hub-definition {
+    @apply mb-7 border-l-2 border-dissect-green-800 pl-5;
+  }
+  .quick-grid {
+    @apply grid gap-x-6 sm:grid-cols-2;
+  }
+  .quick-answer {
+    @apply min-w-0 border-t border-dissect-border py-4;
+  }
+  .quick-answer h3 {
+    @apply font-semibold;
+  }
+  .quick-answer h3 a {
+    @apply inline-flex min-h-11 items-center;
+  }
+  .quick-warning {
+    @apply border-t-2 border-dissect-amber;
+  }
+  .quick-warning h3 {
+    @apply text-dissect-amber;
+  }
+  .context-panels {
+    @apply mt-8 grid gap-6 border-y border-dissect-border py-6 sm:grid-cols-2;
+  }
+  .context-panels section {
+    @apply min-w-0;
+  }
+  .related-link {
+    @apply flex min-h-11 items-center justify-between gap-3 text-sm text-dissect-green-800 underline decoration-dissect-green-200 underline-offset-4;
+  }
+  h2 .related-link {
+    @apply text-2xl;
+  }
+  .section-jumps {
+    @apply mb-6 flex flex-wrap gap-2 border-b border-dissect-border pb-4;
+  }
+  .section-jumps a {
+    @apply inline-flex min-h-11 items-center border border-dissect-border px-3 text-sm;
+  }
+  .topic-section {
+    @apply mb-8 scroll-mt-20;
+  }
+  .topic-section + .topic-section {
+    @apply border-t border-dissect-border pt-6;
+  }
+  .content-block {
+    @apply scroll-mt-20;
+  }
+  .block-label {
+    @apply mb-2 text-base font-semibold;
+  }
+  .pattern-fact {
+    @apply border border-dissect-border bg-dissect-surface p-4 sm:p-5;
+  }
+  .pattern-pathway {
+    @apply border-l-2 border-dissect-green-800 bg-dissect-green-50/40 py-3 pr-3 pl-5;
+  }
+  .pattern-pathway .block-label {
+    @apply text-dissect-green-800;
+  }
+  .operative-steps {
+    @apply mt-4;
+  }
+  .operative-steps li {
+    @apply relative grid grid-cols-[36px_minmax(0,1fr)] gap-4 border-t border-dissect-border py-3;
+  }
+  .step-number {
+    @apply mt-3 font-mono text-sm text-dissect-green-800;
+  }
+  .operative-steps details {
+    @apply min-w-0 pb-3;
+  }
+  .complication-grid {
+    @apply grid border-t border-l border-dissect-border sm:grid-cols-2;
+  }
+  .complication-grid > div {
+    @apply border-r border-b border-dissect-border p-4;
+  }
+  .consent-panel {
+    @apply divide-y divide-dissect-border border-y border-dissect-border;
+  }
+  .consent-panel li {
+    @apply grid grid-cols-[24px_minmax(0,1fr)] items-baseline gap-3 py-4;
+  }
+  .revision-question {
+    @apply border-t border-dissect-border pt-4;
+  }
+  .page-directory {
+    @apply flex flex-wrap gap-3 border-t border-dissect-border pt-5;
+  }
+  .page-directory a {
+    @apply inline-flex min-h-11 items-center gap-3 px-2 text-sm text-dissect-green-800 underline underline-offset-4;
+  }
+}

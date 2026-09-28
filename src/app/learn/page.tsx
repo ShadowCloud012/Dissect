@@ -1,52 +1,56 @@
 import Link from 'next/link';
+import { specialties } from '@/content/specialties';
 import { topicRegistry } from '@/content/registry';
-import { Badge } from '@/components/ui/badge';
-import { EditorialStatus } from '@/components/topic/editorial-status';
 export const metadata = { title: 'Learn' };
 export default function LearnPage() {
   return (
-    <div className="mx-auto max-w-5xl px-5 py-14 sm:px-8 sm:py-20">
-      <Badge>Dissect / Learn</Badge>
-      <h1 className="mt-6 text-4xl font-semibold tracking-tight sm:text-5xl">
-        Learn
-      </h1>
-      <p className="mt-5 max-w-2xl text-lg leading-8 text-dissect-muted">
-        Surgical knowledge, organised around clinical topics and procedures.
-        Clinical drafts are clearly labelled while awaiting review.
+    <div className="browse-page">
+      <p className="eyebrow">Dissect / Surgical reference</p>
+      <h1 className="browse-title">Learn</h1>
+      <p className="browse-intro">
+        Start with your specialty. Move from the clinical question to the
+        operation, the evidence and the next thing to revise.
       </p>
-      <ul className="mt-10 max-w-2xl">
-        {topicRegistry.listTopics().map((topic) => (
-          <li key={topic.id} className="border-y border-dissect-border py-6">
-            <Badge>
-              {topic.contentKind === 'non-clinical-demo'
-                ? 'NON-CLINICAL DEMO'
-                : topic.category}
-            </Badge>
-            {topic.contentKind === 'clinical' && (
-              <p className="mt-3 text-sm font-medium">
-                {topic.specialty
-                  .split('-')
-                  .map((word) => word[0].toUpperCase() + word.slice(1))
-                  .join(' ')}
-              </p>
-            )}
-            <h2 className="mt-3 text-xl font-semibold">
-              <Link
-                className="inline-flex min-h-11 items-center text-dissect-green-800 underline underline-offset-4"
-                href={`/learn/${topic.specialty}/${topic.slug}`}
-              >
-                {topic.title}
-              </Link>
-            </h2>
-            <p className="mt-2 leading-7 text-dissect-muted">{topic.summary}</p>
-            {topic.contentKind === 'clinical' && (
-              <div className="mt-3">
-                <EditorialStatus metadata={topic} />
+      <div className="mt-10 border-t border-dissect-border">
+        {specialties
+          .filter((specialty) => topicRegistry.countTopics(specialty.slug) > 0)
+          .map((specialty) => (
+            <Link
+              className="specialty-link"
+              key={specialty.id}
+              href={`/learn/${specialty.slug}`}
+            >
+              <span className="eyebrow">Specialty</span>
+              <div>
+                <h2 className="text-2xl font-semibold">{specialty.title}</h2>
+                <p className="mt-2 text-dissect-muted">
+                  {specialty.description}
+                </p>
+                <p className="mt-4 font-mono text-xs">
+                  {topicRegistry.countTopics(specialty.slug)} topic · Reference,
+                  operative learning &amp; revision
+                </p>
               </div>
-            )}
-          </li>
-        ))}
-      </ul>
+              <span aria-hidden="true" className="text-2xl">
+                ↗
+              </span>
+            </Link>
+          ))}
+      </div>
+      <p className="mt-8 text-sm text-dissect-muted">
+        More specialties will be added as reviewed content becomes available.
+      </p>
+      <details className="mt-12 text-sm">
+        <summary className="disclosure-trigger">
+          About the content format
+        </summary>
+        <Link
+          className="related-link"
+          href="/learn/demo/how-dissect-content-works"
+        >
+          Explore the non-clinical content demonstration
+        </Link>
+      </details>
     </div>
   );
 }

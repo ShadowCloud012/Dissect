@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation';
 import { topicRegistry } from '@/content/registry';
 import { TopicLayout } from '@/components/topic/topic-layout';
+import { TopicExperience } from '@/components/topic/topic-experience';
+import { topicHref } from '@/lib/topic-pages';
 
 type Props = { params: Promise<{ specialty: string; topic: string }> };
 function resolveTopic(specialty: string, slug: string) {
@@ -17,9 +19,18 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Props) {
   const { specialty, topic: slug } = await params;
   const { metadata } = resolveTopic(specialty, slug);
-  return { title: metadata.title, description: metadata.summary };
+  return {
+    title: metadata.title,
+    description: metadata.summary,
+    alternates: { canonical: topicHref(metadata) },
+  };
 }
 export default async function TopicPage({ params }: Props) {
   const { specialty, topic } = await params;
-  return <TopicLayout topic={resolveTopic(specialty, topic)} />;
+  const content = resolveTopic(specialty, topic);
+  return content.experience ? (
+    <TopicExperience topic={content} />
+  ) : (
+    <TopicLayout topic={content} />
+  );
 }

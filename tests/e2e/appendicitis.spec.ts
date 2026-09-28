@@ -1,121 +1,191 @@
 import { expect, test } from '@playwright/test';
+const base = '/learn/general-surgery/acute-appendicitis';
+const views = [
+  'assessment',
+  'investigations',
+  'management',
+  'anatomy',
+  'appendicectomy',
+  'post-op',
+  'complications',
+  'consent',
+  'hot-seat',
+  'evidence',
+];
 
-const route = '/learn/general-surgery/acute-appendicitis';
-test('appendicitis discovery, editorial status, depth, navigation and sources', async ({
+test('specialty browsing, canonical discovery and all topic routes', async ({
   page,
-}, testInfo) => {
+}, info) => {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   page.on('console', (message) => {
     if (message.type() === 'error') errors.push(message.text());
   });
-  expect((await page.goto(route))?.status()).toBe(200);
-  await expect(page).toHaveTitle('Acute appendicitis | Dissect');
-  await expect(page.locator('meta[name="description"]')).toHaveAttribute(
-    'content',
-    /Assessment, management/,
-  );
-  await expect(
-    page.getByText('Draft educational content — awaiting clinical review', {
-      exact: true,
-    }),
-  ).toBeVisible();
-  await expect(page.getByText(/last clinically reviewed/i)).toHaveCount(0);
-  const selector = page.getByRole('combobox', { name: 'Training level' });
-  await expect(selector).toHaveCount(1);
-  const bank = page.getByRole('region', { name: 'Hot Seat' });
-  await expect(bank.getByRole('heading', { level: 3 })).toHaveCount(5);
-  await page.screenshot({
-    path: testInfo.outputPath('appendicitis-student.png'),
-    fullPage: true,
-  });
-  await page
-    .locator('article > header')
-    .screenshot({ path: testInfo.outputPath('appendicitis-status.png') });
-  await selector.selectOption('registrar');
-  await page.reload();
-  await expect(selector).toHaveValue('registrar');
-  await expect(bank.getByRole('heading', { level: 3 })).toHaveCount(20);
-  await expect(
-    page.getByText(
-      /Source types describe the publication, not evidence certainty/,
-    ),
-  ).toBeVisible();
-  await expect(page.locator('#reference-wses-2025')).toContainText(
-    'Mauro Podda, Marco Ceresoli, Belinda De Simone',
-  );
-  await page
-    .locator('#section-presentation')
-    .screenshot({ path: testInfo.outputPath('appendicitis-history.png') });
-  await page
-    .locator('#section-management')
-    .screenshot({ path: testInfo.outputPath('appendicitis-management.png') });
-  await page.screenshot({
-    path: testInfo.outputPath('appendicitis-registrar.png'),
-    fullPage: true,
-  });
-  await page
-    .locator('#section-laparoscopic-appendicectomy')
-    .screenshot({ path: testInfo.outputPath('appendicitis-operation.png') });
-  const navLink = page
-    .getByRole('navigation', { name: 'Topic sections' })
-    .getByRole('link', { name: 'Consent', exact: true });
-  await navLink.focus();
-  await page.keyboard.press('Enter');
-  await expect(page).toHaveURL(`${route}#section-consent`);
-  await expect(navLink).toHaveAttribute('aria-current', 'location');
-  await expect(
-    page.getByRole('heading', { name: 'Consent', exact: true }),
-  ).toBeInViewport();
-  await page
-    .locator('#section-consent')
-    .screenshot({ path: testInfo.outputPath('appendicitis-consent.png') });
-  await page
-    .getByRole('link', { name: /Source: Consent: Supported Decision-Making/ })
-    .first()
-    .click();
-  await expect(page.locator('#reference-rcs-consent')).toBeInViewport();
-  await expect(
-    page.getByRole('link', { name: /Open source\s*:\s*Consent:/ }),
-  ).toHaveAttribute('rel', 'noopener noreferrer');
-  await page
-    .locator('#reference-wses-2025')
-    .screenshot({ path: testInfo.outputPath('appendicitis-source.png') });
-  await selector.selectOption('medical-student');
-  await expect(bank.getByRole('heading', { level: 3 })).toHaveCount(5);
-  await page.getByRole('button', { name: 'Show advanced content' }).click();
-  await expect(bank.getByRole('heading', { level: 3 })).toHaveCount(20);
-  await expect(selector).toHaveValue('medical-student');
-  await page.getByRole('button', { name: 'Hide advanced content' }).click();
-  await expect(bank.getByRole('heading', { level: 3 })).toHaveCount(5);
-  expect(
-    await page.evaluate(
-      () => document.documentElement.scrollWidth <= innerWidth,
-    ),
-  ).toBe(true);
-  await page.setViewportSize({ width: 320, height: 740 });
-  await page.getByRole('button', { name: 'Show advanced content' }).click();
-  expect(
-    await page.evaluate(
-      () => document.documentElement.scrollWidth <= innerWidth,
-    ),
-  ).toBe(true);
-  await page.locator('#section-complications').screenshot({
-    path: testInfo.outputPath('appendicitis-320-complications.png'),
-  });
   await page.goto('/learn');
   await expect(
-    page.getByText('General Surgery', { exact: true }),
+    page.getByRole('heading', { name: 'General Surgery' }),
   ).toBeVisible();
+  await expect(
+    page.getByRole('link', { name: 'Acute appendicitis', exact: true }),
+  ).toHaveCount(0);
+  await page.screenshot({ path: info.outputPath('learn.png'), fullPage: true });
+  await page.getByRole('link', { name: /Specialty General Surgery/ }).click();
+  await expect(page).toHaveURL('/learn/general-surgery');
+  await page.reload();
+  for (const category of [
+    'Emergency General Surgery',
+    'Colorectal',
+    'All topics',
+  ]) {
+    const button = page.getByRole('button', { name: new RegExp(category) });
+    await button.click();
+    await expect(button).toHaveAttribute('aria-pressed', 'true');
+    await expect(
+      page.getByRole('link', { name: /Acute appendicitis/ }),
+    ).toHaveAttribute('href', base);
+  }
+  await page.screenshot({
+    path: info.outputPath('specialty.png'),
+    fullPage: true,
+  });
+  await page.getByRole('link', { name: /Acute appendicitis/ }).click();
+  await expect(page).toHaveURL(base);
+  await expect(
+    page.getByRole('heading', { name: 'Quick reference' }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'Do not miss deterioration' }),
+  ).toBeVisible();
+  await page.screenshot({ path: info.outputPath('hub.png'), fullPage: true });
   await page
+    .getByRole('combobox', { name: 'Training level' })
+    .selectOption('registrar');
+  for (const view of views) {
+    expect((await page.goto(`${base}/${view}`))?.status()).toBe(200);
+    await page.reload();
+    await expect(
+      page.getByRole('combobox', { name: 'Training level' }),
+    ).toHaveValue('registrar');
+    await expect(
+      page.getByRole('combobox', { name: 'Training level' }),
+    ).toHaveCount(1);
+    await expect(
+      page.getByText('Draft educational content — awaiting clinical review', {
+        exact: true,
+      }),
+    ).toBeVisible();
+    await expect(page.getByText(/last clinically reviewed/i)).toHaveCount(0);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      'href',
+      new RegExp(`${base}/${view}$`),
+    );
+    const nav = page.getByRole('navigation', {
+      name: info.project.name.startsWith('mobile')
+        ? 'Mobile topic pages'
+        : 'Topic pages',
+      exact: true,
+    });
+    if (info.project.name.startsWith('mobile'))
+      await nav.locator('summary').click();
+    await expect(nav.locator('a[aria-current="page"]')).toHaveAttribute(
+      'href',
+      `${base}/${view}`,
+    );
+    if (info.project.name.startsWith('mobile'))
+      await nav.locator('summary').click();
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+    await page.screenshot({
+      path: info.outputPath(`${view}.png`),
+      fullPage: true,
+    });
+  }
+  await page
+    .getByRole('navigation', { name: 'Breadcrumb' })
     .getByRole('link', { name: 'Acute appendicitis', exact: true })
     .click();
-  await expect(page).toHaveURL(route);
-  await expect(
-    page.getByRole('heading', { level: 1, name: 'Acute appendicitis' }),
-  ).toBeVisible();
-  await page.screenshot({
-    path: testInfo.outputPath('appendicitis-320-top.png'),
-  });
+  await expect(page).toHaveURL(base);
+  await page
+    .getByRole('link', { name: /Source: Appendicitis/, exact: true })
+    .first()
+    .click();
+  await expect(page).toHaveURL(`${base}/evidence#reference-nhs-appendicitis`);
+  await expect(page.locator('#reference-nhs-appendicitis')).toBeInViewport();
   expect(errors).toEqual([]);
+});
+
+test('mobile quick navigation, depth, keyboard recall and operative disclosures', async ({
+  page,
+}, info) => {
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') errors.push(message.text());
+  });
+  await page.goto(`${base}/hot-seat`);
+  const bank = page.getByRole('region', { name: 'Hot Seat' });
+  await expect(bank.getByRole('heading', { level: 3 })).toHaveCount(5);
+  const reveal = bank.locator('summary').first();
+  const answer = bank.getByText(/Early visceral pain can give way/);
+  await expect(answer).not.toBeVisible();
+  await reveal.focus();
+  await page.keyboard.press('Enter');
+  await expect(answer).toBeVisible();
+  await page.getByRole('button', { name: 'Show advanced content' }).click();
+  await expect(bank.getByRole('heading', { level: 3 })).toHaveCount(20);
+  await page.getByRole('button', { name: 'Hide advanced content' }).click();
+  await expect(bank.getByRole('heading', { level: 3 })).toHaveCount(5);
+  await page
+    .getByRole('combobox', { name: 'Training level' })
+    .selectOption('cst');
+  await page.setViewportSize({ width: 320, height: 740 });
+  const nav = page.getByRole('navigation', {
+    name: 'Mobile topic pages',
+    exact: true,
+  });
+  await nav.locator('summary').click();
+  await nav.getByRole('link', { name: 'Appendicectomy', exact: true }).click();
+  await expect(page).toHaveURL(`${base}/appendicectomy`);
+  const steps = page.locator('.operative-steps');
+  await expect(steps.locator('li')).toHaveCount(5);
+  await steps.locator('summary').first().focus();
+  await page.keyboard.press('Enter');
+  await expect(steps.locator('details').first()).not.toHaveAttribute(
+    'open',
+    '',
+  );
+  await page.keyboard.press('Enter');
+  await expect(steps.locator('details').first()).toHaveAttribute('open', '');
+  await steps.screenshot({ path: info.outputPath('320-operative-steps.png') });
+  for (const view of ['', ...views]) {
+    await page.goto(`${base}${view ? `/${view}` : ''}`);
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+    await expect(
+      page
+        .getByRole('navigation', { name: 'Mobile topic pages', exact: true })
+        .locator('summary'),
+    ).toBeVisible();
+    if (['', 'consent', 'complications', 'evidence'].includes(view))
+      await page.screenshot({
+        path: info.outputPath(`320-${view || 'hub'}.png`),
+        fullPage: true,
+      });
+  }
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page
+    .getByRole('navigation', { name: 'Mobile topic pages', exact: true })
+    .locator('summary')
+    .click();
+  expect(errors).toEqual([]);
+});
+
+test('unknown topic subpage returns 404', async ({ page }) => {
+  expect((await page.goto(`${base}/missing`))?.status()).toBe(404);
 });

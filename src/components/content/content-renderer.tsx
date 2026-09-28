@@ -1,14 +1,23 @@
 import type { ReactNode } from 'react';
+import type { BlockPresentation } from '@/schemas/topic-experience';
+import {
+  RevisionQuestion,
+  OperativeStepList,
+  ComplicationCards,
+  ConsentPanel,
+} from './surgical-patterns';
 import type { ContentBlock } from '@/schemas/content-block';
 import type { Reference } from '@/schemas/reference';
 import { SourceBadge } from '@/components/references/source-badge';
 import { LevelContent } from '@/components/topic/topic-depth';
 
-function Sources({
+export function Sources({
   ids,
   references,
+  evidenceHref,
 }: {
   ids: string[];
+  evidenceHref?: string;
   references: Reference[];
 }) {
   return (
@@ -17,7 +26,13 @@ function Sources({
         const reference = references.find((entry) => entry.id === id);
         if (!reference)
           throw new Error(`Cannot render unknown reference: ${id}`);
-        return <SourceBadge key={id} reference={reference} />;
+        return (
+          <SourceBadge
+            key={id}
+            reference={reference}
+            evidenceHref={evidenceHref}
+          />
+        );
       })}
     </div>
   );
@@ -27,20 +42,16 @@ function Sources({
 function BlockBody({
   block,
   references,
+  evidenceHref,
 }: {
   block: ContentBlock;
+  evidenceHref?: string;
   references: Reference[];
 }): ReactNode {
   switch (block.type) {
     case 'question':
       return (
-        <div>
-          <h3 className="font-semibold">{block.question}</h3>
-          <p className="mt-2">
-            <span className="font-medium">Model answer: </span>
-            {block.answer}
-          </p>
-        </div>
+        <RevisionQuestion question={block.question} answer={block.answer} />
       );
     case 'prose':
       return (
@@ -139,7 +150,11 @@ function BlockBody({
                     Local policy may vary.
                   </p>
                 )}
-                <Sources ids={claim.referenceIds} references={references} />
+                <Sources
+                  ids={claim.referenceIds}
+                  references={references}
+                  evidenceHref={evidenceHref}
+                />
               </div>
             </LevelContent>
           ))}
@@ -160,30 +175,58 @@ function BlockBody({
 export function ContentRenderer({
   blocks,
   references,
+  evidenceHref,
+  presentation = [],
 }: {
   blocks: ContentBlock[];
+  evidenceHref?: string;
+  presentation?: BlockPresentation[];
   references: Reference[];
 }) {
   return (
     <div className="space-y-6">
-      {blocks.map((block) => (
-        <LevelContent key={block.id} minimumLevel={block.minimumLevel}>
-          <div
-            id={`block-${block.id}`}
-            className="space-y-2 text-base leading-7 wrap-break-word"
-          >
-            <BlockBody block={block} references={references} />
-            {block.localPolicyMayVary && (
-              <p className="text-sm font-medium text-dissect-amber">
-                Local policy may vary.
-              </p>
-            )}
-            {block.referenceIds.length > 0 && (
-              <Sources ids={block.referenceIds} references={references} />
-            )}
-          </div>
-        </LevelContent>
-      ))}
+      {blocks.map((block) => {
+        const style = presentation.find((item) => item.blockId === block.id);
+        return (
+          <LevelContent key={block.id} minimumLevel={block.minimumLevel}>
+            <div
+              id={`block-${block.id}`}
+              className={`content-block space-y-2 text-base leading-7 wrap-break-word ${style ? `pattern-${style.variant}` : ''}`}
+            >
+              {style && <h3 className="block-label">{style.label}</h3>}
+              {style?.variant === 'steps' && block.type === 'checklist' ? (
+                <OperativeStepList
+                  items={block.items}
+                  labels={style.itemLabels}
+                />
+              ) : style?.variant === 'consent' && block.type === 'checklist' ? (
+                <ConsentPanel items={block.items} labels={style.itemLabels} />
+              ) : style?.variant === 'complications' &&
+                block.type === 'table' ? (
+                <ComplicationCards block={block} />
+              ) : (
+                <BlockBody
+                  block={block}
+                  references={references}
+                  evidenceHref={evidenceHref}
+                />
+              )}
+              {block.localPolicyMayVary && (
+                <p className="text-sm font-medium text-dissect-amber">
+                  Local policy may vary.
+                </p>
+              )}
+              {block.referenceIds.length > 0 && (
+                <Sources
+                  ids={block.referenceIds}
+                  references={references}
+                  evidenceHref={evidenceHref}
+                />
+              )}
+            </div>
+          </LevelContent>
+        );
+      })}
     </div>
   );
 }
