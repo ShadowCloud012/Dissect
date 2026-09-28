@@ -103,19 +103,47 @@ export const topicSchema = z
         }
         if (block.type === 'question' || block.type === 'claimGroup')
           fail('Quick reference requires a concise factual block');
+        // Overview blocks belong to the hub itself; anything else must link
+        // to the subpage that owns it.
         if (
           !topic.sections.some(
             (section) =>
-              page.sectionIds.includes(section.id) &&
+              (section.id === 'overview' ||
+                page.sectionIds.includes(section.id)) &&
               section.blocks.includes(block),
           )
         )
           fail('Quick reference must link to its owning page');
+        const itemCount =
+          'items' in block
+            ? block.items.length
+            : block.type === 'table'
+              ? block.rows.length
+              : 0;
         if (
           selection.itemIndex !== undefined &&
-          (!('items' in block) || selection.itemIndex >= block.items.length)
+          selection.itemIndex >= itemCount
         )
           fail('Invalid quick-reference item index');
+        if (
+          !experience.quickReferenceGroups.some(
+            (group) => group.id === selection.group,
+          )
+        )
+          fail(`Unknown quick-reference group: ${selection.group}`);
+      }
+      for (const group of experience.quickReferenceGroups) {
+        if (
+          !experience.quickReference.some(
+            (selection) => selection.group === group.id,
+          )
+        )
+          fail(`Empty quick-reference group: ${group.id}`);
+        if (
+          group.contextId &&
+          !experience.contexts.some((context) => context.id === group.contextId)
+        )
+          fail(`Unknown quick-reference context: ${group.contextId}`);
       }
       for (const contextPanel of experience.contexts)
         for (const link of contextPanel.links)

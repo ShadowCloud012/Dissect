@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { topicPageGroups, type TopicPage } from '@/schemas/topic-experience';
 
 export function TopicNavigation({
@@ -39,6 +39,14 @@ export function TopicNavigation({
     </>
   );
   const quickJump = pages.filter((page) => page.quickJump);
+  const jump = useRef<HTMLElement>(null);
+  // Keep the current quick-jump link visible in the horizontal row.
+  useEffect(() => {
+    const row = jump.current;
+    const active = row?.querySelector<HTMLElement>('[aria-current="page"]');
+    if (row && active)
+      row.scrollLeft = active.offsetLeft - row.offsetLeft - row.clientWidth / 2;
+  }, [current]);
   return (
     <>
       <nav aria-label="Topic pages" className="desktop-topic-nav">
@@ -47,7 +55,7 @@ export function TopicNavigation({
       </nav>
       <div className="mobile-topic-bar">
         {quickJump.length > 0 && (
-          <nav aria-label="Quick jump" className="quick-jump">
+          <nav aria-label="Quick jump" className="quick-jump" ref={jump}>
             <ul>
               <li>
                 <Link href={base} aria-current={!current ? 'page' : undefined}>
@@ -68,13 +76,22 @@ export function TopicNavigation({
           </nav>
         )}
         <nav aria-label="Mobile topic pages" className="mobile-topic-nav">
-          <details ref={disclosure}>
+          <details
+            ref={disclosure}
+            onKeyDown={(event) => {
+              if (event.key === 'Escape' && disclosure.current?.open) {
+                disclosure.current.removeAttribute('open');
+                disclosure.current.querySelector('summary')?.focus();
+              }
+            }}
+          >
             <summary className="disclosure-trigger">
-              <span>All topic pages</span>
-              <strong>
+              All pages
+              <span className="sr-only">
+                , current:{' '}
                 {pages.find((page) => page.slug === current)?.title ??
                   'Overview'}
-              </strong>
+              </span>
             </summary>
             <div
               className="mobile-topic-links"

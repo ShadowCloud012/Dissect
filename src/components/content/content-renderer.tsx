@@ -207,6 +207,11 @@ export function ContentRenderer({
           id={`block-${block.id}`}
           className={`content-block space-y-2 text-base leading-7 wrap-break-word ${style ? `pattern-${style.variant}` : ''}`}
         >
+          {style?.variant === 'escalation' && (
+            <p className="escalation-flag">
+              <span aria-hidden="true">! </span>Escalate
+            </p>
+          )}
           {style && style.label !== ownTitle(block) && (
             <h3 className="block-label">{style.label}</h3>
           )}

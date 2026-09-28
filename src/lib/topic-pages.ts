@@ -22,6 +22,37 @@ export function selectQuickReference(topic: Topic) {
       .find((block) => block.id === selection.blockId)!,
   }));
 }
+// Hub groups with resolved links. Sources are de-duplicated per group so each
+// source is listed once beside the answers it supports.
+export function groupQuickReference(topic: Topic) {
+  const experience = topic.experience;
+  if (!experience) return [];
+  const base = topicHref(topic.metadata);
+  const entries = selectQuickReference(topic).map((entry) => {
+    const owned = resolveTopicPage(topic, entry.page)!.sections.some(
+      (section) => section.blocks.includes(entry.block),
+    );
+    return {
+      ...entry,
+      pageTitle: experience.pages.find((page) => page.slug === entry.page)!
+        .title,
+      href: `${base}/${entry.page}${owned ? `#block-${entry.block.id}` : ''}`,
+    };
+  });
+  return experience.quickReferenceGroups.map((group) => {
+    const members = entries.filter((entry) => entry.group === group.id);
+    return {
+      ...group,
+      entries: members,
+      referenceIds: [
+        ...new Set(members.flatMap((entry) => entry.block.referenceIds)),
+      ],
+      context: experience.contexts.find(
+        (context) => context.id === group.contextId,
+      ),
+    };
+  });
+}
 // Blocks flagged as policy-dependent, located on their owning subpage.
 export function localPolicyEntries(topic: Topic) {
   const pages = topic.experience?.pages ?? [];

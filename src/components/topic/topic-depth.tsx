@@ -21,23 +21,31 @@ const DepthContext = createContext({
   level: defaultTrainingLevel,
   showAdvanced: false,
 });
-export function TopicDepth({ children }: { children: ReactNode }) {
+export function TopicDepth({
+  children,
+  showControls = true,
+}: {
+  children: ReactNode;
+  // Pages without level-gated content can omit the toolbar.
+  showControls?: boolean;
+}) {
   const { level } = useTrainingLevel();
   const [showAdvanced, setShowAdvanced] = useState(false);
   return (
     <DepthContext value={{ level, showAdvanced }}>
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-dissect-border pb-5">
-        <p className="max-w-lg text-sm text-dissect-muted">
-          Training level changes depth, not factual truth. Higher-level content
-          remains available.
-        </p>
-        <Button
-          aria-pressed={showAdvanced}
-          onClick={() => setShowAdvanced(!showAdvanced)}
-        >
-          {showAdvanced ? 'Hide advanced content' : 'Show advanced content'}
-        </Button>
-      </div>
+      {showControls && (
+        <div className="depth-toolbar">
+          <p className="text-sm text-dissect-muted">
+            Training level changes depth, not factual truth.
+          </p>
+          <Button
+            aria-pressed={showAdvanced}
+            onClick={() => setShowAdvanced(!showAdvanced)}
+          >
+            {showAdvanced ? 'Hide advanced content' : 'Show advanced content'}
+          </Button>
+        </div>
+      )}
       {children}
     </DepthContext>
   );

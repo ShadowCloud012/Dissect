@@ -36,8 +36,19 @@ const selectionSchema = z.strictObject({
   blockId: stableIdSchema,
   label: textSchema,
   page: stableIdSchema,
-  // A single complete authored item can be surfaced without paraphrasing it.
+  group: stableIdSchema,
+  // A single complete authored list item or table row can be surfaced
+  // without paraphrasing it.
   itemIndex: z.number().int().nonnegative().optional(),
+});
+// Presentation-only grouping of quick-reference selections on the hub.
+const quickReferenceGroupSchema = z.strictObject({
+  id: stableIdSchema,
+  title: textSchema,
+  // alert: safety-critical; feature: the group this topic leads with.
+  tone: z.enum(['alert', 'feature']).optional(),
+  // Optional contextual links (e.g. ward/theatre) shown with the group.
+  contextId: stableIdSchema.optional(),
 });
 // A navigational overview of authored blocks on one page. Labels orient the
 // reader; the clinical wording stays in the linked blocks.
@@ -68,6 +79,7 @@ const relatedSchema = z.strictObject({
 });
 export const topicExperienceSchema = z.strictObject({
   pages: z.array(topicPageSchema).min(1),
+  quickReferenceGroups: z.array(quickReferenceGroupSchema).min(1),
   quickReference: z.array(selectionSchema).min(1),
   contexts: z.array(
     z.strictObject({

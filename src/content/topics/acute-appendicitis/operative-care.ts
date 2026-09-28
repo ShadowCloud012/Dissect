@@ -20,7 +20,7 @@ export const operativeCareSections = [
       {
         id: 'mesoappendix',
         type: 'prose',
-        minimumLevel: 'cst',
+        minimumLevel: 'medical-student',
         paragraphs: [
           'The mesoappendix carries the appendicular arterial supply. Its relationship to the terminal ileum and caecum matters during dissection; identify the base and adjacent bowel before division.',
         ],
@@ -29,7 +29,7 @@ export const operativeCareSections = [
       {
         id: 'structures-at-risk',
         type: 'prose',
-        minimumLevel: 'cst',
+        minimumLevel: 'medical-student',
         paragraphs: [
           'Adjacent bowel, bladder and vessels can be injured during surgery. Relate the variable appendix position and exposure to the structures actually in view.',
         ],
@@ -74,7 +74,7 @@ export const operativeCareSections = [
       {
         id: 'operative-sequence',
         type: 'checklist',
-        minimumLevel: 'cst',
+        minimumLevel: 'medical-student',
         title: 'Understand the operative sequence',
         items: [
           'Position supine, adjusting tilt for exposure. Plan access and working ports for the patient and anticipated anatomy; there are no universal coordinates.',

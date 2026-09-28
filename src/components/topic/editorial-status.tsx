@@ -22,7 +22,7 @@ export function EditorialStatus({ metadata }: { metadata: TopicMetadata }) {
       </p>
     );
   return (
-    <p className="border-l-2 border-dissect-amber bg-dissect-amber-soft p-3 text-sm font-medium text-dissect-amber">
+    <p className="border-l-2 border-dissect-amber bg-dissect-amber-soft px-3 py-2 text-sm font-medium text-dissect-amber">
       {metadata.status === 'awaiting-review'
         ? 'Draft educational content — awaiting clinical review'
         : 'Draft educational content — not clinically reviewed'}

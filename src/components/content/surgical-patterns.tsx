@@ -74,10 +74,7 @@ export function EscalationPoint({
   text: string;
 }) {
   return (
-    <div className="escalation-point">
-      <p className="escalation-flag">
-        <span aria-hidden="true">!</span> Escalate
-      </p>
+    <div>
       <p className="font-semibold">{title}</p>
       <p>{text}</p>
     </div>

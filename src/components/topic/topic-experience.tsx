@@ -15,11 +15,7 @@ import { Breadcrumbs } from '@/components/navigation/breadcrumbs';
 import { EditorialStatus } from './editorial-status';
 import { TopicNavigation } from './topic-navigation';
 import { TopicDepth, TrainingLevelSummary } from './topic-depth';
-import {
-  QuickReference,
-  ContextPanels,
-  RelatedContent,
-} from './quick-reference';
+import { QuickReference, RelatedContent } from './quick-reference';
 
 export function TopicExperience({
   topic,
@@ -62,18 +58,21 @@ export function TopicExperience({
         ]}
       />
       <header className="topic-header">
-        <p className="eyebrow">
+        {/* The mobile breadcrumb already names the parent; skip the eyebrow. */}
+        <p className="eyebrow mb-2 hidden sm:block">
           {pageSlug
             ? topic.metadata.title
             : `${specialty.title} / Clinical reference`}
         </p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
+        <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
           {title}
         </h1>
-        <p className="mt-3 max-w-3xl text-dissect-muted">
+        <p
+          className={`mt-2 max-w-3xl text-dissect-muted ${pageSlug ? '' : 'hidden sm:block'}`}
+        >
           {resolved?.page.description ?? topic.metadata.summary}
         </p>
-        <div className="mt-4">
+        <div className="mt-3">
           <EditorialStatus metadata={topic.metadata} />
         </div>
       </header>
@@ -85,7 +84,7 @@ export function TopicExperience({
           current={pageSlug}
         />
         <div className="min-w-0">
-          <TopicDepth key={pageSlug ?? 'overview'}>
+          <TopicDepth key={pageSlug ?? 'overview'} showControls={!!pageSlug}>
             {!resolved ? (
               <>
                 <div className="hub-definition">
@@ -98,32 +97,29 @@ export function TopicExperience({
                   />
                 </div>
                 <QuickReference topic={topic} />
-                <ContextPanels topic={topic} />
                 <nav
                   aria-labelledby="directory-heading"
                   className="hub-directory"
                 >
-                  <h2 id="directory-heading" className="text-xl font-semibold">
-                    Go deeper
+                  <h2 id="directory-heading" className="eyebrow">
+                    All pages in this topic
                   </h2>
                   <div className="hub-directory-grid">
                     {topicPageGroups.map((group) => (
-                      <section key={group} aria-label={group}>
-                        <p className="eyebrow" aria-hidden="true">
+                      <section key={group} aria-labelledby={`dir-${group}`}>
+                        <h3
+                          id={`dir-${group}`}
+                          className="text-sm font-semibold"
+                        >
                           {group}
-                        </p>
+                        </h3>
                         <ul>
                           {experience.pages
                             .filter((page) => page.group === group)
                             .map((page) => (
                               <li key={page.slug}>
                                 <Link href={`${base}/${page.slug}`}>
-                                  <span className="font-semibold">
-                                    {page.title}
-                                  </span>
-                                  <span className="text-sm text-dissect-muted">
-                                    {page.description}
-                                  </span>
+                                  {page.title}
                                 </Link>
                               </li>
                             ))}
@@ -132,19 +128,20 @@ export function TopicExperience({
                     ))}
                   </div>
                 </nav>
-                <RelatedContent topic={topic} />
-                <details className="mt-6 border-t border-dissect-border pt-3">
-                  <summary className="disclosure-trigger">
-                    At a glance & educational scope
-                  </summary>
+                {/* Overview blocks not already surfaced above (e.g. scope notes). */}
+                <div className="mt-8">
                   <ContentRenderer
                     blocks={overview.blocks.filter(
-                      (block) => block.type !== 'definition',
+                      (block) =>
+                        block.type !== 'definition' &&
+                        !experience.quickReference.some(
+                          (selection) => selection.blockId === block.id,
+                        ),
                     )}
                     references={topic.references}
                     evidenceHref={evidenceHref}
                   />
-                </details>
+                </div>
               </>
             ) : (
               <>
@@ -249,23 +246,32 @@ export function TopicExperience({
                 ))}
               </>
             )}
-            <nav aria-label="Previous and next page" className="page-pager">
-              {resolved && (
+            {resolved && (
+              <nav aria-label="Previous and next page" className="page-pager">
                 <Link href={previous ? `${base}/${previous.slug}` : base}>
                   <span className="eyebrow">Previous</span>
                   {previous?.title ?? 'Overview'}
                 </Link>
-              )}
-              {next && (
-                <Link href={`${base}/${next.slug}`} className="text-right">
-                  <span className="eyebrow">Next</span>
-                  {next.title}
-                </Link>
-              )}
-            </nav>
+                {next && (
+                  <Link href={`${base}/${next.slug}`} className="text-right">
+                    <span className="eyebrow">Next</span>
+                    {next.title}
+                  </Link>
+                )}
+              </nav>
+            )}
           </TopicDepth>
         </div>
         <aside aria-label="Topic context" className="topic-context">
+          {pageSlug && (
+            <Link className="related-link mb-4" href={base}>
+              <span>
+                <span aria-hidden="true">← </span>
+                {topic.metadata.title} overview
+              </span>
+            </Link>
+          )}
+          {pageSlug && <RelatedContent topic={topic} current={pageSlug} />}
           <TrainingLevelSummary />
           <div className="mt-5 border-t border-dissect-border pt-4">
             <p className="eyebrow">Evidence & trust</p>
@@ -284,11 +290,6 @@ export function TopicExperience({
                 draft.
               </p>
             )}
-          {pageSlug && (
-            <Link className="related-link" href={base}>
-              Back to overview
-            </Link>
-          )}
         </aside>
       </div>
     </article>

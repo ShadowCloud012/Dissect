@@ -2,11 +2,13 @@ import Link from 'next/link';
 import type { Topic } from '@/schemas/topic';
 import type { ContentBlock } from '@/schemas/content-block';
 import type { relatedKinds } from '@/schemas/topic-experience';
-
-type RelatedKind = (typeof relatedKinds)[number];
-import { selectQuickReference, topicHref } from '@/lib/topic-pages';
+import { groupQuickReference, topicHref } from '@/lib/topic-pages';
 import { Sources } from '@/components/content/content-renderer';
 
+type RelatedKind = (typeof relatedKinds)[number];
+
+// Renders authored wording verbatim: a whole block, one list item or one
+// table row (without its label cell).
 function QuickAnswer({
   block,
   itemIndex,
@@ -35,15 +37,12 @@ function QuickAnswer({
     case 'definition':
       return <p>{block.meaning}</p>;
     case 'table':
-      return (
-        <ul className="flex flex-wrap gap-2">
+      return itemIndex !== undefined ? (
+        <p>{block.rows[itemIndex].slice(1).join(' ')}</p>
+      ) : (
+        <ul className="quick-chips">
           {block.rows.map((row) => (
-            <li
-              className="border border-dissect-border px-2 py-1 text-sm"
-              key={row[0]}
-            >
-              {row[0]}
-            </li>
+            <li key={row[0]}>{row[0]}</li>
           ))}
         </ul>
       );
@@ -54,49 +53,86 @@ function QuickAnswer({
 export function QuickReference({ topic }: { topic: Topic }) {
   const base = topicHref(topic.metadata);
   return (
-    <section aria-labelledby="quick-heading">
-      <div className="mb-4 flex items-baseline justify-between gap-2">
-        <h2 id="quick-heading" className="text-2xl font-semibold">
-          Quick reference
-        </h2>
-        <span className="eyebrow">Essentials for every level</span>
-      </div>
-      <div className="quick-grid">
-        {selectQuickReference(topic).map(
-          ({ block, label, page, itemIndex }) => (
-            <div key={block.id}>
+    <div className="quick-reference">
+      {groupQuickReference(topic).map((group) => (
+        <section
+          key={group.id}
+          aria-labelledby={`quick-${group.id}`}
+          className="quick-group"
+          data-tone={group.tone}
+        >
+          <h2 id={`quick-${group.id}`} className="quick-group-title">
+            {group.tone === 'alert' && (
+              <span aria-hidden="true" className="alert-mark">
+                !
+              </span>
+            )}
+            {group.title}
+          </h2>
+          <div className="quick-entries">
+            {group.entries.map((entry) => (
               <article
-                className={
-                  block.type === 'warning'
-                    ? 'quick-answer quick-warning'
-                    : 'quick-answer'
-                }
+                key={`${entry.block.id}-${entry.itemIndex ?? 'all'}`}
+                className="quick-entry"
               >
                 <h3>
-                  <Link href={`${base}/${page}#block-${block.id}`}>
-                    {label}
-                    <span aria-hidden="true"> ↗</span>
+                  <Link href={entry.href}>
+                    {entry.label}
+                    <span className="sr-only">, open {entry.pageTitle}</span>
+                    <span aria-hidden="true" className="quick-arrow">
+                      →
+                    </span>
                   </Link>
                 </h3>
-                <div className="mt-2 text-sm leading-6">
-                  <QuickAnswer block={block} itemIndex={itemIndex} />
+                <div className="mt-1 text-sm leading-6">
+                  <QuickAnswer
+                    block={entry.block}
+                    itemIndex={entry.itemIndex}
+                  />
                 </div>
-                {block.localPolicyMayVary && (
-                  <p className="mt-2 text-xs text-dissect-amber">
+                {entry.block.localPolicyMayVary && (
+                  <p className="mt-1 text-xs font-medium text-dissect-amber">
                     Local policy may vary.
                   </p>
                 )}
+              </article>
+            ))}
+          </div>
+          <div className="quick-group-footer">
+            {group.context && (
+              <nav aria-label={`${group.context.title}: go deeper`}>
+                <ul className="quick-context-links">
+                  {group.context.links.map((link) => (
+                    <li key={link.page}>
+                      <Link href={`${base}/${link.page}`}>{link.title}</Link>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            )}
+            {group.referenceIds.length > 2 ? (
+              // Long source lists stay one tap away without crowding answers.
+              <details className="quick-sources">
+                <summary className="disclosure-trigger px-2">
+                  Sources · {group.referenceIds.length}
+                </summary>
                 <Sources
-                  ids={block.referenceIds}
+                  ids={group.referenceIds}
                   references={topic.references}
                   evidenceHref={`${base}/evidence`}
                 />
-              </article>
-            </div>
-          ),
-        )}
-      </div>
-    </section>
+              </details>
+            ) : (
+              <Sources
+                ids={group.referenceIds}
+                references={topic.references}
+                evidenceHref={`${base}/evidence`}
+              />
+            )}
+          </div>
+        </section>
+      ))}
+    </div>
   );
 }
 const relatedKindLabels: Record<RelatedKind, string> = {
@@ -106,61 +142,32 @@ const relatedKindLabels: Record<RelatedKind, string> = {
   complication: 'Complications',
   'theatre-skill': 'Theatre skill',
 };
-export function RelatedContent({ topic }: { topic: Topic }) {
-  const related = topic.experience?.related ?? [];
+export function RelatedContent({
+  topic,
+  current,
+}: {
+  topic: Topic;
+  current?: string;
+}) {
+  const related = (topic.experience?.related ?? []).filter(
+    (item) => item.page !== current,
+  );
   if (related.length === 0) return null;
   return (
     <section aria-labelledby="related-heading" className="related-content">
-      <h2 id="related-heading" className="text-xl font-semibold">
+      <h2 id="related-heading" className="eyebrow">
         Related
       </h2>
       <ul>
         {related.map((item) => (
           <li key={`${item.kind}-${item.page}`}>
-            <span className="taxonomy-tag">{relatedKindLabels[item.kind]}</span>
-            <Link
-              className="related-link"
-              href={`${topicHref(topic.metadata)}/${item.page}`}
-            >
+            <Link href={`${topicHref(topic.metadata)}/${item.page}`}>
+              <span className="eyebrow">{relatedKindLabels[item.kind]}</span>
               {item.title}
-              <span aria-hidden="true">→</span>
             </Link>
           </li>
         ))}
       </ul>
     </section>
-  );
-}
-export function ContextPanels({ topic }: { topic: Topic }) {
-  return (
-    <div className="context-panels">
-      {topic.experience?.contexts.map((context) => (
-        <section key={context.id} aria-labelledby={`context-${context.id}`}>
-          <p className="eyebrow">Use in context</p>
-          <h2
-            id={`context-${context.id}`}
-            className="mt-2 text-xl font-semibold"
-          >
-            {context.title}
-          </h2>
-          <p className="mt-2 text-sm leading-6 text-dissect-muted">
-            {context.description}
-          </p>
-          <ul className="mt-3">
-            {context.links.map((link) => (
-              <li key={link.page}>
-                <Link
-                  className="related-link"
-                  href={`${topicHref(topic.metadata)}/${link.page}`}
-                >
-                  {link.title}
-                  <span aria-hidden="true">↗</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ))}
-    </div>
   );
 }
