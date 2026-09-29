@@ -16,6 +16,8 @@ const views = [
 test('specialty browsing, canonical discovery and all topic routes', async ({
   page,
 }, info) => {
+  // Walks every appendicitis route with reloads, so it needs a longer budget.
+  test.setTimeout(90_000);
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   page.on('console', (message) => {
@@ -48,7 +50,7 @@ test('specialty browsing, canonical discovery and all topic routes', async ({
     await expect(link).toHaveAttribute('aria-current', 'true');
     await expect(
       page
-        .getByRole('region', { name: 'Available topics' })
+        .getByRole('region', { name: 'Conditions' })
         .getByRole('link', { name: /Acute appendicitis/ }),
     ).toHaveAttribute('href', base);
   }
@@ -57,7 +59,7 @@ test('specialty browsing, canonical discovery and all topic routes', async ({
     fullPage: true,
   });
   await page
-    .getByRole('region', { name: 'Available topics' })
+    .getByRole('region', { name: 'Conditions' })
     .getByRole('link', { name: /Acute appendicitis/ })
     .click();
   await expect(page).toHaveURL(base);

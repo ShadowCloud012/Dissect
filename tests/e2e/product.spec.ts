@@ -190,24 +190,43 @@ test('every topic cross-link resolves to a real route and anchor', async ({
   page,
 }, info) => {
   test.skip(info.project.name !== 'desktop-chromium', 'Checked once');
+  // Crawls every page of both pathways, then every link it finds.
+  test.setTimeout(180_000);
   const hrefs = new Set<string>();
-  for (const view of [
-    '',
-    '/appendicectomy',
-    '/anatomy',
-    '/complications',
-    '/consent',
-    '/post-op',
-    '/hot-seat',
+  const topicPages = (topic: string, pages: string[]) =>
+    ['', ...pages].map(
+      (view) => `/learn/general-surgery/${topic}${view && `/${view}`}`,
+    );
+  for (const path of [
+    '/',
+    '/learn/general-surgery',
+    ...topicPages('acute-appendicitis', [
+      'appendicectomy',
+      'anatomy',
+      'complications',
+      'consent',
+      'post-op',
+      'hot-seat',
+    ]),
+    ...topicPages('gallstone-disease', [
+      'assessment',
+      'management',
+      'laparoscopic-cholecystectomy',
+      'anatomy',
+      'complications',
+      'consent',
+      'post-op',
+      'hot-seat',
+    ]),
   ]) {
-    await page.goto(`${base}${view}`);
+    await page.goto(path);
     // Reveal every level so gated rows' links are included.
     const advanced = page.getByRole('button', {
       name: 'Show advanced content',
     });
     if (await advanced.count()) await advanced.click();
     for (const href of await page
-      .locator(`main a[href^="${base}"]`)
+      .locator('main a[href^="/learn/general-surgery/"]')
       .evaluateAll((links) => links.map((link) => link.getAttribute('href')!)))
       hrefs.add(href);
   }

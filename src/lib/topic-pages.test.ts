@@ -11,19 +11,72 @@ import {
   topicIndexEntries,
 } from './topic-pages';
 const topic = topicRegistry.getTopic('general-surgery', 'acute-appendicitis')!;
-it('discovers one canonical topic in two categories without inflating counts', () => {
+it('discovers each canonical topic in its categories without inflating counts', () => {
   expect(specialties).toHaveLength(1);
-  expect(topicRegistry.listBySpecialty('general-surgery')).toHaveLength(1);
-  expect(topicRegistry.countTopics('general-surgery')).toBe(1);
-  for (const category of ['emergency-general-surgery', 'colorectal']) {
-    const found = topicRegistry.listByCategory('general-surgery', category);
-    expect(found).toHaveLength(1);
-    expect(topicHref(found[0])).toBe(
-      '/learn/general-surgery/acute-appendicitis',
-    );
+  expect(topicRegistry.listBySpecialty('general-surgery')).toHaveLength(2);
+  expect(topicRegistry.countTopics('general-surgery')).toBe(2);
+  const hrefs = (category: string) =>
+    topicRegistry
+      .listByCategory('general-surgery', category)
+      .map((metadata) => topicHref(metadata));
+  expect(hrefs('colorectal')).toEqual([
+    '/learn/general-surgery/acute-appendicitis',
+  ]);
+  expect(hrefs('hpb')).toEqual(['/learn/general-surgery/gallstone-disease']);
+  expect(hrefs('emergency-general-surgery')).toEqual([
+    '/learn/general-surgery/acute-appendicitis',
+    '/learn/general-surgery/gallstone-disease',
+  ]);
+  for (const category of ['emergency-general-surgery', 'colorectal', 'hpb'])
     expect(getCategory('general-surgery', category)).toBeDefined();
-  }
   expect(topicRegistry.listByCategory('general-surgery', 'breast')).toEqual([]);
+});
+it('classifies conditions and procedures and links them both ways', () => {
+  const conditions = topicRegistry.listConditions('general-surgery');
+  const procedures = topicRegistry.listProcedures('general-surgery');
+  expect(conditions.every((entry) => entry.kind === 'condition')).toBe(true);
+  expect(procedures.every((entry) => entry.kind === 'procedure')).toBe(true);
+  // Every procedure's canonical URL is a real subpage of its condition.
+  for (const procedure of procedures) {
+    const [condition] = procedure.conditions;
+    expect(procedure.href.startsWith(`${condition.href}/`)).toBe(true);
+    const topic = topicRegistry.getTopic(
+      'general-surgery',
+      condition.href.split('/').at(-1)!,
+    )!;
+    expect(
+      topic.experience!.pages.some((page) =>
+        procedure.href.endsWith(`/${page.slug}`),
+      ),
+    ).toBe(true);
+    // …and that condition lists the procedure back.
+    expect(
+      conditions
+        .find((entry) => entry.id === condition.id)!
+        .procedures.map((entry) => entry.id),
+    ).toContain(procedure.id);
+  }
+  // Procedures inherit discovery categories from their condition.
+  expect(
+    topicRegistry.listProcedures('general-surgery', 'hpb').map((p) => p.id),
+  ).toEqual(['laparoscopic-cholecystectomy']);
+  // The demo topic is neither a condition nor a procedure.
+  expect(
+    topicRegistry.discoveryEntries().map((entry) => entry.id),
+  ).not.toContain('how-dissect-content-works');
+});
+it.each([
+  ['lap chole', 'procedure', 'laparoscopic-cholecystectomy'],
+  ['Laparoscopic cholecystectomy', 'procedure', 'laparoscopic-cholecystectomy'],
+  ['cholecystectomy', 'procedure', 'laparoscopic-cholecystectomy'],
+  ['appendicectomy', 'procedure', 'laparoscopic-appendicectomy'],
+  ['appendectomy', 'procedure', 'laparoscopic-appendicectomy'],
+  ['acute cholecystitis', 'condition', 'gallstone-disease'],
+  ['biliary colic', 'condition', 'gallstone-disease'],
+  ['appendicitis', 'condition', 'acute-appendicitis'],
+])('resolves the term "%s" to one %s', (term, kind, id) => {
+  const matches = topicRegistry.resolveTerm(term);
+  expect(matches.map((entry) => [entry.kind, entry.id])).toEqual([[kind, id]]);
 });
 it('resolves subpages using original sections and selects blocks by identity', () => {
   const owned = topic.experience!.pages.flatMap(
