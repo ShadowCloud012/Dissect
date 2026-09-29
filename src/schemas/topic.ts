@@ -3,6 +3,7 @@ import { contentBlockSchema } from './content-block';
 import { referenceSchema } from './reference';
 import { dateSchema, stableIdSchema, textSchema } from './shared';
 import {
+  anatomyRiskRoles,
   isExtractSelection,
   topicExperienceSchema,
   type TopicLink,
@@ -272,6 +273,59 @@ export const topicSchema = z
         for (const row of briefing.rows) {
           for (const extract of row.extracts) checkExtract(extract, false);
           if (row.link) checkLink(row.link);
+        }
+      }
+      for (const view of experience.anatomyViews) {
+        if (!pageIds.has(view.page))
+          fail(`Unknown anatomy view page: ${view.page}`);
+        const walkthrough = experience.walkthroughs.find(
+          (entry) => entry.id === view.walkthroughId,
+        );
+        if (!walkthrough) {
+          fail(`Unknown anatomy walkthrough: ${view.walkthroughId}`);
+          continue;
+        }
+        const sequence = blocks.find(
+          (block) => block.id === walkthrough.blockId,
+        );
+        const ids = view.structures.map((structure) => structure.id);
+        if (new Set(ids).size !== ids.length)
+          fail(`Duplicate anatomy structure in ${view.id}`);
+        for (const extract of view.notes) checkExtract(extract, false);
+        for (const structure of view.structures) {
+          const extracts = structure.fields.flatMap((field) => field.extracts);
+          for (const extract of extracts) checkExtract(extract, false);
+          // A risk role must be explained by a quoted risk, and vice versa.
+          if (
+            structure.roles.some((role) =>
+              (anatomyRiskRoles as readonly string[]).includes(role),
+            ) !== structure.fields.some((field) => field.kind === 'risk')
+          )
+            fail(`Risk role and risk field must agree: ${structure.id}`);
+          const sources = new Set(extracts.map((extract) => extract.blockId));
+          for (const number of structure.steps) {
+            const step = walkthrough.steps[number - 1];
+            if (!step) {
+              fail(`Unknown anatomy step: ${structure.id} ${number}`);
+              continue;
+            }
+            // The step must itself quote one of the structure's sources, or
+            // the structure must quote the step's own authored text.
+            const quotesSource = step.fields.some((field) =>
+              field.extracts.some((extract) => sources.has(extract.blockId)),
+            );
+            const item =
+              sequence?.type === 'checklist'
+                ? normalise(sequence.items[step.itemIndex] ?? '')
+                : '';
+            const quotesStep = extracts.some((extract) =>
+              item.includes(normalise(extract.text)),
+            );
+            if (!quotesSource && !quotesStep)
+              fail(
+                `Anatomy step not supported by the walkthrough: ${structure.id} ${number}`,
+              );
+          }
         }
       }
       for (const entry of experience.blockLinks) {

@@ -93,6 +93,198 @@
   .topic-listing {
     @apply border-y border-dissect-border bg-dissect-surface p-5 sm:p-7;
   }
+  /* Operative anatomy: schematic linework, green emphasis, dashed risk. */
+  .anatomy-link {
+    @apply my-4 text-sm text-dissect-muted;
+  }
+  .anatomy-link a {
+    @apply inline-flex min-h-11 items-center font-medium text-dissect-green-800 underline decoration-dissect-green-200 underline-offset-4 hover:decoration-dissect-green-800 sm:min-h-9;
+  }
+  .anatomy-view {
+    @apply my-6 scroll-mt-6 border-y border-dissect-border bg-dissect-surface px-3 py-5 sm:px-5;
+  }
+  .anatomy-head {
+    @apply grid gap-1;
+  }
+  .anatomy-modes {
+    @apply mt-4 flex flex-wrap gap-2;
+  }
+  .anatomy-modes button,
+  .anatomy-steps button,
+  .anatomy-step-structures button {
+    @apply min-h-11 border border-dissect-border bg-dissect-surface px-3 text-left text-sm text-dissect-green-800 hover:border-dissect-green-800 sm:min-h-9;
+  }
+  .anatomy-modes button[aria-pressed='true'],
+  .anatomy-steps button[aria-pressed='true'] {
+    @apply border-dissect-green-800 bg-dissect-green-50 font-semibold;
+  }
+  .anatomy-layout {
+    @apply mt-4 grid gap-4 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)];
+  }
+  .anatomy-figure {
+    @apply min-w-0 border border-dissect-border bg-dissect-paper p-2;
+  }
+  .anatomy-figure svg {
+    @apply block h-auto w-full;
+  }
+  .anatomy-figure figcaption {
+    @apply mt-1 px-1 text-xs leading-5 text-dissect-muted;
+  }
+  .anatomy-context {
+    @apply fill-dissect-subtle stroke-dissect-border;
+    stroke-width: 1.5;
+  }
+  .anatomy-part {
+    @apply cursor-pointer transition-opacity motion-reduce:transition-none;
+  }
+  .anatomy-part[data-state='dimmed'] {
+    opacity: 0.28;
+  }
+  .anatomy-organ {
+    @apply fill-dissect-subtle stroke-dissect-ink;
+    stroke-width: 1.5;
+  }
+  .anatomy-fold {
+    @apply fill-dissect-green-50 stroke-dissect-muted;
+    stroke-width: 1.25;
+  }
+  .anatomy-tube-outline {
+    @apply fill-none stroke-dissect-ink;
+    stroke-width: 22;
+    stroke-linecap: round;
+  }
+  .anatomy-tube {
+    @apply fill-none stroke-dissect-subtle;
+    stroke-width: 19;
+    stroke-linecap: round;
+  }
+  .anatomy-tube-small.anatomy-tube-outline {
+    stroke-width: 14;
+  }
+  .anatomy-tube-small.anatomy-tube {
+    stroke-width: 11;
+  }
+  .anatomy-band {
+    @apply fill-none stroke-dissect-muted;
+    stroke-width: 3;
+  }
+  .anatomy-vessel {
+    @apply fill-none stroke-dissect-red;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+  }
+  .anatomy-hidden {
+    stroke-dasharray: 4 4;
+  }
+  .anatomy-point {
+    @apply fill-dissect-surface stroke-dissect-ink;
+    stroke-width: 2;
+  }
+  .anatomy-marker circle {
+    @apply fill-dissect-surface stroke-dissect-ink;
+    stroke-width: 1.5;
+  }
+  .anatomy-marker text {
+    @apply fill-dissect-ink font-mono text-[13px] font-semibold;
+  }
+  /* Emphasis and selection change stroke weight and marker fill, not just hue. */
+  .anatomy-part[data-state='emphasised']
+    :is(.anatomy-organ, .anatomy-fold, .anatomy-point),
+  .anatomy-part[data-state='emphasised'] .anatomy-marker circle {
+    @apply stroke-dissect-green-600;
+    stroke-width: 2.5;
+  }
+  .anatomy-part[data-state='selected']
+    :is(.anatomy-organ, .anatomy-fold, .anatomy-point) {
+    @apply stroke-dissect-green-800;
+    stroke-width: 3.5;
+  }
+  .anatomy-part[data-state='selected'] .anatomy-marker circle {
+    @apply fill-dissect-green-800 stroke-dissect-green-800;
+  }
+  .anatomy-part[data-state='selected'] .anatomy-marker text {
+    @apply fill-dissect-surface;
+  }
+  .anatomy-part[data-risk] :is(.anatomy-fold, .anatomy-vessel) {
+    stroke-dasharray: 6 3;
+    stroke-width: 3.5;
+  }
+  .anatomy-part[data-risk] .anatomy-marker circle {
+    @apply stroke-dissect-red;
+    stroke-dasharray: 3 2;
+    stroke-width: 2.5;
+  }
+  /* Phones: drawing, detail, controls. Desktop: drawing and detail on the
+     left, controls on the right. */
+  .anatomy-figure {
+    @apply md:col-start-1 md:row-start-1;
+  }
+  .anatomy-controls {
+    @apply min-w-0 md:col-start-2 md:row-span-2 md:row-start-1;
+  }
+  .anatomy-structures {
+    @apply mt-2 grid gap-1 sm:grid-cols-2 md:grid-cols-1;
+  }
+  .anatomy-structures button {
+    @apply flex min-h-11 w-full items-center gap-2 border border-dissect-border bg-dissect-surface px-2 py-1 text-left text-sm hover:border-dissect-green-800;
+  }
+  .anatomy-structures button[aria-pressed='true'] {
+    @apply border-2 border-dissect-green-800 bg-dissect-green-50 font-semibold;
+  }
+  .anatomy-structures button[data-state='dimmed'] {
+    @apply text-dissect-muted;
+  }
+  .anatomy-number {
+    @apply inline-flex size-6 shrink-0 items-center justify-center rounded-full border border-dissect-ink font-mono text-xs;
+  }
+  .anatomy-structures button[aria-pressed='true'] .anatomy-number {
+    @apply bg-dissect-green-800 text-dissect-surface;
+  }
+  .anatomy-roles {
+    @apply block font-mono text-[11px] font-normal text-dissect-muted;
+  }
+  .anatomy-steps {
+    @apply mt-2 grid gap-1;
+  }
+  .anatomy-steps button {
+    @apply w-full scroll-mt-24;
+  }
+  .anatomy-detail {
+    @apply self-start border-l-2 border-dissect-green-800 bg-dissect-paper px-3 py-3 sm:px-4;
+  }
+  .anatomy-detail dl {
+    @apply mt-2 grid gap-2 text-sm leading-6;
+  }
+  .anatomy-detail dt {
+    @apply font-mono text-xs text-dissect-muted;
+  }
+  .anatomy-detail [data-kind='risk'] dt {
+    @apply text-dissect-red;
+  }
+  .anatomy-step-structures {
+    @apply mt-2 flex flex-wrap gap-2;
+  }
+  .anatomy-step-links {
+    @apply mt-2 grid gap-1;
+  }
+  .anatomy-step-links a {
+    @apply inline-flex min-h-11 items-center text-sm font-medium text-dissect-green-800 underline decoration-dissect-green-200 underline-offset-4 hover:decoration-dissect-green-800 sm:min-h-9;
+  }
+  .anatomy-note {
+    @apply mt-4 text-sm leading-6;
+  }
+  .anatomy-text {
+    @apply mt-4 text-sm;
+  }
+  .anatomy-text summary {
+    @apply min-h-11 cursor-pointer py-3 font-medium text-dissect-green-800;
+  }
+  .anatomy-text table {
+    @apply mt-2 w-full text-left text-xs;
+  }
+  .anatomy-text :is(th, td) {
+    @apply border-b border-dissect-border py-1.5 pr-2 align-top;
+  }
   /* Search: one field, compact rows with thin dividers. */
   .browse-search {
     @apply mt-4 text-sm text-dissect-muted;

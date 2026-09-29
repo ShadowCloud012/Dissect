@@ -1532,6 +1532,241 @@ export const experience = {
     },
   ],
   // Cross-links that explain why two concepts belong together.
+  // Schematic operative anatomy for the appendicectomy. Every statement is a
+  // verbatim extract; each step link must be quoted by that walkthrough step.
+  anatomyViews: [
+    {
+      id: 'appendicectomy-anatomy',
+      page: 'anatomy',
+      walkthroughId: 'appendicectomy',
+      title: 'The operative field',
+      caption:
+        'The structures that orient, and that are controlled, during laparoscopic appendicectomy.',
+      structures: [
+        {
+          id: 'caecum',
+          label: 'Caecum',
+          roles: ['landmark'],
+          fields: [
+            {
+              kind: 'what',
+              extracts: [
+                {
+                  text: 'The caecum is the beginning of the large bowel; the terminal ileum joins it nearby',
+                  blockId: 'appendix-origin',
+                },
+              ],
+            },
+            {
+              kind: 'why',
+              extracts: [
+                {
+                  text: 'Identify caecum, terminal ileum and appendix before dividing tissue',
+                  blockId: 'operative-sequence',
+                },
+              ],
+            },
+          ],
+          steps: [2],
+        },
+        {
+          id: 'taeniae-coli',
+          label: 'Taeniae coli',
+          roles: ['landmark'],
+          fields: [
+            {
+              kind: 'why',
+              extracts: [
+                {
+                  text: 'Following the caecal taeniae to their convergence helps locate the appendiceal base',
+                  blockId: 'appendix-origin',
+                },
+              ],
+            },
+          ],
+          steps: [2, 3],
+        },
+        {
+          id: 'terminal-ileum',
+          label: 'Terminal ileum',
+          roles: ['landmark'],
+          fields: [
+            {
+              kind: 'what',
+              extracts: [
+                {
+                  text: 'The terminal ileum can be recognised by the fold of Treves or its antimesenteric fat and followed to the caecum',
+                  blockId: 'identification-landmarks',
+                },
+              ],
+            },
+            {
+              kind: 'why',
+              extracts: [
+                {
+                  text: 'Identify caecum, terminal ileum and appendix before dividing tissue',
+                  blockId: 'operative-sequence',
+                },
+              ],
+            },
+          ],
+          steps: [2],
+        },
+        {
+          id: 'appendix',
+          label: 'Appendix',
+          roles: ['removed'],
+          fields: [
+            {
+              kind: 'what',
+              extracts: [
+                {
+                  text: 'The appendix arises from the posteromedial caecum near the ileocaecal junction',
+                  blockId: 'appendix-origin',
+                },
+              ],
+            },
+            {
+              kind: 'why',
+              extracts: [
+                {
+                  text: 'The position of the appendix base is consistent but the tip is not',
+                  blockId: 'appendix-position',
+                },
+                {
+                  text: 'The tip can lie retrocaecally, in the pelvis or near the ileum',
+                  blockId: 'appendix-origin',
+                },
+                {
+                  text: 'The appendix is removed in a retrieval bag and sent for histology',
+                  blockId: 'specimen-histology',
+                },
+              ],
+            },
+          ],
+          steps: [2, 4],
+        },
+        {
+          id: 'appendix-base',
+          label: 'Appendix base',
+          roles: ['landmark', 'controlled'],
+          fields: [
+            {
+              kind: 'what',
+              extracts: [
+                {
+                  text: 'the appendix base lies where the taeniae coli converge',
+                  blockId: 'identification-landmarks',
+                },
+              ],
+            },
+            {
+              kind: 'why',
+              extracts: [
+                {
+                  text: 'The base is divided close to the caecum, because a long residual stump can later become inflamed (stump appendicitis)',
+                  blockId: 'base-division',
+                },
+                {
+                  text: 'the secured base is checked to confirm haemostasis and its integrity',
+                  blockId: 'final-inspection',
+                },
+              ],
+            },
+          ],
+          steps: [2, 3, 5],
+        },
+        {
+          id: 'mesoappendix',
+          label: 'Mesoappendix',
+          roles: ['controlled', 'bleeding-risk'],
+          fields: [
+            {
+              kind: 'what',
+              extracts: [
+                {
+                  text: 'The mesoappendix carries the appendicular arterial supply',
+                  blockId: 'mesoappendix',
+                },
+              ],
+            },
+            {
+              kind: 'why',
+              extracts: [
+                {
+                  text: 'Its relationship to the terminal ileum and caecum matters during dissection; identify the base and adjacent bowel before division',
+                  blockId: 'mesoappendix',
+                },
+              ],
+            },
+            {
+              kind: 'risk',
+              extracts: [
+                {
+                  text: 'Inadequate ligation of the appendicular vessels can cause postoperative bleeding, so haemostasis and the integrity of the mesoappendix are confirmed before closure',
+                  blockId: 'vessel-control',
+                },
+              ],
+            },
+          ],
+          steps: [3, 5],
+        },
+        {
+          id: 'appendicular-artery',
+          label: 'Appendicular artery',
+          roles: ['controlled', 'bleeding-risk'],
+          fields: [
+            {
+              kind: 'what',
+              extracts: [
+                {
+                  text: 'The appendicular artery is described as arising from the inferior branch of the ileocolic artery; it runs within the mesoappendix, close to its free margin, and passes posterior to the terminal ileum',
+                  blockId: 'appendicular-artery',
+                },
+              ],
+            },
+            {
+              kind: 'risk',
+              extracts: [
+                {
+                  text: 'Inadequate ligation of the appendicular vessels can cause postoperative bleeding',
+                  blockId: 'vessel-control',
+                },
+              ],
+            },
+          ],
+          steps: [3, 5],
+        },
+        {
+          id: 'ileocolic-artery',
+          label: 'Ileocolic artery',
+          roles: ['orientation'],
+          fields: [
+            {
+              kind: 'what',
+              extracts: [
+                {
+                  text: 'The ileocolic artery is the most inferior branch of the superior mesenteric artery',
+                  blockId: 'appendicular-artery',
+                },
+              ],
+            },
+          ],
+          steps: [3],
+        },
+      ],
+      notes: [
+        {
+          text: 'Adjacent bowel, bladder and vessels can be injured during surgery',
+          blockId: 'structures-at-risk',
+        },
+        {
+          text: 'Relate the variable appendix position and exposure to the structures actually in view',
+          blockId: 'structures-at-risk',
+        },
+      ],
+    },
+  ],
   blockLinks: [
     {
       blockId: 'appendicular-artery',

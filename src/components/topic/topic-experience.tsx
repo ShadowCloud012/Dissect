@@ -11,6 +11,7 @@ import {
   resolveBlockLinks,
   resolveBriefings,
   resolveWalkthroughs,
+  resolveAnatomyViews,
   selectQuickReference,
   ownProcedureRelations,
   relatedLinks,
@@ -22,6 +23,7 @@ import {
   ContentRenderer,
 } from '@/components/content/content-renderer';
 import { OperativeWalkthrough } from '@/components/content/operative-walkthrough';
+import { OperativeAnatomy } from '@/components/anatomy/operative-anatomy';
 import { BriefingPanel } from '@/components/content/briefing-panel';
 import { DecisionPathway } from '@/components/content/surgical-patterns';
 import { ReferenceList } from '@/components/references/reference-list';
@@ -100,6 +102,14 @@ export function TopicExperience({
     for (const id of briefing.absorbsBlockIds) replacements[id] = null;
   }
   const blockLinks = resolveBlockLinks(topic);
+  const anatomyViews = pageSlug ? resolveAnatomyViews(topic, pageSlug) : [];
+  // Anatomy views that illustrate this page's operative walkthrough.
+  const anatomyForPage = (experience.anatomyViews ?? []).filter((view) =>
+    experience.walkthroughs.some(
+      (walkthrough) =>
+        walkthrough.id === view.walkthroughId && walkthrough.page === pageSlug,
+    ),
+  );
   // Condition ↔ procedure: a condition hub surfaces its operations, and a
   // procedure page surfaces the conditions it belongs to.
   const currentProcedure = procedures.find(
@@ -260,6 +270,36 @@ export function TopicExperience({
                       }
                     />
                   ))}
+                {anatomyForPage.map((view) => (
+                  <p key={view.id} className="anatomy-link">
+                    <Link href={`${base}/${view.page}#${view.id}`}>
+                      Operative anatomy (schematic)
+                    </Link>{' '}
+                    — which structures matter at each step
+                  </p>
+                ))}
+                {anatomyViews.map((view) => (
+                  <OperativeAnatomy
+                    key={view.id}
+                    view={view}
+                    sources={Object.fromEntries(
+                      view.structures.map((structure) => [
+                        structure.id,
+                        <CompactSources
+                          key={structure.id}
+                          ids={structure.referenceIds}
+                          {...sourceProps}
+                        />,
+                      ]),
+                    )}
+                    noteSources={
+                      <CompactSources
+                        ids={view.notes.referenceIds}
+                        {...sourceProps}
+                      />
+                    }
+                  />
+                ))}
                 {pathways.map((pathway) => (
                   <DecisionPathway
                     key={pathway.id}

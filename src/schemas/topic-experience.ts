@@ -158,6 +158,52 @@ const briefingSchema = z.strictObject({
   absorbsBlockIds: z.array(stableIdSchema).default([]),
   rows: z.array(extractRowSchema).min(1),
 });
+// A schematic operative-anatomy view: structures drawn by a procedure-specific
+// artwork, each described only by verbatim extracts, with the walkthrough
+// steps it matters in. Step links are checked against what the step quotes.
+// Roles keep one meaning across operations:
+// landmark — used for orientation or identification;
+// controlled — intentionally dealt with (controlled, divided) in the operation;
+// removed — the structure the operation removes;
+// orientation — context that explains other structures;
+// at-risk — anatomy the operator is trying not to injure;
+// bleeding-risk — a controlled structure whose inadequate control can bleed.
+// A risk role must be explained by a quoted "risk" field, and vice versa.
+export const anatomyRoles = [
+  'landmark',
+  'controlled',
+  'removed',
+  'orientation',
+  'at-risk',
+  'bleeding-risk',
+] as const;
+export const anatomyRiskRoles = ['at-risk', 'bleeding-risk'] as const;
+export const anatomyFieldKinds = ['what', 'why', 'risk'] as const;
+const anatomyStructureSchema = z.strictObject({
+  id: stableIdSchema,
+  label: textSchema,
+  roles: z.array(z.enum(anatomyRoles)).min(1),
+  fields: z
+    .array(
+      z.strictObject({
+        kind: z.enum(anatomyFieldKinds),
+        extracts: z.array(extractSchema).min(1),
+      }),
+    )
+    .min(1),
+  // 1-based steps of the view's walkthrough.
+  steps: z.array(z.number().int().positive()).default([]),
+});
+const anatomyViewSchema = z.strictObject({
+  id: stableIdSchema,
+  page: stableIdSchema,
+  walkthroughId: stableIdSchema,
+  title: textSchema,
+  caption: textSchema,
+  structures: z.array(anatomyStructureSchema).min(1),
+  // Cautions about the operative field as a whole, quoted verbatim.
+  notes: z.array(extractSchema).default([]),
+});
 export const topicExperienceSchema = z.strictObject({
   pages: z.array(topicPageSchema).min(1),
   quickReferenceGroups: z.array(quickReferenceGroupSchema).min(1),
@@ -177,6 +223,7 @@ export const topicExperienceSchema = z.strictObject({
   journey: z.array(journeyStepSchema).default([]),
   walkthroughs: z.array(walkthroughSchema).default([]),
   briefings: z.array(briefingSchema).default([]),
+  anatomyViews: z.array(anatomyViewSchema).default([]),
   // Explanatory cross-links shown beneath a block.
   blockLinks: z
     .array(
@@ -195,6 +242,7 @@ export type ExtractSelection = z.infer<typeof extractSelectionSchema>;
 export type TopicLink = z.infer<typeof topicLinkSchema>;
 export type Walkthrough = z.infer<typeof walkthroughSchema>;
 export type Briefing = z.infer<typeof briefingSchema>;
+export type AnatomyView = z.infer<typeof anatomyViewSchema>;
 export function isExtractSelection(
   selection: z.infer<typeof selectionSchema>,
 ): selection is ExtractSelection {

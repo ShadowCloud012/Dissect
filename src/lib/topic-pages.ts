@@ -183,7 +183,10 @@ export function resolveWalkthroughs(topic: Topic, page: string) {
           text: items[step.itemIndex],
           fields,
           gaps: step.gaps,
-          links: resolveLinks(topic, step.links),
+          links: [
+            ...resolveLinks(topic, step.links),
+            ...anatomyStepLinks(topic, walkthrough.id, index + 1),
+          ],
         };
       });
       return {
@@ -340,3 +343,87 @@ export function relatedLinks(
       links.findIndex((other) => other.href === link.href) === index,
   );
 }
+// Operative anatomy views. Step ↔ structure links come from each structure's
+// validated `steps`; nothing else declares them.
+export const anatomyStepAnchor = (viewId: string, step: number) =>
+  `${viewId}-step-${step}`;
+function anatomyStepLinks(topic: Topic, walkthroughId: string, step: number) {
+  return (topic.experience?.anatomyViews ?? [])
+    .filter(
+      (view) =>
+        view.walkthroughId === walkthroughId &&
+        view.structures.some((structure) => structure.steps.includes(step)),
+    )
+    .map((view) => ({
+      label: `Operative anatomy: step ${step}`,
+      href: `${topicHref(topic.metadata)}/${view.page}#${anatomyStepAnchor(view.id, step)}`,
+    }));
+}
+export function resolveAnatomyViews(topic: Topic, page: string) {
+  const experience = topic.experience;
+  const base = topicHref(topic.metadata);
+  return (experience?.anatomyViews ?? [])
+    .filter((view) => view.page === page)
+    .map((view) => {
+      const walkthrough = experience!.walkthroughs.find(
+        (entry) => entry.id === view.walkthroughId,
+      )!;
+      const stepLink = (number: number) => ({
+        number,
+        label: walkthrough.steps[number - 1].label,
+        href: `${base}/${walkthrough.page}#${stepAnchor(walkthrough.id, number)}`,
+        anchor: anatomyStepAnchor(view.id, number),
+      });
+      const structures = view.structures.map((structure) => {
+        const fields = structure.fields.map((field) => {
+          const blocks = field.extracts.map((extract) =>
+            findBlock(topic, extract.blockId),
+          );
+          return {
+            kind: field.kind,
+            minimumLevel: deepestLevel(blocks),
+            texts: field.extracts.map((extract) => extract.text),
+            referenceIds: uniqueReferences(blocks),
+          };
+        });
+        return {
+          id: structure.id,
+          label: structure.label,
+          roles: structure.roles,
+          fields,
+          steps: structure.steps.map(stepLink),
+          referenceIds: [
+            ...new Set(fields.flatMap((field) => field.referenceIds)),
+          ],
+        };
+      });
+      const noteBlocks = view.notes.map((note) =>
+        findBlock(topic, note.blockId),
+      );
+      return {
+        id: view.id,
+        title: view.title,
+        caption: view.caption,
+        walkthroughHref: `${base}/${walkthrough.page}#${stepAnchor(walkthrough.id, 1)}`,
+        structures,
+        // Steps that involve at least one structure in this view.
+        steps: walkthrough.steps
+          .map((_, index) => ({
+            ...stepLink(index + 1),
+            structureIds: structures
+              .filter((structure) =>
+                structure.steps.some((step) => step.number === index + 1),
+              )
+              .map((structure) => structure.id),
+          }))
+          .filter((step) => step.structureIds.length > 0),
+        notes: {
+          texts: view.notes.map((note) => note.text),
+          referenceIds: uniqueReferences(noteBlocks),
+        },
+      };
+    });
+}
+export type ResolvedAnatomyView = ReturnType<
+  typeof resolveAnatomyViews
+>[number];
