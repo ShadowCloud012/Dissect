@@ -178,7 +178,10 @@ export const anatomyRoles = [
   'bleeding-risk',
 ] as const;
 export const anatomyRiskRoles = ['at-risk', 'bleeding-risk'] as const;
-export const anatomyFieldKinds = ['what', 'why', 'risk'] as const;
+// what it is · why it matters · how it is identified (e.g. the critical
+// view) · the quoted risk behind a risk role. A kind may repeat, so content at
+// different depths stays separately gated.
+export const anatomyFieldKinds = ['what', 'why', 'identify', 'risk'] as const;
 const anatomyStructureSchema = z.strictObject({
   id: stableIdSchema,
   label: textSchema,
@@ -193,6 +196,8 @@ const anatomyStructureSchema = z.strictObject({
     .min(1),
   // 1-based steps of the view's walkthrough.
   steps: z.array(z.number().int().positive()).default([]),
+  // Explanatory links, e.g. a structure at risk → its complication.
+  links: z.array(topicLinkSchema).default([]),
 });
 const anatomyViewSchema = z.strictObject({
   id: stableIdSchema,
@@ -203,6 +208,8 @@ const anatomyViewSchema = z.strictObject({
   structures: z.array(anatomyStructureSchema).min(1),
   // Cautions about the operative field as a whole, quoted verbatim.
   notes: z.array(extractSchema).default([]),
+  // Where the view connects to operative judgement, e.g. what changes the plan.
+  links: z.array(topicLinkSchema).default([]),
 });
 export const topicExperienceSchema = z.strictObject({
   pages: z.array(topicPageSchema).min(1),

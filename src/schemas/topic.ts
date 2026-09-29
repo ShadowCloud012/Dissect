@@ -292,8 +292,10 @@ export const topicSchema = z
         if (new Set(ids).size !== ids.length)
           fail(`Duplicate anatomy structure in ${view.id}`);
         for (const extract of view.notes) checkExtract(extract, false);
+        for (const link of view.links) checkLink(link);
         for (const structure of view.structures) {
           const extracts = structure.fields.flatMap((field) => field.extracts);
+          for (const link of structure.links) checkLink(link);
           for (const extract of extracts) checkExtract(extract, false);
           // A risk role must be explained by a quoted risk, and vice versa.
           if (

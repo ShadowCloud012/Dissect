@@ -392,6 +392,7 @@ export function resolveAnatomyViews(topic: Topic, page: string) {
           roles: structure.roles,
           fields,
           steps: structure.steps.map(stepLink),
+          links: resolveLinks(topic, structure.links),
           referenceIds: [
             ...new Set(fields.flatMap((field) => field.referenceIds)),
           ],
@@ -417,6 +418,7 @@ export function resolveAnatomyViews(topic: Topic, page: string) {
               .map((structure) => structure.id),
           }))
           .filter((step) => step.structureIds.length > 0),
+        links: resolveLinks(topic, view.links),
         notes: {
           texts: view.notes.map((note) => note.text),
           referenceIds: uniqueReferences(noteBlocks),

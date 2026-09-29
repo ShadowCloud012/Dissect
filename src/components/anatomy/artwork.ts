@@ -15,6 +15,10 @@ export type Artwork = {
   // Every structure the artwork draws; must match the view's structures.
   structureIds: readonly string[];
   Component: ComponentType<ArtworkProps>;
+  // SVG viewBox, so each drawing can crop to its own content.
+  viewBox: string;
+  // How to read this drawing (line conventions), not clinical content.
+  legend?: string;
 };
 export const anatomyArtwork: Record<string, Artwork> = {
   'appendicectomy-anatomy': {
@@ -29,5 +33,7 @@ export const anatomyArtwork: Record<string, Artwork> = {
       'ileocolic-artery',
     ],
     Component: AppendicectomyArtwork,
+    viewBox: '0 0 320 300',
+    legend: 'Dashed vessel: posterior to the terminal ileum.',
   },
 };

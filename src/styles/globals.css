@@ -164,6 +164,22 @@
   .anatomy-tube-small.anatomy-tube {
     stroke-width: 11;
   }
+  .anatomy-duct-outline {
+    @apply fill-none stroke-dissect-ink;
+    stroke-width: 11;
+    stroke-linecap: round;
+  }
+  .anatomy-duct {
+    @apply fill-none stroke-dissect-surface;
+    stroke-width: 7;
+    stroke-linecap: round;
+  }
+  .anatomy-duct-small.anatomy-duct-outline {
+    stroke-width: 9;
+  }
+  .anatomy-duct-small.anatomy-duct {
+    stroke-width: 5;
+  }
   .anatomy-band {
     @apply fill-none stroke-dissect-muted;
     stroke-width: 3;
@@ -208,6 +224,20 @@
   .anatomy-part[data-risk] :is(.anatomy-fold, .anatomy-vessel) {
     stroke-dasharray: 6 3;
     stroke-width: 3.5;
+  }
+  /* Ducts keep their width: emphasis recolours the wall; risk dashes it. */
+  .anatomy-part[data-state='emphasised'] .anatomy-duct-outline {
+    @apply stroke-dissect-green-600;
+  }
+  .anatomy-part[data-state='selected'] .anatomy-duct-outline {
+    @apply stroke-dissect-green-800;
+  }
+  .anatomy-part[data-risk] .anatomy-duct-outline {
+    stroke-dasharray: 8 5;
+  }
+  /* A thinner lumen leaves a wider, visibly dashed wall. */
+  .anatomy-part[data-risk] .anatomy-duct {
+    stroke-width: 4;
   }
   .anatomy-part[data-risk] .anatomy-marker circle {
     @apply stroke-dissect-red;

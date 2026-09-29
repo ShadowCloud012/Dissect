@@ -20,6 +20,7 @@ const roleLabels: Record<string, string> = {
 const fieldLabels: Record<string, string> = {
   what: 'Structure',
   why: 'Why it matters',
+  identify: 'How it is identified',
   risk: 'Risk',
 };
 // Emphasis filters; a filter appears only if some structure has the role.
@@ -149,7 +150,7 @@ export function OperativeAnatomy({
       <div className="anatomy-layout">
         <figure className="anatomy-figure">
           <svg
-            viewBox="0 0 320 300"
+            viewBox={artwork.viewBox}
             role="img"
             aria-label={`Schematic: ${view.title}`}
             aria-describedby={`${view.id}-svg-desc`}
@@ -174,8 +175,8 @@ export function OperativeAnatomy({
           </svg>
           <figcaption>
             Schematic, not to scale: it shows relationships described in the
-            sourced anatomy text on this page. Dashed vessel: posterior to the
-            terminal ileum.
+            sourced anatomy text on this page.
+            {artwork.legend && ` ${artwork.legend}`}
           </figcaption>
         </figure>
         {/* Directly under the drawing, where a tap on it is visible. */}
@@ -190,9 +191,9 @@ export function OperativeAnatomy({
                 {structure.roles.map((role) => roleLabels[role]).join(' · ')}
               </p>
               <dl>
-                {structure.fields.map((field) => (
+                {structure.fields.map((field, index) => (
                   <Gate
-                    key={field.kind}
+                    key={index}
                     level={
                       field.minimumLevel === 'medical-student'
                         ? undefined
@@ -226,6 +227,18 @@ export function OperativeAnatomy({
                       <Link href={item.href}>
                         In the operation: step {item.number} · {item.label}
                       </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {structure.links.length > 0 && (
+                <ul
+                  className="anatomy-step-links"
+                  aria-label={`Related to ${structure.label}`}
+                >
+                  {structure.links.map((link) => (
+                    <li key={link.href}>
+                      <Link href={link.href}>{link.label}</Link>
                     </li>
                   ))}
                 </ul>
@@ -316,6 +329,15 @@ export function OperativeAnatomy({
           </p>
           {noteSources}
         </div>
+      )}
+      {view.links.length > 0 && (
+        <ul className="anatomy-step-links" aria-label="Operative judgement">
+          {view.links.map((link) => (
+            <li key={link.href}>
+              <Link href={link.href}>{link.label}</Link>
+            </li>
+          ))}
+        </ul>
       )}
       <details className="anatomy-text">
         <summary>Structures and steps as text</summary>
