@@ -232,3 +232,42 @@ test.describe('without JavaScript', () => {
     await expect(results(page)).toHaveCount(0);
   });
 });
+
+for (const [query, first, second] of [
+  ['app', 'Acute appendicitis', 'Laparoscopic appendicectomy'],
+  [
+    'chol',
+    'Gallstone disease and acute cholecystitis',
+    'Laparoscopic cholecystectomy',
+  ],
+  ['meso', 'Anatomy — Acute appendicitis', 'Laparoscopic appendicectomy'],
+] as const)
+  test(`prefix "${query}" finds natural partial terms`, async ({
+    page,
+  }, info) => {
+    const errors = trackErrors(page);
+    if (info.project.name.startsWith('mobile'))
+      await page.setViewportSize({ width: 320, height: 740 });
+    await page.goto('/search');
+    await page.getByRole('searchbox').fill(query);
+    const titles = results(page).locator('.search-result-title');
+    await expect(titles.nth(0)).toHaveText(first);
+    await expect(titles.nth(1)).toHaveText(second);
+    // A prefix is never presented as an exact match.
+    await expect(page.getByText('Exact match')).toHaveCount(0);
+    expect(await noOverflow(page)).toBe(true);
+    await page.screenshot({
+      path: info.outputPath(`prefix-${query}.png`),
+      fullPage: true,
+    });
+    expect(errors).toEqual([]);
+  });
+
+test('a misspelling still finds nothing', async ({ page }) => {
+  await page.goto('/search?q=appendisitis');
+  await expect(page.getByRole('status')).toHaveText(
+    'No exact or metadata match for “appendisitis”.',
+  );
+  await page.getByRole('searchbox').fill('a');
+  await expect(results(page)).toHaveCount(0);
+});

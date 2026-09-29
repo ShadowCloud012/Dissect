@@ -36,13 +36,19 @@ const rank = (docs: SearchDocument[], query: string) =>
   searchIndex(docs, query, titles).map((result) => [result.id, result.tier]);
 
 describe('ranking', () => {
-  it('orders tiers from exact title to anatomy/complication terms', () => {
+  it('orders tiers from exact names through prefixes to anatomy terms', () => {
     const docs = [
-      doc('term', { title: 'Term', anatomyTerms: ['Vessel'] }),
-      doc('heading', { title: 'Heading', headings: ['Vessel'] }),
-      doc('keyword', { title: 'Keyword', keywords: ['vessel'] }),
-      doc('alias-contains', { title: 'A', aliases: ['Great vessel'] }),
-      doc('title-contains', { title: 'Great vessel' }),
+      doc('term-words', { title: 'T1', anatomyTerms: ['Great vessel'] }),
+      doc('term-starts', { title: 'T2', anatomyTerms: ['Vessels'] }),
+      doc('heading', { title: 'H', headings: ['Vessel wall'] }),
+      doc('keyword-prefix', { title: 'K1', keywords: ['great vessels'] }),
+      doc('keyword-words', { title: 'K2', keywords: ['great vessel'] }),
+      doc('keyword-starts', { title: 'K3', keywords: ['vessel wall'] }),
+      doc('name-prefix', { title: 'N', aliases: ['Great vessels'] }),
+      doc('alias-words', { title: 'A1', aliases: ['Great vessel'] }),
+      doc('title-words', { title: 'Great vessel' }),
+      doc('alias-starts', { title: 'A2', aliases: ['Vessels'] }),
+      doc('title-starts', { title: 'Vessel wall' }),
       doc('normalised', { title: 'B', aliases: ['VESSEL.'] }),
       doc('exact-alias', { title: 'C', aliases: ['Vessel'] }),
       doc('exact-title', { title: 'Vessel' }),
@@ -51,11 +57,17 @@ describe('ranking', () => {
       ['exact-title', 1],
       ['exact-alias', 2],
       ['normalised', 3],
-      ['title-contains', 4],
-      ['alias-contains', 5],
-      ['keyword', 6],
-      ['heading', 7],
-      ['term', 8],
+      ['title-starts', 4],
+      ['alias-starts', 5],
+      ['title-words', 6],
+      ['alias-words', 7],
+      ['name-prefix', 8],
+      ['keyword-starts', 9],
+      ['keyword-words', 10],
+      ['keyword-prefix', 11],
+      ['heading', 12],
+      ['term-starts', 13],
+      ['term-words', 14],
     ]);
   });
   it('lets an exact title beat a title that merely contains the query', () => {
@@ -69,7 +81,7 @@ describe('ranking', () => {
       ),
     ).toEqual([
       ['short', 1],
-      ['long', 4],
+      ['long', 6],
     ]);
   });
   it('lets an exact alias beat a heading match', () => {
@@ -94,10 +106,25 @@ describe('ranking', () => {
     expect(rank(docs, 'x').map(([id]) => id)).toEqual(['n', 'p', 'a', 'b']);
     expect(rank([...docs].reverse(), 'x')).toEqual(rank(docs, 'x'));
   });
-  it('matches whole words only, never partial words or typos', () => {
-    const docs = [doc('d', { title: 'Cholecystectomy' })];
-    for (const query of ['chole', 'cholecystectomyy', 'cholecystectom'])
+  it('matches word starts from three characters, never mid-word or typos', () => {
+    const docs = [doc('d', { title: 'Laparoscopic cholecystectomy' })];
+    // Word starts, including a partly typed last word.
+    for (const query of ['chole', 'lap', 'laparoscopic chol'])
+      expect(rank(docs, query).map(([id]) => id)).toEqual(['d']);
+    // Never inside a word, beyond the word, or with a typo.
+    for (const query of [
+      'lecyst',
+      'scopic',
+      'cholecystectomyy',
+      'cholecistectomy',
+    ])
       expect(rank(docs, query)).toEqual([]);
+    // One or two characters match only whole words.
+    for (const query of ['l', 'la', 'ch'])
+      expect(rank(docs, query)).toEqual([]);
+    expect(
+      rank([doc('ct', { title: 'Imaging', keywords: ['CT'] })], 'ct'),
+    ).toEqual([['ct', 9]]);
   });
 });
 
@@ -196,5 +223,79 @@ describe('real terms', () => {
       'xyz',
     ])
       expect(search(query)).toEqual([]);
+  });
+});
+
+describe('prefix search on real content', () => {
+  const path = (href: string) => href.replace('/learn/general-surgery/', '');
+  const order = (query: string) =>
+    search(query).map((result) => [result.kind, path(result.href)]);
+  it.each([['app'], ['appe'], ['append']])(
+    '"%s" leads with appendicitis, the operation, then its anatomy',
+    (query) => {
+      expect(order(query)).toEqual([
+        ['condition', 'acute-appendicitis'],
+        ['procedure', 'acute-appendicitis/appendicectomy'],
+        ['anatomy', 'acute-appendicitis/anatomy'],
+        ['complications', 'acute-appendicitis/complications'],
+      ]);
+    },
+  );
+  it.each([['chol'], ['chole']])(
+    '"%s" leads with the gallstone condition, then the operation',
+    (query) => {
+      expect(order(query).slice(0, 2)).toEqual([
+        ['condition', 'gallstone-disease'],
+        ['procedure', 'gallstone-disease/laparoscopic-cholecystectomy'],
+      ]);
+    },
+  );
+  it('"cystic" leads with gallstone anatomy, then the operation', () => {
+    expect(order('cystic')).toEqual([
+      ['anatomy', 'gallstone-disease/anatomy'],
+      ['procedure', 'gallstone-disease/laparoscopic-cholecystectomy'],
+    ]);
+    expect(search('cystic')[0].match).toEqual({
+      field: 'keyword',
+      term: 'cystic duct',
+    });
+  });
+  it('"meso" leads with appendicitis anatomy and names the matched term', () => {
+    const [first] = search('meso');
+    expect(path(first.href)).toBe('acute-appendicitis/anatomy');
+    expect(first.match).toEqual({ field: 'keyword', term: 'mesoappendix' });
+  });
+  it('"bile" finds gallstone complications, operation, investigations and anatomy', () => {
+    expect(order('bile')).toEqual([
+      ['complications', 'gallstone-disease/complications'],
+      ['procedure', 'gallstone-disease/laparoscopic-cholecystectomy'],
+      ['page', 'gallstone-disease/investigations'],
+      ['anatomy', 'gallstone-disease/anatomy'],
+    ]);
+  });
+  it('keeps exact names ahead of prefixes', () => {
+    // "appendicitis" is an exact alias; prefix-only pages rank below it.
+    const [exact, ...rest] = search('appendicitis');
+    expect(exact).toMatchObject({ exact: true, tier: 2, kind: 'condition' });
+    for (const result of rest) expect(result.tier).toBeGreaterThan(2);
+    // A prefix is never marked as an exact match.
+    expect(search('app').some((result) => result.exact)).toBe(false);
+  });
+  it('stays quiet for short, mid-word and misspelt queries', () => {
+    for (const query of [
+      'a',
+      'ap',
+      'pend',
+      'ectomy',
+      'appendisitis',
+      'cholesystitis',
+    ])
+      expect(search(query)).toEqual([]);
+  });
+  it('never duplicates a URL', () => {
+    for (const query of ['app', 'chol', 'bile', 'lap', 'ana']) {
+      const hrefs = search(query).map((result) => result.href);
+      expect(new Set(hrefs).size).toBe(hrefs.length);
+    }
   });
 });
