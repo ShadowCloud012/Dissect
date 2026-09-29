@@ -1,4 +1,4 @@
-import type { Topic } from '@/schemas/topic';
+import type { TopicInput } from '@/schemas/topic';
 import { presentationSections } from './presentation';
 import { managementSections } from './management';
 import { operativeCareSections } from './operative-care';
@@ -40,4 +40,4 @@ export const acuteAppendicitis = {
   ],
   references,
   experience,
-} satisfies Topic;
+} satisfies TopicInput;

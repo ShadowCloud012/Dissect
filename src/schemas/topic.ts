@@ -2,7 +2,11 @@ import { z } from 'zod';
 import { contentBlockSchema } from './content-block';
 import { referenceSchema } from './reference';
 import { dateSchema, stableIdSchema, textSchema } from './shared';
-import { isExtractSelection, topicExperienceSchema } from './topic-experience';
+import {
+  isExtractSelection,
+  topicExperienceSchema,
+  type TopicLink,
+} from './topic-experience';
 
 // All authored wording in a block, for verbatim-extract checks.
 const structuralKeys = new Set(['id', 'type', 'minimumLevel', 'referenceIds']);
@@ -108,6 +112,92 @@ export const topicSchema = z
       for (const section of topic.sections)
         if (section.id !== 'overview' && !assigned.includes(section.id))
           fail(`Unassigned section: ${section.id}`);
+      const pageOwns = (pageSlug: string, blockId: string) => {
+        const page = experience.pages.find((entry) => entry.slug === pageSlug);
+        return topic.sections.some(
+          (section) =>
+            page?.sectionIds.includes(section.id) &&
+            section.blocks.some((block) => block.id === blockId),
+        );
+      };
+      // Extracts must be verbatim; Hot Seat answers are sourced content and
+      // may explain an operative step, but not the hub overview.
+      function checkExtract(
+        extract: { text: string; blockId: string },
+        allowQuestions: boolean,
+      ) {
+        const source = blocks.find((block) => block.id === extract.blockId);
+        if (!source || (!allowQuestions && source.type === 'question'))
+          fail(`Unknown extract block: ${extract.blockId}`);
+        else if (
+          !normalise(blockText(source)).includes(normalise(extract.text))
+        )
+          fail(
+            `Extract is not verbatim in ${extract.blockId}: "${extract.text}"`,
+          );
+      }
+      function checkLink(link: TopicLink) {
+        if (!pageIds.has(link.page))
+          return fail(`Unknown link page: ${link.page}`);
+        if (link.blockId && !pageOwns(link.page, link.blockId))
+          fail(`Link block not on its page: ${link.blockId}`);
+        if (
+          link.step &&
+          !experience.walkthroughs.some(
+            (walkthrough) =>
+              walkthrough.page === link.page &&
+              link.step! <= walkthrough.steps.length,
+          )
+        )
+          fail(`Unknown walkthrough step: ${link.page} ${link.step}`);
+      }
+      for (const walkthrough of experience.walkthroughs) {
+        const block = blocks.find((entry) => entry.id === walkthrough.blockId);
+        if (block?.type !== 'checklist')
+          fail(`Walkthrough needs a checklist block: ${walkthrough.blockId}`);
+        else if (!pageOwns(walkthrough.page, walkthrough.blockId))
+          fail(`Walkthrough block not on its page: ${walkthrough.blockId}`);
+        else if (
+          walkthrough.steps.map((step) => step.itemIndex).join() !==
+          block.items.map((_, index) => index).join()
+        )
+          fail('Walkthrough steps must cover each authored step in order');
+        for (const step of walkthrough.steps) {
+          for (const field of step.fields)
+            for (const extract of field.extracts) checkExtract(extract, true);
+          for (const gap of step.gaps)
+            if (step.fields.some((field) => field.kind === gap))
+              fail(`Walkthrough gap is also populated: ${gap}`);
+          for (const link of step.links) checkLink(link);
+        }
+      }
+      for (const briefing of experience.briefings) {
+        if (!pageIds.has(briefing.page))
+          fail(`Unknown briefing page: ${briefing.page}`);
+        const represented = [
+          ...(briefing.replacesBlockId ? [briefing.replacesBlockId] : []),
+          ...briefing.absorbsBlockIds,
+        ];
+        const extracted = new Set(
+          briefing.rows.flatMap((row) =>
+            row.extracts.map((extract) => extract.blockId),
+          ),
+        );
+        // A block may only be replaced by a panel that quotes it, so its
+        // wording and sources remain visible.
+        for (const id of represented)
+          if (!pageOwns(briefing.page, id) || !extracted.has(id))
+            fail(`Briefing must quote the block it represents: ${id}`);
+        for (const row of briefing.rows) {
+          for (const extract of row.extracts) checkExtract(extract, false);
+          if (row.link) checkLink(row.link);
+        }
+      }
+      for (const entry of experience.blockLinks) {
+        if (!blocks.some((block) => block.id === entry.blockId))
+          fail(`Unknown linked block: ${entry.blockId}`);
+        for (const link of entry.links) checkLink(link);
+      }
       for (const selection of experience.quickReference) {
         if (
           !experience.quickReferenceGroups.some(
@@ -118,20 +208,10 @@ export const topicSchema = z
         if (!pageIds.has(selection.page))
           fail(`Unknown quick-reference page: ${selection.page}`);
         if (isExtractSelection(selection)) {
-          for (const row of selection.rows)
-            for (const extract of row.extracts) {
-              const source = blocks.find(
-                (block) => block.id === extract.blockId,
-              );
-              if (!source || source.type === 'question')
-                fail(`Unknown extract block: ${extract.blockId}`);
-              else if (
-                !normalise(blockText(source)).includes(normalise(extract.text))
-              )
-                fail(
-                  `Extract is not verbatim in ${extract.blockId}: "${extract.text}"`,
-                );
-            }
+          for (const row of selection.rows) {
+            for (const extract of row.extracts) checkExtract(extract, false);
+            if (row.link) checkLink(row.link);
+          }
           continue;
         }
         const block = blocks.find((block) => block.id === selection.blockId);
@@ -317,6 +397,8 @@ export const topicSchema = z
     });
   });
 export type Topic = z.infer<typeof topicSchema>;
+// Authored content files satisfy the input shape; defaults apply on parse.
+export type TopicInput = z.input<typeof topicSchema>;
 export type TopicMetadata = z.infer<typeof topicMetadataSchema>;
 export type TopicSection = z.infer<typeof topicSectionSchema>;
 

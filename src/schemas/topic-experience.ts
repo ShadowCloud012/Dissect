@@ -41,26 +41,34 @@ const blockSelectionSchema = z.strictObject({
   // without paraphrasing it.
   itemIndex: z.number().int().nonnegative().optional(),
 });
-// Labelled rows of short extracts. Each extract must appear verbatim in its
-// source block (validated), so the overview can name things concisely
-// without new wording; sources come from the extracted blocks.
+// A cross-link to a real destination in this topic: a page, a block on that
+// page, or a step of the operative walkthrough on that page (validated).
+export const topicLinkSchema = z.strictObject({
+  label: textSchema,
+  page: stableIdSchema,
+  blockId: stableIdSchema.optional(),
+  step: z.number().int().positive().optional(),
+});
+// A short extract that must appear verbatim in its source block (validated),
+// so summaries name things concisely without new wording.
+const extractSchema = z.strictObject({
+  text: textSchema,
+  blockId: stableIdSchema,
+});
+const extractRowSchema = z.strictObject({
+  label: textSchema,
+  // Summary rows are universal unless marked level-sensitive.
+  minimumLevel: trainingLevelSchema.optional(),
+  extracts: z.array(extractSchema).min(1),
+  link: topicLinkSchema.optional(),
+});
+// Labelled rows of extracts; sources come from the extracted blocks.
 const extractSelectionSchema = z.strictObject({
   label: textSchema,
   page: stableIdSchema,
   group: stableIdSchema,
   numbered: z.boolean().optional(),
-  rows: z
-    .array(
-      z.strictObject({
-        label: textSchema,
-        // Overview rows are universal unless marked level-sensitive.
-        minimumLevel: trainingLevelSchema.optional(),
-        extracts: z
-          .array(z.strictObject({ text: textSchema, blockId: stableIdSchema }))
-          .min(1),
-      }),
-    )
-    .min(1),
+  rows: z.array(extractRowSchema).min(1),
 });
 const selectionSchema = z.union([blockSelectionSchema, extractSelectionSchema]);
 export const perioperativePhases = ['before', 'during', 'after'] as const;
@@ -109,6 +117,55 @@ const relatedSchema = z.strictObject({
   title: textSchema,
   page: stableIdSchema,
 });
+export const walkthroughFieldKinds = [
+  'why',
+  'anatomy',
+  'danger',
+  'changes',
+] as const;
+// Step → Why → Anatomy → Danger → What changes the plan, built from an
+// authored step list plus verbatim extracts. Unsupported fields are declared
+// as editorial gaps rather than written.
+const walkthroughSchema = z.strictObject({
+  id: stableIdSchema,
+  page: stableIdSchema,
+  // The checklist block whose items are the steps; the walkthrough renders
+  // in its place.
+  blockId: stableIdSchema,
+  steps: z
+    .array(
+      z.strictObject({
+        itemIndex: z.number().int().nonnegative(),
+        label: textSchema,
+        fields: z
+          .array(
+            z.strictObject({
+              kind: z.enum(walkthroughFieldKinds),
+              // Defaults to the highest level of the extracted blocks.
+              minimumLevel: trainingLevelSchema.optional(),
+              extracts: z.array(extractSchema).min(1),
+            }),
+          )
+          .default([]),
+        gaps: z.array(z.enum(walkthroughFieldKinds)).default([]),
+        links: z.array(topicLinkSchema).default([]),
+      }),
+    )
+    .min(1),
+});
+// A compact labelled panel on a subpage (e.g. theatre prep). It sits at the
+// top of the page, or replaces a block it fully represents.
+const briefingSchema = z.strictObject({
+  id: stableIdSchema,
+  page: stableIdSchema,
+  title: textSchema,
+  caption: textSchema.optional(),
+  variant: z.enum(['prep', 'plan']),
+  replacesBlockId: stableIdSchema.optional(),
+  // Further blocks whose wording the panel represents, not rendered again.
+  absorbsBlockIds: z.array(stableIdSchema).default([]),
+  rows: z.array(extractRowSchema).min(1),
+});
 export const topicExperienceSchema = z.strictObject({
   pages: z.array(topicPageSchema).min(1),
   quickReferenceGroups: z.array(quickReferenceGroupSchema).min(1),
@@ -127,12 +184,26 @@ export const topicExperienceSchema = z.strictObject({
   pathways: z.array(pathwaySchema).default([]),
   related: z.array(relatedSchema).default([]),
   journey: z.array(journeyStepSchema).default([]),
+  walkthroughs: z.array(walkthroughSchema).default([]),
+  briefings: z.array(briefingSchema).default([]),
+  // Explanatory cross-links shown beneath a block.
+  blockLinks: z
+    .array(
+      z.strictObject({
+        blockId: stableIdSchema,
+        links: z.array(topicLinkSchema).min(1),
+      }),
+    )
+    .default([]),
 });
 export type TopicExperience = z.input<typeof topicExperienceSchema>;
 export type TopicPage = z.infer<typeof topicPageSchema>;
 export type BlockPresentation = z.infer<typeof blockPresentationSchema>;
 export type TopicPathway = z.infer<typeof pathwaySchema>;
 export type ExtractSelection = z.infer<typeof extractSelectionSchema>;
+export type TopicLink = z.infer<typeof topicLinkSchema>;
+export type Walkthrough = z.infer<typeof walkthroughSchema>;
+export type Briefing = z.infer<typeof briefingSchema>;
 export function isExtractSelection(
   selection: z.infer<typeof selectionSchema>,
 ): selection is ExtractSelection {

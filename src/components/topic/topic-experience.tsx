@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { ReactNode } from 'react';
 import type { Topic } from '@/schemas/topic';
 import { topicPageGroups } from '@/schemas/topic-experience';
 import { getSpecialty } from '@/content/specialties';
@@ -7,10 +8,18 @@ import {
   resolveTopicPage,
   localPolicyEntries,
   quickReferenceBlocks,
+  resolveBlockLinks,
+  resolveBriefings,
+  resolveWalkthroughs,
   selectQuickReference,
 } from '@/lib/topic-pages';
 import { trainingLevels } from '@/lib/training-level';
-import { ContentRenderer } from '@/components/content/content-renderer';
+import {
+  CompactSources,
+  ContentRenderer,
+} from '@/components/content/content-renderer';
+import { OperativeWalkthrough } from '@/components/content/operative-walkthrough';
+import { BriefingPanel } from '@/components/content/briefing-panel';
 import { DecisionPathway } from '@/components/content/surgical-patterns';
 import { ReferenceList } from '@/components/references/reference-list';
 import { Breadcrumbs } from '@/components/navigation/breadcrumbs';
@@ -53,6 +62,35 @@ export function TopicExperience({
   const previous = index > 0 ? experience.pages[index - 1] : undefined;
   const next = resolved ? experience.pages[index + 1] : experience.pages[0];
   const pathways = experience.pathways.filter((item) => item.page === pageSlug);
+  const sourceProps = { references: topic.references, evidenceHref };
+  // Richer operative renderings stand in for the blocks they represent.
+  const replacements: Record<string, ReactNode> = {};
+  for (const walkthrough of pageSlug
+    ? resolveWalkthroughs(topic, pageSlug)
+    : [])
+    replacements[walkthrough.block.id] = (
+      <OperativeWalkthrough
+        walkthrough={walkthrough}
+        sources={
+          <CompactSources ids={walkthrough.referenceIds} {...sourceProps} />
+        }
+      />
+    );
+  const briefings = pageSlug ? resolveBriefings(topic, pageSlug) : [];
+  for (const briefing of briefings) {
+    if (!briefing.replacesBlockId) continue;
+    replacements[briefing.replacesBlockId] = (
+      <BriefingPanel
+        briefing={briefing}
+        headingLevel="h3"
+        sources={
+          <CompactSources ids={briefing.referenceIds} {...sourceProps} />
+        }
+      />
+    );
+    for (const id of briefing.absorbsBlockIds) replacements[id] = null;
+  }
+  const blockLinks = resolveBlockLinks(topic);
   const depthLabel = (blockId: string) => {
     const level = blocks.find((block) => block.id === blockId)!.minimumLevel;
     return level === trainingLevels[0].id
@@ -164,6 +202,20 @@ export function TopicExperience({
                     ))}
                   </nav>
                 )}
+                {briefings
+                  .filter((briefing) => !briefing.replacesBlockId)
+                  .map((briefing) => (
+                    <BriefingPanel
+                      key={briefing.id}
+                      briefing={briefing}
+                      sources={
+                        <CompactSources
+                          ids={briefing.referenceIds}
+                          {...sourceProps}
+                        />
+                      }
+                    />
+                  ))}
                 {pathways.map((pathway) => (
                   <DecisionPathway
                     key={pathway.id}
@@ -205,6 +257,8 @@ export function TopicExperience({
                       references={topic.references}
                       evidenceHref={evidenceHref}
                       presentation={experience.presentation}
+                      replacements={replacements}
+                      blockLinks={blockLinks}
                     />
                     {section.showReferences && (
                       <>

@@ -1,5 +1,11 @@
 import type { Topic, TopicMetadata } from '@/schemas/topic';
-import { isExtractSelection } from '@/schemas/topic-experience';
+import type { ContentBlock } from '@/schemas/content-block';
+import { isExtractSelection, type TopicLink } from '@/schemas/topic-experience';
+import {
+  trainingLevelRank,
+  trainingLevels,
+  type TrainingLevel,
+} from '@/lib/training-level';
 
 export function topicHref(metadata: Pick<TopicMetadata, 'specialty' | 'slug'>) {
   return `/learn/${metadata.specialty}/${metadata.slug}`;
@@ -20,6 +26,48 @@ function findBlock(topic: Topic, id: string) {
     .flatMap((section) => section.blocks)
     .find((block) => block.id === id)!;
 }
+export const stepAnchor = (walkthroughId: string, step: number) =>
+  `step-${walkthroughId}-${step}`;
+// Real routes/anchors only; links are validated against the topic schema.
+export function linkHref(topic: Topic, link: TopicLink) {
+  const walkthrough = link.step
+    ? topic.experience?.walkthroughs.find((entry) => entry.page === link.page)
+    : undefined;
+  const anchor = link.blockId
+    ? `#block-${link.blockId}`
+    : walkthrough
+      ? `#${stepAnchor(walkthrough.id, link.step!)}`
+      : '';
+  return `${topicHref(topic.metadata)}/${link.page}${anchor}`;
+}
+function resolveLinks(topic: Topic, links: TopicLink[]) {
+  return links.map((link) => ({
+    label: link.label,
+    href: linkHref(topic, link),
+  }));
+}
+type ExtractRow = {
+  label: string;
+  minimumLevel?: TrainingLevel;
+  extracts: { text: string; blockId: string }[];
+  link?: TopicLink;
+};
+export function resolveRows(topic: Topic, rows: ExtractRow[]) {
+  return rows.map((row) => ({
+    label: row.label,
+    minimumLevel: row.minimumLevel,
+    href: row.link ? linkHref(topic, row.link) : undefined,
+    linkLabel: row.link?.label,
+    extracts: row.extracts.map((extract) => ({
+      ...extract,
+      block: findBlock(topic, extract.blockId),
+    })),
+  }));
+}
+export type ResolvedRow = ReturnType<typeof resolveRows>[number];
+const uniqueReferences = (blocks: ContentBlock[]) => [
+  ...new Set(blocks.flatMap((block) => block.referenceIds)),
+];
 // Resolves every quick-reference entry to the authored blocks it draws on.
 export function selectQuickReference(topic: Topic) {
   return (topic.experience?.quickReference ?? []).map((selection) =>
@@ -27,13 +75,7 @@ export function selectQuickReference(topic: Topic) {
       ? {
           ...selection,
           kind: 'extracts' as const,
-          rows: selection.rows.map((row) => ({
-            ...row,
-            extracts: row.extracts.map((extract) => ({
-              ...extract,
-              block: findBlock(topic, extract.blockId),
-            })),
-          })),
+          rows: resolveRows(topic, selection.rows),
         }
       : {
           ...selection,
@@ -102,6 +144,88 @@ export function topicJourney(topic: Topic) {
     label: step.label,
     href: step.page ? `${base}/${step.page}` : `#quick-${step.group}`,
   }));
+}
+// Walkthrough fields default to the depth of their deepest source block, so
+// the page's training level decides how much operative reasoning appears.
+function deepestLevel(blocks: ContentBlock[]): TrainingLevel {
+  return blocks.reduce<TrainingLevel>(
+    (deepest, block) =>
+      trainingLevelRank(block.minimumLevel) > trainingLevelRank(deepest)
+        ? block.minimumLevel
+        : deepest,
+    trainingLevels[0].id,
+  );
+}
+export function resolveWalkthroughs(topic: Topic, page: string) {
+  return (topic.experience?.walkthroughs ?? [])
+    .filter((walkthrough) => walkthrough.page === page)
+    .map((walkthrough) => {
+      const block = findBlock(topic, walkthrough.blockId);
+      const items = block.type === 'checklist' ? block.items : [];
+      const steps = walkthrough.steps.map((step, index) => {
+        const fields = step.fields.map((field) => {
+          const extracts = field.extracts.map((extract) => ({
+            ...extract,
+            block: findBlock(topic, extract.blockId),
+          }));
+          return {
+            kind: field.kind,
+            minimumLevel:
+              field.minimumLevel ??
+              deepestLevel(extracts.map((extract) => extract.block)),
+            extracts,
+          };
+        });
+        return {
+          number: index + 1,
+          anchor: stepAnchor(walkthrough.id, index + 1),
+          label: step.label,
+          text: items[step.itemIndex],
+          fields,
+          gaps: step.gaps,
+          links: resolveLinks(topic, step.links),
+        };
+      });
+      return {
+        id: walkthrough.id,
+        block,
+        steps,
+        referenceIds: uniqueReferences([
+          block,
+          ...steps.flatMap((step) =>
+            step.fields.flatMap((field) =>
+              field.extracts.map((extract) => extract.block),
+            ),
+          ),
+        ]),
+      };
+    });
+}
+export type ResolvedWalkthrough = ReturnType<
+  typeof resolveWalkthroughs
+>[number];
+export function resolveBriefings(topic: Topic, page: string) {
+  return (topic.experience?.briefings ?? [])
+    .filter((briefing) => briefing.page === page)
+    .map((briefing) => {
+      const rows = resolveRows(topic, briefing.rows);
+      return {
+        ...briefing,
+        rows,
+        referenceIds: uniqueReferences(
+          rows.flatMap((row) => row.extracts.map((extract) => extract.block)),
+        ),
+      };
+    });
+}
+export type ResolvedBriefing = ReturnType<typeof resolveBriefings>[number];
+export function resolveBlockLinks(topic: Topic) {
+  return Object.fromEntries(
+    (topic.experience?.blockLinks ?? []).map((entry) => [
+      entry.blockId,
+      resolveLinks(topic, entry.links),
+    ]),
+  );
 }
 // Blocks flagged as policy-dependent, located on their owning subpage.
 export function localPolicyEntries(topic: Topic) {

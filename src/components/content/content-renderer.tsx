@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import type { ReactNode } from 'react';
 import type { BlockPresentation } from '@/schemas/topic-experience';
 import {
@@ -37,6 +38,49 @@ export function Sources({
         );
       })}
     </div>
+  );
+}
+
+// Many sources collapse behind one quiet disclosure.
+export function CompactSources({
+  ids,
+  references,
+  evidenceHref,
+}: {
+  ids: string[];
+  evidenceHref?: string;
+  references: Reference[];
+}) {
+  if (ids.length === 0) return null;
+  const list = (
+    <Sources ids={ids} references={references} evidenceHref={evidenceHref} />
+  );
+  return ids.length > 2 ? (
+    <details className="quick-sources">
+      <summary className="disclosure-trigger px-2">
+        Sources · {ids.length}
+      </summary>
+      {list}
+    </details>
+  ) : (
+    list
+  );
+}
+function BlockLinks({ links }: { links?: { label: string; href: string }[] }) {
+  if (!links?.length) return null;
+  return (
+    <nav aria-label="Connected concepts" className="block-links">
+      <span className="eyebrow" aria-hidden="true">
+        Connected
+      </span>
+      <ul>
+        {links.map((link) => (
+          <li key={link.href}>
+            <Link href={link.href}>{link.label}</Link>
+          </li>
+        ))}
+      </ul>
+    </nav>
   );
 }
 
@@ -179,11 +223,18 @@ export function ContentRenderer({
   references,
   evidenceHref,
   presentation = [],
+  replacements = {},
+  blockLinks = {},
 }: {
   blocks: ContentBlock[];
   evidenceHref?: string;
   presentation?: BlockPresentation[];
   references: Reference[];
+  // Richer renderings that fully represent a block (null = represented
+  // elsewhere). They carry their own depth gating and sources.
+  replacements?: Record<string, ReactNode>;
+  // Explanatory cross-links shown beneath a block.
+  blockLinks?: Record<string, { label: string; href: string }[]>;
 }) {
   const styleOf = (block: ContentBlock) =>
     presentation.find((item) => item.blockId === block.id);
@@ -196,6 +247,19 @@ export function ContentRenderer({
     else runs.push({ group, blocks: [block] });
   }
   const renderBlock = (block: ContentBlock) => {
+    if (block.id in replacements) {
+      const replacement = replacements[block.id];
+      return replacement === null ? null : (
+        <div
+          key={block.id}
+          id={`block-${block.id}`}
+          className="content-block wrap-break-word"
+        >
+          {replacement}
+          <BlockLinks links={blockLinks[block.id]} />
+        </div>
+      );
+    }
     const style = styleOf(block);
     return (
       <LevelContent
@@ -233,6 +297,7 @@ export function ContentRenderer({
               evidenceHref={evidenceHref}
             />
           )}
+          <BlockLinks links={blockLinks[block.id]} />
         </div>
       </LevelContent>
     );

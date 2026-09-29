@@ -1,9 +1,7 @@
 import Link from 'next/link';
-import type { ReactNode } from 'react';
 import type { Topic } from '@/schemas/topic';
-import { trainingLevels } from '@/lib/training-level';
-import { LevelContent } from '@/components/topic/topic-depth';
 import type { ContentBlock } from '@/schemas/content-block';
+import { ExtractRows } from '@/components/content/extract-rows';
 import type { relatedKinds } from '@/schemas/topic-experience';
 import {
   groupQuickReference,
@@ -59,74 +57,6 @@ function QuickAnswer({
 }
 type QuickGroup = ReturnType<typeof groupQuickReference>[number];
 type QuickEntry = QuickGroup['entries'][number];
-type ExtractRows = Extract<QuickEntry, { kind: 'extracts' }>['rows'];
-
-// Display-only capitalisation of a verbatim fragment.
-const sentenceCase = (text: string) =>
-  text.charAt(0).toUpperCase() + text.slice(1);
-function ExtractList({
-  rows,
-  numbered,
-}: {
-  rows: ExtractRows;
-  numbered?: boolean;
-}) {
-  const body = (row: ExtractRows[number]) =>
-    row.extracts.map((extract) => sentenceCase(extract.text)).join(' · ');
-  // Level-sensitive rows leave a visible hint rather than vanishing; the
-  // entry heading links to the full page where the detail can be revealed.
-  const gate = (row: ExtractRows[number], shown: ReactNode, hint: ReactNode) =>
-    row.minimumLevel ? (
-      <LevelContent
-        key={row.label}
-        minimumLevel={row.minimumLevel}
-        fallback={hint}
-      >
-        {shown}
-      </LevelContent>
-    ) : (
-      shown
-    );
-  const hintText = (row: ExtractRows[number]) =>
-    row.minimumLevel
-      ? `Further detail at ${trainingLevels.find((level) => level.id === row.minimumLevel)!.label} depth`
-      : null;
-  return numbered ? (
-    <ol className="quick-rows quick-rows-numbered">
-      {rows.map((row, index) =>
-        gate(
-          row,
-          <li key={row.label}>
-            <span className="quick-row-label">
-              <span aria-hidden="true">{index + 1} </span>
-              {row.label}
-            </span>
-            <span>{body(row)}</span>
-          </li>,
-          <li key={row.label} className="depth-hint">
-            {hintText(row)}
-          </li>,
-        ),
-      )}
-    </ol>
-  ) : (
-    <dl className="quick-rows">
-      {rows.map((row) =>
-        gate(
-          row,
-          <div key={row.label}>
-            <dt className="quick-row-label">{row.label}</dt>
-            <dd>{body(row)}</dd>
-          </div>,
-          <div key={row.label}>
-            <dt className="quick-row-label">{row.label}</dt>
-            <dd className="depth-hint">{hintText(row)}</dd>
-          </div>,
-        ),
-      )}
-    </dl>
-  );
-}
 function QuickEntryCard({ entry }: { entry: QuickEntry }) {
   const note = entry.kind === 'block' && entry.block.type === 'sourceNote';
   return (
@@ -142,7 +72,7 @@ function QuickEntryCard({ entry }: { entry: QuickEntry }) {
       </h3>
       <div className="text-sm leading-6">
         {entry.kind === 'extracts' ? (
-          <ExtractList rows={entry.rows} numbered={entry.numbered} />
+          <ExtractRows rows={entry.rows} numbered={entry.numbered} />
         ) : (
           <QuickAnswer block={entry.block} itemIndex={entry.itemIndex} />
         )}

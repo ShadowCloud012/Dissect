@@ -89,7 +89,7 @@ export const experience = {
     {
       slug: 'hot-seat',
       title: 'Hot Seat',
-      description: 'Think through the question, then reveal the model answer.',
+      description: 'Check your understanding of the case and the operation.',
       group: 'Revision',
       sectionIds: ['hot-seat'],
       aliases: ['revision', 'viva'],
@@ -875,23 +875,6 @@ export const experience = {
       variant: 'danger',
     },
     {
-      blockId: 'operative-sequence',
-      label: 'Operative sequence',
-      itemLabels: [
-        'Position & access',
-        'Explore & identify',
-        'Mesoappendix & base',
-        'Retrieve & assess',
-        'Inspect & close',
-      ],
-      variant: 'steps',
-    },
-    {
-      blockId: 'operative-judgement',
-      label: 'Judgement & senior help',
-      variant: 'pathway',
-    },
-    {
       blockId: 'postoperative-review',
       label: 'Review on the ward',
       variant: 'fact',
@@ -962,6 +945,548 @@ export const experience = {
       kind: 'complication',
       title: 'Complications after appendicectomy',
       page: 'complications',
+    },
+  ],
+  // Step → Why → Anatomy → Danger → What changes the plan. Walkthrough content
+  // must be textually sourced (validated) AND semantically authored for the
+  // role it is shown in (manually reviewed mapping, pinned by a test). A
+  // related fact that was not written as, e.g., a rationale is a gap, not a
+  // "Why". Fields default to their source block's depth.
+  walkthroughs: [
+    {
+      id: 'appendicectomy',
+      page: 'appendicectomy',
+      blockId: 'operative-sequence',
+      steps: [
+        {
+          itemIndex: 0,
+          label: 'Position & access',
+          // The port answer explains why coordinates vary, not why this step
+          // is performed; it stays a linked question.
+          gaps: ['why'],
+          links: [
+            {
+              label: 'Hot Seat: why no fixed port coordinates',
+              page: 'hot-seat',
+              blockId: 'port-question',
+            },
+          ],
+        },
+        {
+          itemIndex: 1,
+          label: 'Explore & identify',
+          // The mesoappendix sentence describes dissection anatomy, not a
+          // rationale for exploring and identifying.
+          gaps: ['why'],
+          fields: [
+            {
+              kind: 'anatomy',
+              extracts: [
+                {
+                  text: 'The appendix arises from the posteromedial caecum near the ileocaecal junction',
+                  blockId: 'appendix-origin',
+                },
+                {
+                  text: 'The tip can lie retrocaecally, in the pelvis or near the ileum',
+                  blockId: 'appendix-origin',
+                },
+              ],
+            },
+            {
+              kind: 'danger',
+              extracts: [
+                {
+                  text: 'Relate the variable appendix position and exposure to the structures actually in view',
+                  blockId: 'structures-at-risk',
+                },
+              ],
+            },
+            {
+              // The simple acknowledgement is universal; strategy is not.
+              kind: 'changes',
+              minimumLevel: 'medical-student',
+              extracts: [
+                {
+                  text: 'Poor visualisation or difficult anatomy may require a changed approach',
+                  blockId: 'operative-judgement',
+                },
+              ],
+            },
+          ],
+          links: [
+            {
+              label: 'Anatomy: origin & landmarks',
+              page: 'anatomy',
+              blockId: 'appendix-origin',
+            },
+            {
+              label: 'Hot Seat: finding the base',
+              page: 'hot-seat',
+              blockId: 'appendix-base',
+            },
+          ],
+        },
+        {
+          itemIndex: 2,
+          label: 'Mesoappendix & base',
+          fields: [
+            {
+              // Authored as a rationale: "Why identify the mesoappendix
+              // before dividing it?" — quoted whole, cause included.
+              kind: 'why',
+              extracts: [
+                {
+                  text: 'It contains the appendicular vascular supply; deliberate identification and control matter',
+                  blockId: 'artery-question',
+                },
+              ],
+            },
+            {
+              kind: 'anatomy',
+              extracts: [
+                {
+                  text: 'The mesoappendix carries the appendicular arterial supply',
+                  blockId: 'mesoappendix',
+                },
+                {
+                  text: 'Following the caecal taeniae to their convergence helps locate the appendiceal base',
+                  blockId: 'appendix-origin',
+                },
+              ],
+            },
+            {
+              kind: 'danger',
+              extracts: [
+                {
+                  text: 'Adjacent bowel, bladder and vessels can be injured during surgery',
+                  blockId: 'structures-at-risk',
+                },
+              ],
+            },
+          ],
+          // Base-control technique (Hot Seat) is technique choice, not a
+          // change of plan; it stays a linked question.
+          links: [
+            {
+              label: 'Anatomy: mesoappendix',
+              page: 'anatomy',
+              blockId: 'mesoappendix',
+            },
+            {
+              label: 'Danger areas',
+              page: 'anatomy',
+              blockId: 'structures-at-risk',
+            },
+            {
+              label: 'Complications: bleeding, bowel injury',
+              page: 'complications',
+              blockId: 'complications-table',
+            },
+            {
+              label: 'Hot Seat: before dividing the base',
+              page: 'hot-seat',
+              blockId: 'base-question',
+            },
+          ],
+        },
+        { itemIndex: 3, label: 'Retrieve & assess', gaps: ['why'] },
+        {
+          itemIndex: 4,
+          label: 'Inspect & close',
+          gaps: ['why'],
+          links: [
+            {
+              label: 'After theatre: postoperative review',
+              page: 'post-op',
+              blockId: 'postoperative-review',
+            },
+          ],
+        },
+      ],
+    },
+  ],
+  briefings: [
+    {
+      id: 'theatre-prep',
+      page: 'appendicectomy',
+      title: '5-minute theatre prep',
+      caption:
+        'Seeing or assisting with this case soon? Start here — the walkthrough below goes deeper.',
+      variant: 'prep',
+      rows: [
+        {
+          // Describes treatment options, not an indication, so not "Why".
+          label: 'Treatment',
+          extracts: [
+            {
+              text: 'Appendicectomy is usual; antibiotics alone are an option for some patients',
+              blockId: 'at-a-glance',
+            },
+          ],
+          link: {
+            label: 'Management',
+            page: 'management',
+            blockId: 'operative-pathway',
+          },
+        },
+        {
+          label: 'The operation',
+          extracts: [
+            {
+              text: 'Under general anaesthesia, laparoscopic access allows exploration and removal of the appendix',
+              blockId: 'operation-outline',
+            },
+          ],
+        },
+        {
+          label: 'Setup',
+          extracts: [
+            {
+              text: 'Confirm the agreed procedure and perioperative plan during the safety checklist',
+              blockId: 'operative-preparation',
+            },
+            {
+              text: 'Position supine, adjusting tilt for exposure',
+              blockId: 'operative-sequence',
+            },
+          ],
+        },
+        {
+          label: 'Anatomy',
+          extracts: [
+            {
+              text: 'Following the caecal taeniae to their convergence helps locate the appendiceal base',
+              blockId: 'appendix-origin',
+            },
+            {
+              text: 'The mesoappendix carries the appendicular arterial supply',
+              blockId: 'mesoappendix',
+            },
+          ],
+          link: { label: 'Anatomy', page: 'anatomy' },
+        },
+        {
+          label: 'Sequence',
+          extracts: [
+            {
+              text: 'identification, mesoappendix and base control, retrieval, inspection and closure',
+              blockId: 'operation-outline',
+            },
+          ],
+          link: { label: 'Walkthrough', page: 'appendicectomy', step: 1 },
+        },
+        {
+          label: 'Danger',
+          extracts: [
+            {
+              text: 'Adjacent bowel, bladder and vessels can be injured during surgery',
+              blockId: 'structures-at-risk',
+            },
+          ],
+          link: {
+            label: 'Danger areas',
+            page: 'anatomy',
+            blockId: 'structures-at-risk',
+          },
+        },
+        {
+          label: 'Plan may change',
+          extracts: [
+            {
+              text: 'Poor visualisation or difficult anatomy may require a changed approach',
+              blockId: 'operative-judgement',
+            },
+          ],
+          link: {
+            label: 'What changes the plan',
+            page: 'appendicectomy',
+            blockId: 'operative-judgement',
+          },
+        },
+        {
+          label: 'Consent',
+          extracts: [
+            {
+              text: 'Discuss anaesthetic considerations, bleeding, infection, collection, injury to adjacent structures and possible further intervention',
+              blockId: 'procedure-specific-discussion',
+            },
+            {
+              text: 'Explain that findings may change the approach',
+              blockId: 'procedure-specific-discussion',
+            },
+          ],
+          link: {
+            label: 'Consent',
+            page: 'consent',
+            blockId: 'procedure-specific-discussion',
+          },
+        },
+        {
+          label: 'After',
+          extracts: [
+            {
+              text: 'Review observations, symptoms and the operative findings; escalate deterioration promptly',
+              blockId: 'postoperative-review',
+            },
+          ],
+          link: {
+            label: 'Post-op',
+            page: 'post-op',
+            blockId: 'postoperative-review',
+          },
+        },
+      ],
+    },
+    {
+      id: 'what-changes-the-plan',
+      page: 'appendicectomy',
+      title: 'What changes the plan',
+      caption:
+        'The textbook sequence is a starting point; operative judgement responds to findings.',
+      variant: 'plan',
+      replacesBlockId: 'operative-judgement',
+      absorbsBlockIds: ['unexpected-findings'],
+      rows: [
+        {
+          label: 'Standard',
+          extracts: [
+            {
+              text: 'The broad sequence is identification, mesoappendix and base control, retrieval, inspection and closure',
+              blockId: 'operation-outline',
+            },
+          ],
+          link: { label: 'Walkthrough', page: 'appendicectomy', step: 1 },
+        },
+        {
+          label: 'May change it',
+          extracts: [
+            {
+              text: 'Poor visualisation or difficult anatomy may require a changed approach',
+              blockId: 'operative-judgement',
+            },
+            {
+              text: 'unexpected findings or complexity beyond your competence',
+              blockId: 'unexpected-findings',
+            },
+          ],
+        },
+        {
+          label: 'Always',
+          extracts: [
+            {
+              text: 'uncertainty is a reason to seek senior help',
+              blockId: 'operative-judgement',
+            },
+          ],
+        },
+        {
+          label: 'In consent',
+          extracts: [
+            {
+              text: 'Explain that findings may change the approach',
+              blockId: 'procedure-specific-discussion',
+            },
+          ],
+          link: {
+            label: 'Consent',
+            page: 'consent',
+            blockId: 'procedure-specific-discussion',
+          },
+        },
+        {
+          label: 'Strategy',
+          minimumLevel: 'cst',
+          extracts: [
+            { text: 'including conversion', blockId: 'operative-judgement' },
+            {
+              text: 'Device choice and strategy depend on findings and expertise',
+              blockId: 'operative-judgement',
+            },
+          ],
+          link: {
+            label: 'Hot Seat: senior help',
+            page: 'hot-seat',
+            blockId: 'help-question',
+          },
+        },
+        {
+          label: 'Unexpected findings',
+          minimumLevel: 'registrar',
+          extracts: [
+            {
+              text: 'involve an appropriately experienced colleague',
+              blockId: 'unexpected-findings',
+            },
+            {
+              text: 'Make the revised plan explicit and document the findings and decisions',
+              blockId: 'unexpected-findings',
+            },
+          ],
+          link: {
+            label: 'Hot Seat: unexpected findings',
+            page: 'hot-seat',
+            blockId: 'unexpected-question',
+          },
+        },
+      ],
+    },
+  ],
+  // Cross-links that explain why two concepts belong together.
+  blockLinks: [
+    {
+      blockId: 'appendix-origin',
+      links: [
+        {
+          label: 'In the operation: step 2 · Explore & identify',
+          page: 'appendicectomy',
+          step: 2,
+        },
+        {
+          label: 'Step 3 · Mesoappendix & base',
+          page: 'appendicectomy',
+          step: 3,
+        },
+      ],
+    },
+    {
+      blockId: 'mesoappendix',
+      links: [
+        {
+          label: 'In the operation: step 3 · Mesoappendix & base',
+          page: 'appendicectomy',
+          step: 3,
+        },
+        {
+          label: 'Hot Seat: why identify the mesoappendix',
+          page: 'hot-seat',
+          blockId: 'artery-question',
+        },
+      ],
+    },
+    {
+      blockId: 'structures-at-risk',
+      links: [
+        {
+          label: 'Where it matters: operative steps 2–3',
+          page: 'appendicectomy',
+          step: 2,
+        },
+        {
+          label: 'Complications: bowel injury, bleeding',
+          page: 'complications',
+          blockId: 'complications-table',
+        },
+      ],
+    },
+    {
+      blockId: 'complications-table',
+      links: [
+        {
+          label: 'Danger areas in theatre',
+          page: 'anatomy',
+          blockId: 'structures-at-risk',
+        },
+        {
+          label: 'Operation: mesoappendix & base control',
+          page: 'appendicectomy',
+          step: 3,
+        },
+        {
+          label: 'Consent: risks to discuss',
+          page: 'consent',
+          blockId: 'procedure-specific-discussion',
+        },
+      ],
+    },
+    {
+      blockId: 'procedure-specific-discussion',
+      links: [
+        {
+          label: 'What changes the plan in theatre',
+          page: 'appendicectomy',
+          blockId: 'operative-judgement',
+        },
+        {
+          label: 'Complications described to patients',
+          page: 'complications',
+          blockId: 'complications-table',
+        },
+      ],
+    },
+    {
+      blockId: 'postoperative-review',
+      links: [
+        {
+          label: 'The operation: walkthrough',
+          page: 'appendicectomy',
+          step: 1,
+        },
+      ],
+    },
+    {
+      blockId: 'appendix-base',
+      links: [
+        {
+          label: 'Anatomy: origin & landmarks',
+          page: 'anatomy',
+          blockId: 'appendix-origin',
+        },
+        {
+          label: 'In the operation: step 2',
+          page: 'appendicectomy',
+          step: 2,
+        },
+      ],
+    },
+    {
+      blockId: 'artery-question',
+      links: [
+        {
+          label: 'In the operation: step 3',
+          page: 'appendicectomy',
+          step: 3,
+        },
+      ],
+    },
+    {
+      blockId: 'port-question',
+      links: [
+        {
+          label: 'In the operation: step 1',
+          page: 'appendicectomy',
+          step: 1,
+        },
+      ],
+    },
+    {
+      blockId: 'base-question',
+      links: [
+        {
+          label: 'In the operation: step 3',
+          page: 'appendicectomy',
+          step: 3,
+        },
+      ],
+    },
+    {
+      blockId: 'help-question',
+      links: [
+        {
+          label: 'What changes the plan',
+          page: 'appendicectomy',
+          blockId: 'operative-judgement',
+        },
+      ],
+    },
+    {
+      blockId: 'unexpected-question',
+      links: [
+        {
+          label: 'What changes the plan',
+          page: 'appendicectomy',
+          blockId: 'operative-judgement',
+        },
+      ],
     },
   ],
 } satisfies TopicExperience;

@@ -5,7 +5,7 @@ export const questionsEvidenceSections = [
     id: 'hot-seat',
     title: 'Hot Seat',
     summary:
-      'A static question bank. Answers deepen with training level; reveal advanced content to read every question.',
+      'Check your understanding of the case and the operation. Answers deepen with training level; reveal advanced content to read every question.',
     blocks: [
       {
         id: 'pain-migration',
@@ -101,7 +101,7 @@ export const questionsEvidenceSections = [
       {
         id: 'artery-question',
         type: 'question',
-        minimumLevel: 'cst',
+        minimumLevel: 'medical-student',
         question: 'Why identify the mesoappendix before dividing it?',
         answer:
           'It contains the appendicular vascular supply; deliberate identification and control matter.',

@@ -255,7 +255,7 @@
     content: '→' / '';
   }
   .patient-journey a {
-    @apply inline-flex min-h-9 items-center text-dissect-green-800 underline decoration-dissect-green-200 underline-offset-4 hover:decoration-dissect-green-800 sm:min-h-8;
+    @apply inline-flex min-h-11 items-center sm:min-h-9 text-dissect-green-800 underline decoration-dissect-green-200 underline-offset-4 hover:decoration-dissect-green-800 sm:min-h-8;
   }
   .quick-group[data-tone='alert'] .quick-entry {
     @apply border-dissect-red/20;
@@ -454,7 +454,7 @@
     @apply flex flex-wrap gap-x-3 sm:mt-1 sm:block;
   }
   .hub-directory-grid a {
-    @apply flex min-h-9 items-center text-sm text-dissect-green-800 underline decoration-dissect-green-200 underline-offset-4 hover:decoration-dissect-green-800;
+    @apply flex min-h-11 items-center text-sm text-dissect-green-800 underline decoration-dissect-green-200 underline-offset-4 hover:decoration-dissect-green-800 sm:min-h-9;
   }
   .related-content {
     @apply mb-5 border-b border-dissect-border pb-4;
@@ -474,6 +474,103 @@
   .page-pager a.text-right {
     @apply col-start-2;
   }
+  /* Operative walkthrough: connected step rail with labelled reasoning. */
+  .walkthrough-head {
+    @apply flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-dissect-border pb-2;
+  }
+  .walkthrough-steps {
+    @apply mt-4;
+  }
+  .walkthrough-step {
+    @apply relative grid scroll-mt-20 grid-cols-[2.5rem_minmax(0,1fr)] gap-3 pb-6 last:pb-2;
+  }
+  .walkthrough-step:not(:last-child)::before {
+    @apply absolute top-11 bottom-0 left-[19px] w-px bg-dissect-green-600/40;
+    content: '';
+  }
+  .walkthrough-marker {
+    @apply flex size-10 items-center justify-center rounded-full border border-dissect-green-800 bg-dissect-surface font-mono text-sm text-dissect-green-800;
+  }
+  .walkthrough-step:target .walkthrough-marker {
+    @apply bg-dissect-green-800 text-white;
+  }
+  .walkthrough-title {
+    @apply pt-2 text-base font-semibold;
+  }
+  .walkthrough-text {
+    @apply mt-1 max-w-[72ch] leading-7;
+  }
+  .walkthrough-fields {
+    @apply @container mt-3 grid gap-1 border-l-2 border-dissect-border text-sm leading-6;
+  }
+  .walkthrough-fields > div {
+    @apply block border-l-2 border-transparent py-0.5 pl-3 -ml-0.5 @[30rem]:grid @[30rem]:grid-cols-[8.5rem_minmax(0,1fr)] @[30rem]:gap-x-3;
+  }
+  .walkthrough-fields dt {
+    @apply mr-2 inline font-mono text-xs leading-6 tracking-wide text-dissect-muted uppercase @[30rem]:mr-0 @[30rem]:block;
+  }
+  .walkthrough-fields dd {
+    @apply inline max-w-[68ch] @[30rem]:block;
+  }
+  .walkthrough-fields > div[data-kind='danger'] {
+    @apply border-l-dissect-amber;
+  }
+  .walkthrough-fields > div[data-kind='danger'] dt {
+    @apply text-dissect-amber;
+  }
+  .walkthrough-fields > div[data-kind='changes'] {
+    @apply border-l-dissect-green-600;
+  }
+  .walkthrough-fields > div[data-kind='changes'] dt {
+    @apply text-dissect-green-800;
+  }
+  .walkthrough-fields > div[data-gap] dd {
+    @apply text-xs text-dissect-muted italic;
+  }
+  .walkthrough-links {
+    @apply mt-1 flex flex-wrap gap-x-4;
+  }
+  /* ~44px touch targets on mobile; compact again with a finer pointer. */
+  .walkthrough-links a,
+  .block-links a {
+    @apply inline-flex min-h-11 items-center sm:min-h-9 text-sm text-dissect-green-800 underline decoration-dissect-green-200 underline-offset-4 hover:decoration-dissect-green-800;
+  }
+  .walkthrough-foot,
+  .briefing-foot {
+    @apply flex justify-end border-t border-dissect-border px-2;
+  }
+  /* Compact labelled panels: theatre prep and what changes the plan. */
+  .briefing {
+    @apply mb-6 scroll-mt-20 border border-dissect-border bg-dissect-surface;
+  }
+  .briefing[data-variant='prep'] {
+    @apply border-t-2 border-t-dissect-green-800;
+  }
+  .briefing[data-variant='plan'] {
+    @apply mb-0 border-l-4 border-l-dissect-green-600;
+  }
+  .briefing-head {
+    @apply border-b border-dissect-border px-3 py-2 sm:px-4;
+  }
+  .briefing-title {
+    @apply font-mono text-xs font-medium tracking-wide text-dissect-green-800 uppercase;
+  }
+  .briefing-body {
+    @apply px-3 py-3 sm:px-4;
+  }
+  /* Inline links grow their hit area with padding, not line height. */
+  .row-link {
+    @apply ml-1 py-[14px] text-xs whitespace-nowrap sm:py-2.5 text-dissect-green-800 underline decoration-dissect-green-200 underline-offset-4 hover:decoration-dissect-green-800;
+  }
+  .anchor-target {
+    @apply block scroll-mt-20;
+  }
+  .block-links {
+    @apply mt-2 flex flex-wrap items-center gap-x-3 border-t border-dashed border-dissect-border pt-1;
+  }
+  .block-links ul {
+    @apply flex flex-wrap gap-x-4;
+  }
   /* Homepage */
   .home {
     @apply mx-auto max-w-6xl px-4 sm:px-8;
@@ -490,11 +587,36 @@
   .home-preview {
     @apply min-w-0 border border-dissect-border bg-dissect-surface p-5 shadow-dissect-sm sm:p-6;
   }
-  .home-preview blockquote {
-    @apply mt-3 border-l-2 border-dissect-green-600 pl-4 text-lg leading-8;
+  .home-preview .walkthrough-step-preview {
+    @apply mt-4 pb-2;
   }
-  .home-preview-foot {
-    @apply mt-4 grid gap-2 border-t border-dissect-border pt-4;
+  .home-flagship {
+    @apply min-w-0 border border-dissect-border bg-dissect-surface p-5 shadow-dissect-sm sm:p-6;
+  }
+  .home-flagship-links {
+    @apply mt-4 flex flex-wrap gap-x-4 border-t border-dissect-border pt-2;
+  }
+  .home-flagship-links a,
+  .home-example a {
+    @apply inline-flex min-h-11 items-center text-sm font-medium text-dissect-green-800 underline decoration-dissect-green-200 underline-offset-4 hover:decoration-dissect-green-800 sm:min-h-9;
+  }
+  .home-example {
+    @apply mt-2 flex flex-wrap items-center gap-x-2;
+  }
+  .home-operation {
+    @apply grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-start lg:gap-12;
+  }
+  .home-legend {
+    @apply mt-6 grid gap-2 border-l-2 border-dissect-border;
+  }
+  .home-legend > div {
+    @apply grid grid-cols-[8.5rem_minmax(0,1fr)] gap-3 pl-3 text-sm;
+  }
+  .home-legend dt {
+    @apply font-mono text-xs leading-6 tracking-wide text-dissect-green-800 uppercase;
+  }
+  .home-legend dd {
+    @apply leading-6 text-dissect-muted;
   }
   .home-journey {
     @apply grid gap-px border border-dissect-border bg-dissect-border sm:grid-cols-2 lg:grid-cols-3;
