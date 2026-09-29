@@ -19,7 +19,7 @@ export function TrainingLevelSelector() {
         onChange={(event) => {
           if (isTrainingLevel(event.target.value)) setLevel(event.target.value);
         }}
-        className="min-h-11 max-w-full rounded-dissect-sm border border-dissect-border bg-dissect-surface px-2 text-sm text-dissect-green-800 sm:px-3"
+        className="min-h-11 max-w-full rounded-dissect-sm border border-dissect-border bg-dissect-surface px-1.5 text-xs text-dissect-green-800 sm:px-3 sm:text-sm"
       >
         {trainingLevels.map(({ id, label }) => (
           <option key={id} value={id}>
