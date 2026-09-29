@@ -41,8 +41,8 @@ test('shell routes, navigation and local training level work without browser err
   const selector = page.getByRole('combobox', { name: 'Training level' });
   await selector.selectOption('cst');
   const primary = page.getByRole('navigation', { name: 'Primary' });
-  // Unbuilt areas keep their routes but are not offered as navigation.
-  await expect(primary.getByRole('link')).toHaveText(['Learn']);
+  // Only built areas are offered; Practice and Theatre keep their routes.
+  await expect(primary.getByRole('link')).toHaveText(['Learn', 'Search']);
   const learn = primary.getByRole('link', { name: 'Learn', exact: true });
   await learn.click();
   await expect(page).toHaveURL(/\/learn$/);
