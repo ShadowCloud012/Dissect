@@ -376,16 +376,36 @@ it('keeps every subpage one tap away from the hub and exposes a quick-jump bar',
     'page',
   );
 });
-it('shows related content and a route back to the overview on subpages', () => {
-  render(<TopicExperience topic={topic} pageSlug="management" />);
-  const related = within(
-    screen.getByRole('region', { name: 'Related' }),
-  ).getAllByRole('link');
-  expect(related.map((link) => link.getAttribute('href'))).toEqual(
-    topic.experience!.related.map(
-      (item) => `/learn/general-surgery/acute-appendicitis/${item.page}`,
-    ),
+it('shows relationship-driven related content and a route back to the overview', () => {
+  const base = '/learn/general-surgery/acute-appendicitis';
+  const related = () =>
+    within(screen.getByRole('region', { name: 'Related' }))
+      .getAllByRole('link')
+      .map((link) => [link.textContent, link.getAttribute('href')]);
+  // Procedure → anatomy, complications and aftercare.
+  const { unmount } = render(
+    <TopicExperience topic={topic} pageSlug="appendicectomy" />,
   );
+  expect(related()).toEqual([
+    ['AnatomyAnatomy', `${base}/anatomy`],
+    ['ComplicationsComplications', `${base}/complications`],
+    ['AftercarePost-op', `${base}/post-op`],
+  ]);
+  unmount();
+  // Complications → procedure and aftercare.
+  const second = render(
+    <TopicExperience topic={topic} pageSlug="complications" />,
+  );
+  expect(related()).toEqual([
+    ['ProcedureLaparoscopic appendicectomy', `${base}/appendicectomy`],
+    ['AftercarePost-op', `${base}/post-op`],
+  ]);
+  second.unmount();
+  // A clinical page → the condition's procedure.
+  render(<TopicExperience topic={topic} pageSlug="management" />);
+  expect(related()).toEqual([
+    ['ProcedureLaparoscopic appendicectomy', `${base}/appendicectomy`],
+  ]);
   expect(
     screen.getByRole('link', { name: /Acute appendicitis overview/ }),
   ).toHaveAttribute('href', '/learn/general-surgery/acute-appendicitis');

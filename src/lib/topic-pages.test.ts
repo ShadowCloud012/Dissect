@@ -8,7 +8,6 @@ import {
   resolveTopicPage,
   selectQuickReference,
   topicHref,
-  topicIndexEntries,
 } from './topic-pages';
 const topic = topicRegistry.getTopic('general-surgery', 'acute-appendicitis')!;
 it('discovers each canonical topic in its categories without inflating counts', () => {
@@ -92,14 +91,6 @@ it('resolves subpages using original sections and selects blocks by identity', (
         block,
       );
   expect(resolveTopicPage(topic, 'missing')).toBeUndefined();
-  expect(topicIndexEntries(topic)).toHaveLength(10);
-  expect(
-    topicIndexEntries(topic).every(
-      (entry) =>
-        entry.headings.length &&
-        entry.route.startsWith(topicHref(topic.metadata)),
-    ),
-  ).toBe(true);
 });
 it('rejects dangling pages, duplicate ownership and invalid item selections', () => {
   const invalid = structuredClone(topic);
@@ -182,9 +173,6 @@ it('rejects dangling pages, duplicate ownership and invalid item selections', ()
   invalid.experience = structuredClone(topic.experience);
   invalid.experience!.journey.push({ label: 'X' });
   expect(() => validateTopic(invalid)).toThrow(/needs a page or a group/);
-  invalid.experience = structuredClone(topic.experience);
-  invalid.experience!.related[0].page = 'missing';
-  expect(() => validateTopic(invalid)).toThrow(/Unknown related page/);
   invalid.experience = structuredClone(topic.experience);
   invalid.experience!.pathways[0].branches[0].blockId = 'symptom-pattern';
   expect(() => validateTopic(invalid)).toThrow(/belong to its page/);
