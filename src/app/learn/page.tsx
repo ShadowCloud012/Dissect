@@ -3,6 +3,8 @@ import { specialties } from '@/content/specialties';
 import { topicRegistry } from '@/content/registry';
 import { UpcomingSpecialties } from '@/components/navigation/upcoming-specialties';
 export const metadata = { title: 'Learn' };
+const countLabel = (count: number, word: string) =>
+  `${count} ${word}${count === 1 ? '' : 's'}`;
 export default function LearnPage() {
   return (
     <div className="browse-page">
@@ -28,11 +30,15 @@ export default function LearnPage() {
                   {specialty.description}
                 </p>
                 <p className="mt-4 font-mono text-xs">
-                  {topicRegistry.countTopics(specialty.slug)}{' '}
-                  {topicRegistry.countTopics(specialty.slug) === 1
-                    ? 'topic'
-                    : 'topics'}{' '}
-                  · Clinical reference &amp; operative understanding
+                  {countLabel(
+                    topicRegistry.listConditions(specialty.slug).length,
+                    'condition',
+                  )}{' '}
+                  ·{' '}
+                  {countLabel(
+                    topicRegistry.listProcedures(specialty.slug).length,
+                    'procedure',
+                  )}
                 </p>
               </div>
               <span aria-hidden="true" className="text-2xl">

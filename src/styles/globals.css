@@ -63,6 +63,33 @@
   .category-nav a[aria-current='true'] {
     @apply border-l-2 border-l-dissect-green-800 bg-dissect-green-50 font-semibold text-dissect-green-800;
   }
+  /* Conditions and procedures: side by side on wide screens, stacked on
+     mobile, each with a one-line purpose. */
+  .discovery-columns {
+    @apply grid gap-8 xl:grid-cols-2 xl:gap-6;
+  }
+  .discovery-heading {
+    @apply text-xl font-semibold;
+  }
+  .discovery-intro {
+    @apply mt-1 mb-3 text-sm text-dissect-muted;
+  }
+  .discovery-link {
+    @apply mb-3 flex flex-wrap items-center gap-x-2;
+  }
+  .discovery-link a {
+    @apply inline-flex min-h-11 items-center text-sm font-medium text-dissect-green-800 underline decoration-dissect-green-200 underline-offset-4 hover:decoration-dissect-green-800 sm:min-h-9;
+  }
+  /* Prominent condition ↔ procedure link on topic pages. */
+  .kind-link {
+    @apply mt-3 flex max-w-3xl flex-wrap items-center gap-x-3 gap-y-1 border border-l-4 border-dissect-border border-l-dissect-green-800 bg-dissect-surface px-3 py-2 sm:px-4;
+  }
+  .hub-definition + .kind-link {
+    @apply mt-0 mb-4 py-1 sm:mb-5 sm:py-2;
+  }
+  .kind-link a {
+    @apply inline-flex min-h-11 items-center font-semibold text-dissect-green-800 underline decoration-dissect-green-200 underline-offset-4 hover:decoration-dissect-green-800 sm:min-h-9;
+  }
   .topic-listing {
     @apply border-y border-dissect-border bg-dissect-surface p-5 sm:p-7;
   }
@@ -672,6 +699,15 @@
   }
   .upcoming-tag {
     @apply font-mono text-xs;
+  }
+  .home-pathways {
+    @apply grid gap-1 border-b border-dissect-border pb-3 sm:px-2;
+  }
+  .home-pathways li {
+    @apply flex flex-wrap items-center text-sm;
+  }
+  .home-pathways a {
+    @apply inline-flex min-h-11 items-center text-dissect-green-800 underline decoration-dissect-green-200 underline-offset-4 hover:decoration-dissect-green-800 sm:min-h-9;
   }
   .home-trust {
     @apply mt-6 grid gap-px border border-dissect-border bg-dissect-border sm:grid-cols-2 lg:grid-cols-4;

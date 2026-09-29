@@ -37,6 +37,19 @@ const metadataFields = {
   keywords: z.array(textSchema).min(1),
   aliases: z.array(textSchema).optional(),
 };
+// A clinical topic is a Condition. A Procedure is a first-class record owned
+// by the condition that most often leads to it: it has its own title,
+// aliases and keywords, and its canonical page is a subpage of that topic,
+// so there is one URL and no duplicated content.
+export const procedureSchema = z.strictObject({
+  id: stableIdSchema,
+  title: textSchema,
+  page: stableIdSchema,
+  summary: textSchema,
+  aliases: z.array(textSchema).min(1),
+  keywords: z.array(textSchema).min(1),
+});
+export type Procedure = z.infer<typeof procedureSchema>;
 export const topicMetadataSchema = z.discriminatedUnion('contentKind', [
   z.strictObject({
     ...metadataFields,
@@ -47,6 +60,7 @@ export const topicMetadataSchema = z.discriminatedUnion('contentKind', [
     .strictObject({
       ...metadataFields,
       contentKind: z.literal('clinical'),
+      procedures: z.array(procedureSchema).default([]),
       status: z.enum(['draft', 'awaiting-review', 'clinically-reviewed']),
       clinicalReviewer: textSchema.nullable(),
       lastClinicallyReviewed: dateSchema.nullable(),
@@ -112,6 +126,15 @@ export const topicSchema = z
       for (const section of topic.sections)
         if (section.id !== 'overview' && !assigned.includes(section.id))
           fail(`Unassigned section: ${section.id}`);
+      // Each procedure's canonical page is a real subpage of this condition.
+      if (topic.metadata.contentKind === 'clinical') {
+        const procedurePages = topic.metadata.procedures.map((p) => p.page);
+        if (new Set(procedurePages).size !== procedurePages.length)
+          fail('A page can represent only one procedure');
+        for (const procedure of topic.metadata.procedures)
+          if (!pageIds.has(procedure.page))
+            fail(`Unknown procedure page: ${procedure.page}`);
+      }
       const pageOwns = (pageSlug: string, blockId: string) => {
         const page = experience.pages.find((entry) => entry.slug === pageSlug);
         return topic.sections.some(

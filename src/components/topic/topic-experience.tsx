@@ -93,6 +93,13 @@ export function TopicExperience({
     for (const id of briefing.absorbsBlockIds) replacements[id] = null;
   }
   const blockLinks = resolveBlockLinks(topic);
+  // Condition ↔ procedure: a condition hub surfaces its operations, and a
+  // procedure page surfaces the condition it belongs to.
+  const procedures =
+    topic.metadata.contentKind === 'clinical' ? topic.metadata.procedures : [];
+  const currentProcedure = procedures.find(
+    (procedure) => procedure.page === pageSlug,
+  );
   const depthLabel = (blockId: string) => {
     const level = blocks.find((block) => block.id === blockId)!.minimumLevel;
     return level === trainingLevels[0].id
@@ -111,11 +118,13 @@ export function TopicExperience({
       />
       <header className="topic-header">
         {/* The mobile breadcrumb already names the parent; skip the eyebrow. */}
-        <p className="eyebrow mb-2 hidden sm:block">
-          {pageSlug
-            ? topic.metadata.title
-            : `${specialty.title} / Clinical reference`}
-        </p>
+        {currentProcedure ? (
+          <p className="eyebrow mb-2">Procedure</p>
+        ) : (
+          <p className="eyebrow mb-2 hidden sm:block">
+            {pageSlug ? topic.metadata.title : `${specialty.title} / Condition`}
+          </p>
+        )}
         <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
           {title}
         </h1>
@@ -127,6 +136,16 @@ export function TopicExperience({
         <div className="mt-3">
           <EditorialStatus metadata={topic.metadata} />
         </div>
+        {currentProcedure && (
+          <aside aria-label="Clinical context" className="kind-link">
+            <span className="eyebrow">Clinical context</span>
+            <Link href={base}>{topic.metadata.title}</Link>
+            <span className="text-sm text-dissect-muted">
+              Presentation, investigations and management of the condition
+              behind this operation.
+            </span>
+          </aside>
+        )}
       </header>
       <div className="topic-columns">
         <TopicNavigation
@@ -148,6 +167,22 @@ export function TopicExperience({
                     evidenceHref={evidenceHref}
                   />
                 </div>
+                {procedures.map((procedure) => (
+                  <aside
+                    key={procedure.id}
+                    aria-label="Related procedure"
+                    className="kind-link"
+                  >
+                    <span className="eyebrow">Related procedure</span>
+                    <Link href={`${base}/${procedure.page}`}>
+                      {procedure.title}
+                    </Link>
+                    {/* One line on phones so the snapshot stays in view. */}
+                    <span className="hidden text-sm text-dissect-muted sm:inline">
+                      {procedure.summary}
+                    </span>
+                  </aside>
+                ))}
                 <PatientJourney topic={topic} />
                 <QuickReference topic={topic} />
                 <nav

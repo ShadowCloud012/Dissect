@@ -23,7 +23,8 @@ export default async function SpecialtyPage({ params }: Props) {
   const specialty = getSpecialty((await params).specialty);
   if (!specialty) notFound();
   const browser = {
-    topics: topicRegistry.listBySpecialty(specialty.slug),
+    conditions: topicRegistry.listConditions(specialty.slug),
+    procedures: topicRegistry.listProcedures(specialty.slug),
     categories: specialty.categories,
   };
   return (

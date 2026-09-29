@@ -258,7 +258,8 @@ export default function HomePage() {
         </div>
         <ul className="home-specialties">
           {available.map((specialty) => {
-            const count = topicRegistry.countTopics(specialty.slug);
+            const conditions = topicRegistry.listConditions(specialty.slug);
+            const procedures = topicRegistry.listProcedures(specialty.slug);
             return (
               <li key={specialty.id}>
                 <Link href={`/learn/${specialty.slug}`}>
@@ -269,9 +270,36 @@ export default function HomePage() {
                     {specialty.description}
                   </span>
                   <span className="font-mono text-xs text-dissect-green-800">
-                    {count} {count === 1 ? 'topic' : 'topics'} available
+                    {conditions.length}{' '}
+                    {conditions.length === 1 ? 'condition' : 'conditions'} ·{' '}
+                    {procedures.length}{' '}
+                    {procedures.length === 1 ? 'procedure' : 'procedures'}
                   </span>
                 </Link>
+                {/* Current pathways: each condition with its operation. */}
+                <ul
+                  className="home-pathways"
+                  aria-label={`Current ${specialty.title} pathways`}
+                >
+                  {conditions.map((condition) => (
+                    <li key={condition.id}>
+                      <Link href={condition.href}>{condition.title}</Link>
+                      {condition.procedures.map((procedure) => (
+                        <span key={procedure.id}>
+                          <span
+                            aria-hidden="true"
+                            className="text-dissect-muted"
+                          >
+                            {' '}
+                            →{' '}
+                          </span>
+                          <span className="sr-only">, operation: </span>
+                          <Link href={procedure.href}>{procedure.title}</Link>
+                        </span>
+                      ))}
+                    </li>
+                  ))}
+                </ul>
               </li>
             );
           })}

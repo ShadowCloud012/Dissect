@@ -22,12 +22,24 @@ export const acuteAppendicitis = {
       'right iliac fossa',
       'emergency general surgery',
     ],
-    aliases: [
-      'appendicitis',
-      'acute appendix inflammation',
-      'laparoscopic appendicectomy',
-    ],
+    aliases: ['appendicitis', 'acute appendix inflammation'],
     contentKind: 'clinical',
+    procedures: [
+      {
+        id: 'laparoscopic-appendicectomy',
+        title: 'Laparoscopic appendicectomy',
+        page: 'appendicectomy',
+        summary:
+          'Theatre prep, operative walkthrough, danger areas and what changes the plan.',
+        aliases: [
+          'appendicectomy',
+          'appendectomy',
+          'laparoscopic appendectomy',
+          'lap appendicectomy',
+        ],
+        keywords: ['appendix removal', 'mesoappendix', 'appendiceal base'],
+      },
+    ],
     status: 'awaiting-review',
     clinicalReviewer: null,
     lastClinicallyReviewed: null,
