@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getSpecialty, specialties } from '@/content/specialties';
 import { topicRegistry } from '@/content/registry';
@@ -35,6 +36,10 @@ export default async function SpecialtyPage({ params }: Props) {
       <p className="eyebrow mt-8">Specialty reference</p>
       <h1 className="browse-title">{specialty.title}</h1>
       <p className="browse-intro">{specialty.description}</p>
+      <p className="browse-search">
+        Looking for a specific condition, procedure or anatomy term?{' '}
+        <Link href="/search">Search Dissect</Link>
+      </p>
       <Suspense
         fallback={
           <SpecialtyBrowserView

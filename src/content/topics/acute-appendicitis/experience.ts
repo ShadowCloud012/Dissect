@@ -74,7 +74,7 @@ export const experience = {
       group: 'Operative',
       sectionIds: ['complications'],
       aliases: ['postoperative concerns'],
-      keywords: ['infection', 'bleeding', 'ileus', 'VTE'],
+      keywords: ['infection', 'bleeding', 'ileus', 'VTE', 'stump appendicitis'],
     },
     {
       slug: 'consent',

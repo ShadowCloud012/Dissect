@@ -93,6 +93,70 @@
   .topic-listing {
     @apply border-y border-dissect-border bg-dissect-surface p-5 sm:p-7;
   }
+  /* Search: one field, compact rows with thin dividers. */
+  .browse-search {
+    @apply mt-4 text-sm text-dissect-muted;
+  }
+  .browse-search a {
+    @apply inline-flex min-h-11 items-center font-medium text-dissect-green-800 underline decoration-dissect-green-200 underline-offset-4 hover:decoration-dissect-green-800 sm:min-h-9;
+  }
+  .search-page {
+    @apply mt-8 max-w-3xl;
+  }
+  .search-form {
+    @apply grid gap-2;
+  }
+  .search-field {
+    @apply flex items-stretch border border-dissect-ink bg-dissect-surface focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-dissect-green-600;
+  }
+  .search-field input {
+    @apply min-h-12 w-full min-w-0 flex-1 bg-transparent px-3 text-lg outline-none [&::-webkit-search-cancel-button]:hidden;
+  }
+  .search-clear {
+    @apply min-h-12 min-w-11 border-l border-dissect-border px-3 font-mono text-xs text-dissect-muted hover:text-dissect-green-800;
+  }
+  .search-status {
+    @apply mt-3 text-sm text-dissect-muted;
+  }
+  .search-examples ul {
+    @apply mt-2 flex flex-wrap gap-2;
+  }
+  .search-examples a {
+    @apply inline-flex min-h-11 items-center border border-dissect-border bg-dissect-surface px-3 text-sm text-dissect-green-800 hover:border-dissect-green-800;
+  }
+  .search-empty {
+    @apply mt-4 max-w-2xl text-sm leading-6;
+  }
+  .search-empty a {
+    @apply font-medium text-dissect-green-800 underline underline-offset-4;
+  }
+  .search-results {
+    @apply mt-4 border-t border-dissect-border;
+  }
+  .search-result {
+    @apply border-b border-dissect-border py-2;
+  }
+  .search-exact {
+    @apply font-mono text-xs text-dissect-green-800;
+  }
+  .search-result-title {
+    @apply inline-flex min-h-11 items-center text-base font-semibold text-dissect-ink underline decoration-dissect-border underline-offset-4 hover:text-dissect-green-800 hover:decoration-dissect-green-800 sm:min-h-9 sm:text-lg;
+  }
+  .search-result-meta {
+    @apply text-xs text-dissect-muted;
+  }
+  .search-kind {
+    @apply font-mono font-medium text-dissect-green-800;
+  }
+  .search-result-match {
+    @apply mt-0.5 text-xs text-dissect-muted;
+  }
+  .search-result-match mark {
+    @apply bg-transparent font-medium text-dissect-ink;
+  }
+  .search-result-status {
+    @apply mt-0.5 text-xs text-dissect-amber;
+  }
   .taxonomy-tag {
     @apply border border-dissect-border px-2 py-1 font-mono text-xs text-dissect-muted;
   }

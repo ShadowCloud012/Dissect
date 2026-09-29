@@ -1,20 +1,9 @@
 import type { Topic } from '@/schemas/topic';
 import { resolveTopicPage, topicHref } from './topic-pages';
+import { normaliseTerm } from './search-terms';
 
-// Predictable exact matching: case, accents, punctuation, possessive "'s" and
-// spacing are ignored, and nothing else. UK/US variants (appendicectomy /
-// appendectomy) match only through explicit aliases.
-export function normaliseTerm(term: string) {
-  return term
-    .normalize('NFKD')
-    .replace(/[̀-ͯ]/g, '')
-    .toLowerCase()
-    .replace(/['’‘`]s\b/g, '')
-    .replace(/['’‘`]/g, '')
-    .replace(/&/g, ' and ')
-    .replace(/[^a-z0-9]+/g, ' ')
-    .trim();
-}
+export { normaliseTerm };
+
 // De-duplicates by normalised form, keeping the first authored spelling.
 function uniqueTerms(terms: string[]) {
   const seen = new Set<string>();
@@ -27,10 +16,13 @@ function uniqueTerms(terms: string[]) {
 }
 
 export type SearchDocumentKind = 'condition' | 'procedure' | 'page';
+// What a topic subpage is to its procedure(s), if anything.
+export type SearchPageRole = 'anatomy' | 'complications' | 'aftercare';
 // Curated metadata and headings only; no clinical prose is indexed.
 export type SearchDocument = {
   id: string;
   kind: SearchDocumentKind;
+  pageRole: SearchPageRole | null;
   title: string;
   href: string;
   specialty: string;
@@ -110,6 +102,7 @@ export function buildSearchDocuments(
       ...common,
       id: `condition:${metadata.id}`,
       kind: 'condition',
+      pageRole: null,
       title: metadata.title,
       href: condition.href,
       categories: condition.categories,
@@ -134,6 +127,7 @@ export function buildSearchDocuments(
         ...common,
         id: `procedure:${procedure.id}`,
         kind: 'procedure',
+        pageRole: null,
         title: procedure.title,
         href: entity.href,
         categories: entity.categories,
@@ -165,6 +159,13 @@ export function buildSearchDocuments(
           ...common,
           id: `page:${metadata.id}/${page.slug}`,
           kind: 'page',
+          pageRole: anatomyOf.length
+            ? 'anatomy'
+            : complicationsOf.length
+              ? 'complications'
+              : owned.some((procedure) => procedure.aftercarePage === page.slug)
+                ? 'aftercare'
+                : null,
           title: page.title,
           href: `${topicHref(metadata)}/${page.slug}`,
           categories: metadata.categories,
