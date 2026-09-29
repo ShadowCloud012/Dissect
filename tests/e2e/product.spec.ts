@@ -13,7 +13,7 @@ function trackErrors(page: Page) {
 const noOverflow = (page: Page) =>
   page.evaluate(() => document.documentElement.scrollWidth <= innerWidth);
 
-test('homepage leads with the operation and links to real destinations', async ({
+test('homepage describes the product, with appendicitis as the flagship example', async ({
   page,
 }, info) => {
   const errors = trackErrors(page);
@@ -24,25 +24,36 @@ test('homepage leads with the operation and links to real destinations', async (
       name: 'Know the patient. Understand the operation.',
     }),
   ).toBeVisible();
-  // Operative value is visible in the first viewport.
+  // Six product capabilities, each with a real flagship example.
+  const jobs = page
+    .getByRole('list')
+    .filter({ hasText: 'Follow the operation' });
+  await expect(jobs.getByRole('heading', { level: 3 })).toHaveText([
+    'Understand the patient',
+    'Prepare for theatre',
+    'Understand the anatomy',
+    'Follow the operation',
+    'Understand decisions',
+    'After surgery',
+  ]);
   await expect(
-    page.getByRole('figure').getByText('The operation', { exact: true }),
+    page.getByRole('complementary', { name: 'Acute appendicitis' }),
   ).toBeVisible();
   await expect(
     page.getByText('Draft educational content — awaiting clinical review', {
       exact: true,
     }),
   ).toBeVisible();
+  // A real walkthrough step illustrates how every operation is taught.
+  await expect(
+    page.getByRole('figure').getByText('Mesoappendix & base', { exact: true }),
+  ).toBeVisible();
   await page.screenshot({ path: info.outputPath('home.png'), fullPage: true });
-  const journey = page
-    .getByRole('list')
-    .filter({ hasText: 'Follow the operation' });
-  await journey.getByRole('link', { name: 'Operative steps' }).click();
-  await expect(page).toHaveURL(
-    `${base}/appendicectomy#block-operative-sequence`,
-  );
+  await jobs.getByRole('link', { name: 'Operative walkthrough' }).click();
+  await expect(page).toHaveURL(`${base}/appendicectomy#step-appendicectomy-1`);
   // The core sequence is visible at the default (Medical Student) depth.
-  await expect(page.locator('.operative-steps')).toBeVisible();
+  await expect(page.locator('.walkthrough-steps > li')).toHaveCount(5);
+  await expect(page.locator('#step-appendicectomy-1')).toBeInViewport();
   await expect(page.getByText(/Shown from a direct link/)).toHaveCount(0);
   await page.goto('/');
   await page.setViewportSize({ width: 320, height: 740 });
@@ -114,6 +125,8 @@ test('representative pages render without overflow or errors', async ({
     ['overview', base],
     ['investigations', `${base}/investigations`],
     ['appendicectomy', `${base}/appendicectomy`],
+    ['anatomy', `${base}/anatomy`],
+    ['complications', `${base}/complications`],
     ['hot-seat', `${base}/hot-seat`],
     ['evidence', `${base}/evidence`],
   ]) {
@@ -132,4 +145,79 @@ test('representative pages render without overflow or errors', async ({
     .click();
   await expect(page).toHaveURL(base);
   expect(errors).toEqual([]);
+});
+
+for (const width of [320, 375, 390, 430])
+  test(`operative walkthrough is usable at ${width}px`, async ({
+    page,
+  }, info) => {
+    const errors = trackErrors(page);
+    await page.setViewportSize({ width, height: 740 });
+    await page.goto(`${base}/appendicectomy`);
+    expect(await noOverflow(page)).toBe(true);
+    // Theatre prep starts in the first screen; the walkthrough stays open.
+    const prep = page.getByRole('region', { name: '5-minute theatre prep' });
+    expect((await prep.boundingBox())!.y).toBeLessThan(740);
+    const steps = page.locator('.walkthrough-steps > li');
+    await expect(steps).toHaveCount(5);
+    for (const index of [0, 1, 2, 3, 4])
+      await expect(steps.nth(index).locator('.walkthrough-text')).toBeVisible();
+    // Contextual links offer ~44px touch targets on phones.
+    const heights = await page
+      .locator('.walkthrough-links a, .block-links a, .row-link')
+      .evaluateAll((links) =>
+        links.map((link) => link.getBoundingClientRect().height),
+      );
+    expect(heights.length).toBeGreaterThan(5);
+    for (const height of heights) expect(height).toBeGreaterThanOrEqual(43);
+    // Advanced strategy stays gated at the default Medical Student depth.
+    const plan = page.getByRole('region', { name: 'What changes the plan' });
+    await expect(plan.getByText('Further detail at CST depth')).toBeVisible();
+    await expect(plan.getByText(/Device choice and strategy/)).toHaveCount(0);
+    await expect(
+      page.getByText('Draft educational content — awaiting clinical review', {
+        exact: true,
+      }),
+    ).toBeVisible();
+    await page.screenshot({
+      path: info.outputPath(`appendicectomy-${width}.png`),
+      fullPage: true,
+    });
+    expect(errors).toEqual([]);
+  });
+
+test('every topic cross-link resolves to a real route and anchor', async ({
+  page,
+}, info) => {
+  test.skip(info.project.name !== 'desktop-chromium', 'Checked once');
+  const hrefs = new Set<string>();
+  for (const view of [
+    '',
+    '/appendicectomy',
+    '/anatomy',
+    '/complications',
+    '/consent',
+    '/post-op',
+    '/hot-seat',
+  ]) {
+    await page.goto(`${base}${view}`);
+    // Reveal every level so gated rows' links are included.
+    const advanced = page.getByRole('button', {
+      name: 'Show advanced content',
+    });
+    if (await advanced.count()) await advanced.click();
+    for (const href of await page
+      .locator(`main a[href^="${base}"]`)
+      .evaluateAll((links) => links.map((link) => link.getAttribute('href')!)))
+      hrefs.add(href);
+  }
+  expect(hrefs.size).toBeGreaterThan(20);
+  for (const href of hrefs) {
+    // Navigate with the hash, as a reader would: anchors above the default
+    // depth are revealed by the direct link itself.
+    const hash = href.split('#')[1];
+    const response = await page.goto(href);
+    if (response) expect(response.status(), href).toBe(200);
+    if (hash) await expect(page.locator(`[id="${hash}"]`), href).toHaveCount(1);
+  }
 });

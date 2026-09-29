@@ -129,7 +129,7 @@ it('keeps depth cumulative on subpages and supports active recall with accessibl
     </>,
   );
   const bank = within(screen.getByRole('region', { name: 'Hot Seat' }));
-  expect(bank.getAllByRole('heading', { level: 3 })).toHaveLength(5);
+  expect(bank.getAllByRole('heading', { level: 3 })).toHaveLength(6);
   const answer = screen.getByText(/Early visceral pain can give way/);
   expect(answer).not.toBeVisible();
   await user.click(bank.getAllByText('Reveal model answer')[0]);
@@ -179,6 +179,103 @@ it('keeps basic operative understanding universal and gates technical rows by de
   expect(
     after.getByText('Antibiotics', { selector: 'dt' }).nextElementSibling,
   ).toHaveTextContent('Distinguish prophylaxis from treatment');
+});
+it('turns Appendicectomy into an operative walkthrough with theatre prep', async () => {
+  const user = userEvent.setup();
+  render(
+    <>
+      <TrainingLevelSelector />
+      <TopicExperience topic={topic} pageSlug="appendicectomy" />
+    </>,
+  );
+  const base = '/learn/general-surgery/acute-appendicitis';
+  // 5-minute prep: verbatim rows with cross-links, at the top of the page.
+  const prep = within(
+    screen.getByRole('region', { name: '5-minute theatre prep' }),
+  );
+  const prepRow = (label: string) =>
+    prep.getByText(label, { selector: 'dt' }).nextElementSibling!;
+  expect(prepRow('Sequence')).toHaveTextContent(
+    'Identification, mesoappendix and base control, retrieval, inspection and closure',
+  );
+  expect(
+    within(prepRow('Danger') as HTMLElement).getByRole('link', {
+      name: /Danger areas/,
+    }),
+  ).toHaveAttribute('href', `${base}/anatomy#block-structures-at-risk`);
+  // The core sequence is visible at the default Medical Student depth.
+  const steps = screen.getAllByRole('heading', { level: 4 });
+  expect(steps.map((step) => step.textContent)).toEqual([
+    'Step 1: Position & access',
+    'Step 2: Explore & identify',
+    'Step 3: Mesoappendix & base',
+    'Step 4: Retrieve & assess',
+    'Step 5: Inspect & close',
+  ]);
+  const step = (n: number) =>
+    within(document.getElementById(`step-appendicectomy-${n}`)!);
+  const field = (n: number, label: string) =>
+    step(n).getByText(label, { selector: 'dt' }).nextElementSibling;
+  expect(field(3, 'Anatomy')).toHaveTextContent(
+    'The mesoappendix carries the appendicular arterial supply',
+  );
+  expect(field(3, 'Danger')).toHaveTextContent(
+    'Adjacent bowel, bladder and vessels can be injured during surgery',
+  );
+  // A rationale authored as one (the mesoappendix question) is the Why.
+  expect(field(3, 'Why')).toHaveTextContent(
+    'It contains the appendicular vascular supply; deliberate identification and control matter',
+  );
+  // Related facts not written as a rationale leave a visible gap instead.
+  for (const n of [1, 2, 4, 5])
+    expect(field(n, 'Why')).toHaveTextContent(
+      'Clinical/editorial content needed',
+    );
+  // Technique choice is not presented as a change of plan.
+  expect(step(3).queryByText('Changes the plan')).toBeNull();
+  expect(
+    step(3).getByRole('link', { name: 'Hot Seat: before dividing the base' }),
+  ).toBeInTheDocument();
+  expect(
+    step(3).getByRole('link', { name: 'Anatomy: mesoappendix' }),
+  ).toHaveAttribute('href', `${base}/anatomy#block-mesoappendix`);
+  // What changes the plan replaces the prose block without duplicating it.
+  const plan = within(
+    screen.getByRole('region', { name: 'What changes the plan' }),
+  );
+  const planRow = (label: string) =>
+    plan.getByText(label, { selector: 'dt' }).nextElementSibling;
+  expect(planRow('May change it')).toHaveTextContent(
+    'Poor visualisation or difficult anatomy may require a changed approach',
+  );
+  expect(planRow('Strategy')).toHaveTextContent('Further detail at CST depth');
+  expect(planRow('Unexpected findings')).toHaveTextContent(
+    'Further detail at Registrar depth',
+  );
+  expect(
+    screen.queryAllByText(/Device choice and strategy/).length,
+  ).toBeLessThanOrEqual(1);
+  expect(document.getElementById('block-unexpected-findings')).not.toBeNull();
+  await user.selectOptions(screen.getByRole('combobox'), 'registrar');
+  expect(planRow('Unexpected findings')).toHaveTextContent(
+    'Involve an appropriately experienced colleague',
+  );
+});
+it('links anatomy, complications and Hot Seat back into the operation', () => {
+  const base = '/learn/general-surgery/acute-appendicitis';
+  const { unmount } = render(
+    <TopicExperience topic={topic} pageSlug="anatomy" />,
+  );
+  const meso = within(document.getElementById('block-mesoappendix')!);
+  expect(
+    meso.getByRole('link', { name: /step 3 · Mesoappendix & base/ }),
+  ).toHaveAttribute('href', `${base}/appendicectomy#step-appendicectomy-3`);
+  unmount();
+  render(<TopicExperience topic={topic} pageSlug="complications" />);
+  const table = within(document.getElementById('block-complications-table')!);
+  expect(
+    table.getByRole('link', { name: 'Danger areas in theatre' }),
+  ).toHaveAttribute('href', `${base}/anatomy#block-structures-at-risk`);
 });
 it('keeps every subpage one tap away from the hub and exposes a quick-jump bar', () => {
   render(<TopicExperience topic={topic} />);

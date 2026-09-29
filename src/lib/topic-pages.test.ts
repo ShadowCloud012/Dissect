@@ -85,6 +85,44 @@ it('rejects dangling pages, duplicate ownership and invalid item selections', ()
   invalid.experience = structuredClone(topic.experience);
   extracts()[0].extracts[0].blockId = 'missing';
   expect(() => validateTopic(invalid)).toThrow(/Unknown extract block/);
+  // Walkthroughs quote their sources, cover every authored step in order and
+  // never mark a populated field as a gap.
+  const walkthrough = () => invalid.experience!.walkthroughs[0];
+  invalid.experience = structuredClone(topic.experience);
+  walkthrough().steps[1].fields[0].extracts[0].text = 'Always retrocaecal';
+  expect(() => validateTopic(invalid)).toThrow(/not verbatim/);
+  invalid.experience = structuredClone(topic.experience);
+  walkthrough().steps.pop();
+  expect(() => validateTopic(invalid)).toThrow(/cover each authored step/);
+  invalid.experience = structuredClone(topic.experience);
+  walkthrough().steps[2].gaps.push('why');
+  expect(() => validateTopic(invalid)).toThrow(/gap is also populated/);
+  // A panel may only stand in for a block it quotes.
+  invalid.experience = structuredClone(topic.experience);
+  invalid.experience!.briefings[1].absorbsBlockIds.push('operation-outline');
+  invalid.experience!.briefings[1].rows =
+    invalid.experience!.briefings[1].rows.filter(
+      (row) =>
+        !row.extracts.some(
+          (extract) => extract.blockId === 'operation-outline',
+        ),
+    );
+  expect(() => validateTopic(invalid)).toThrow(/must quote the block/);
+  // Cross-links must point at real pages, blocks on those pages and steps.
+  invalid.experience = structuredClone(topic.experience);
+  invalid.experience!.blockLinks[0].links[0] = {
+    label: 'X',
+    page: 'anatomy',
+    blockId: 'operative-sequence',
+  };
+  expect(() => validateTopic(invalid)).toThrow(/Link block not on its page/);
+  invalid.experience = structuredClone(topic.experience);
+  invalid.experience!.blockLinks[0].links[0] = {
+    label: 'X',
+    page: 'appendicectomy',
+    step: 9,
+  };
+  expect(() => validateTopic(invalid)).toThrow(/Unknown walkthrough step/);
   invalid.experience = structuredClone(topic.experience);
   invalid.experience!.journey.push({ label: 'X', page: 'missing' });
   expect(() => validateTopic(invalid)).toThrow(/Unknown journey page/);

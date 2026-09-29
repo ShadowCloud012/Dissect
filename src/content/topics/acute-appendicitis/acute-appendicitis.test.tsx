@@ -63,6 +63,53 @@ it('preserves the audited source scopes and research metadata', () => {
     expect(reference?.publication).toBeTruthy();
   }
 });
+it('pins the semantically reviewed walkthrough mapping', () => {
+  // Verbatim validation proves the words exist; this reviewed mapping records
+  // that each source was authored for the role it fills. Changing it needs a
+  // deliberate semantic review, not just a matching sentence.
+  const topic = validateTopic(acuteAppendicitis);
+  const mapping = topic.experience!.walkthroughs[0].steps.map((step) => ({
+    step: step.label,
+    fields: Object.fromEntries(
+      step.fields.map((field) => [
+        field.kind,
+        field.extracts.map((extract) => extract.blockId),
+      ]),
+    ),
+    gaps: step.gaps,
+  }));
+  expect(mapping).toEqual([
+    { step: 'Position & access', fields: {}, gaps: ['why'] },
+    {
+      step: 'Explore & identify',
+      fields: {
+        anatomy: ['appendix-origin', 'appendix-origin'],
+        danger: ['structures-at-risk'],
+        changes: ['operative-judgement'],
+      },
+      gaps: ['why'],
+    },
+    {
+      step: 'Mesoappendix & base',
+      fields: {
+        why: ['artery-question'],
+        anatomy: ['mesoappendix', 'appendix-origin'],
+        danger: ['structures-at-risk'],
+      },
+      gaps: [],
+    },
+    { step: 'Retrieve & assess', fields: {}, gaps: ['why'] },
+    { step: 'Inspect & close', fields: {}, gaps: ['why'] },
+  ]);
+  // The one rationale drawn from Hot Seat was authored as a "why" question.
+  const artery = topic.sections
+    .flatMap((section) => section.blocks)
+    .find((block) => block.id === 'artery-question');
+  expect(artery).toMatchObject({
+    question: 'Why identify the mesoappendix before dividing it?',
+    minimumLevel: 'medical-student',
+  });
+});
 it('registers the ordered clinical topic, with complete reference linkage and twenty levelled questions', () => {
   const topic = validateTopic(acuteAppendicitis);
   expect(
@@ -95,7 +142,7 @@ it('registers the ordered clinical topic, with complete reference linkage and tw
       (level) =>
         questions.filter((question) => question.minimumLevel === level).length,
     ),
-  ).toEqual([5, 5, 6, 4]);
+  ).toEqual([6, 5, 5, 4]);
   const used = new Set(
     topic.sections.flatMap((section) =>
       section.blocks.flatMap((block) => block.referenceIds),
@@ -143,8 +190,8 @@ it('shows one control, cumulative question depths, advanced reveal and no false 
     screen.getByText('Mauro Podda, Marco Ceresoli, Belinda De Simone'),
   ).toBeInTheDocument();
   for (const [level, count] of [
-    ['medical-student', 5],
-    ['foundation', 10],
+    ['medical-student', 6],
+    ['foundation', 11],
     ['cst', 16],
     ['registrar', 20],
   ] as const) {

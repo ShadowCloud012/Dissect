@@ -138,7 +138,7 @@ test('mobile quick navigation, depth, keyboard recall and operative disclosures'
   });
   await page.goto(`${base}/hot-seat`);
   const bank = page.getByRole('region', { name: 'Hot Seat' });
-  await expect(bank.getByRole('heading', { level: 3 })).toHaveCount(5);
+  await expect(bank.getByRole('heading', { level: 3 })).toHaveCount(6);
   const reveal = bank.locator('summary').first();
   const answer = bank.getByText(/Early visceral pain can give way/);
   await expect(answer).not.toBeVisible();
@@ -148,7 +148,7 @@ test('mobile quick navigation, depth, keyboard recall and operative disclosures'
   await page.getByRole('button', { name: 'Show advanced content' }).click();
   await expect(bank.getByRole('heading', { level: 3 })).toHaveCount(20);
   await page.getByRole('button', { name: 'Hide advanced content' }).click();
-  await expect(bank.getByRole('heading', { level: 3 })).toHaveCount(5);
+  await expect(bank.getByRole('heading', { level: 3 })).toHaveCount(6);
   await page
     .getByRole('combobox', { name: 'Training level' })
     .selectOption('cst');
@@ -160,17 +160,13 @@ test('mobile quick navigation, depth, keyboard recall and operative disclosures'
   await nav.locator('summary').click();
   await nav.getByRole('link', { name: 'Appendicectomy', exact: true }).click();
   await expect(page).toHaveURL(`${base}/appendicectomy`);
-  const steps = page.locator('.operative-steps');
-  await expect(steps.locator('li')).toHaveCount(5);
-  await steps.locator('summary').first().focus();
-  await page.keyboard.press('Enter');
-  await expect(steps.locator('details').first()).not.toHaveAttribute(
-    'open',
-    '',
-  );
-  await page.keyboard.press('Enter');
-  await expect(steps.locator('details').first()).toHaveAttribute('open', '');
-  await steps.screenshot({ path: info.outputPath('320-operative-steps.png') });
+  // The operative walkthrough is always open: five sequential steps.
+  const steps = page.locator('.walkthrough-steps > li');
+  await expect(steps).toHaveCount(5);
+  await expect(steps.first()).toBeVisible();
+  await page
+    .locator('.walkthrough')
+    .screenshot({ path: info.outputPath('320-operative-walkthrough.png') });
   for (const view of ['', ...views]) {
     await page.goto(`${base}${view ? `/${view}` : ''}`);
     expect(
