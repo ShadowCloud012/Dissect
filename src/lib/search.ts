@@ -33,42 +33,69 @@ export type SearchResult = {
   // The condition a procedure or subpage belongs to.
   parent: string | null;
   status: string;
-  // 1 (best) to 8; used for ordering and tests, never displayed.
+  // 1 (best) to 14; used for ordering and tests, never displayed.
   tier: number;
   match: { field: MatchField; term: string };
   // The one condition or procedure whose name is exactly the query.
   exact: boolean;
 };
 
-// Ranking tiers, best first:
-// 1 exact title · 2 exact alias · 3 normalised title/alias ·
-// 4 title contains · 5 alias contains · 6 keyword ·
-// 7 section heading · 8 anatomy/complication term.
+// Ranking tiers, best first. "Starts with" means the whole term begins with
+// the query; a word prefix means a later word does. Matches only ever begin
+// at a word boundary, never mid-word ("pend" does not match "appendix").
+//  1 exact title              ·  2 exact alias
+//  3 normalised title/alias   ·  4 title starts with   ·  5 alias starts with
+//  6 title whole words        ·  7 alias whole words   ·  8 title/alias word prefix
+//  9 keyword starts with      · 10 keyword whole words · 11 keyword word prefix
+// 12 section heading          · 13 anatomy/complication term starts with
+// 14 anatomy/complication term whole words or word prefix
 const exactly = (term: string) =>
   term.trim().toLowerCase().replace(/\s+/g, ' ');
-const containsWords = (term: string, query: string) =>
-  ` ${normaliseTerm(term)} `.includes(` ${query} `);
+// Prefix matching needs at least three characters, so "a" or "ap" do not
+// return half the site; shorter queries still match whole words ("CT").
+export const minimumPrefixLength = 3;
+type Strength = 'starts' | 'words' | 'prefix';
+function strength(term: string, query: string): Strength | undefined {
+  const normalised = ` ${normaliseTerm(term)} `;
+  const prefixes = query.length >= minimumPrefixLength;
+  if (normalised.startsWith(` ${query} `)) return 'starts';
+  if (prefixes && normalised.startsWith(` ${query}`)) return 'starts';
+  if (normalised.includes(` ${query} `)) return 'words';
+  if (prefixes && normalised.includes(` ${query}`)) return 'prefix';
+  return undefined;
+}
 
 function bestMatch(document: SearchDocument, raw: string, query: string) {
   const candidates: { tier: number; field: MatchField; term: string }[] = [];
   const add = (tier: number, field: MatchField, term: string) =>
     candidates.push({ tier, field, term });
-  const { title } = document;
-  if (exactly(title) === raw) add(1, 'title', title);
-  else if (normaliseTerm(title) === query) add(3, 'title', title);
-  else if (containsWords(title, query)) add(4, 'title', title);
-  for (const alias of document.aliases)
-    if (exactly(alias) === raw) add(2, 'alias', alias);
-    else if (normaliseTerm(alias) === query) add(3, 'alias', alias);
-    else if (containsWords(alias, query)) add(5, 'alias', alias);
-  for (const keyword of document.keywords)
-    if (containsWords(keyword, query)) add(6, 'keyword', keyword);
+  const names = [
+    ...[document.title].map((term) => ['title', term, 1, 4, 6] as const),
+    ...document.aliases.map((term) => ['alias', term, 2, 5, 7] as const),
+  ];
+  for (const [field, term, exact, starts, words] of names) {
+    const match = strength(term, query);
+    if (exactly(term) === raw) add(exact, field, term);
+    else if (normaliseTerm(term) === query) add(3, field, term);
+    else if (match === 'starts') add(starts, field, term);
+    else if (match === 'words') add(words, field, term);
+    else if (match === 'prefix') add(8, field, term);
+  }
+  for (const keyword of document.keywords) {
+    const match = strength(keyword, query);
+    if (match)
+      add({ starts: 9, words: 10, prefix: 11 }[match], 'keyword', keyword);
+  }
   for (const heading of document.headings)
-    if (containsWords(heading, query)) add(7, 'heading', heading);
-  for (const term of document.anatomyTerms)
-    if (containsWords(term, query)) add(8, 'anatomy', term);
-  for (const term of document.complicationTerms)
-    if (containsWords(term, query)) add(8, 'complication', term);
+    if (strength(heading, query)) add(12, 'heading', heading);
+  for (const [field, terms] of [
+    ['anatomy', document.anatomyTerms],
+    ['complication', document.complicationTerms],
+  ] as const)
+    for (const term of terms) {
+      const match = strength(term, query);
+      if (match) add(match === 'starts' ? 13 : 14, field, term);
+    }
   // The first candidate at the best tier: authored order breaks ties.
   return candidates.reduce<(typeof candidates)[number] | undefined>(
     (best, candidate) =>
@@ -77,8 +104,8 @@ function bestMatch(document: SearchDocument, raw: string, query: string) {
   );
 }
 
-// Equal tiers are ordered by kind. A name match (tiers 1–5) leads with the
-// condition or procedure; a keyword or term match (tiers 6–8) leads with the
+// Equal tiers are ordered by kind. A name match (tiers 1–8) leads with the
+// condition or procedure; a keyword or term match (tiers 9–14) leads with the
 // most specific page, e.g. mesoappendix → Anatomy before the operation.
 const nameOrder: SearchResultKind[] = [
   'condition',
@@ -95,7 +122,7 @@ const termOrder: SearchResultKind[] = [
   'page',
 ];
 const kindRank = (result: SearchResult) =>
-  (result.tier <= 5 ? nameOrder : termOrder).indexOf(result.kind);
+  (result.tier <= 8 ? nameOrder : termOrder).indexOf(result.kind);
 function kindOf(document: SearchDocument): SearchResultKind {
   if (document.kind !== 'page') return document.kind;
   if (document.pageRole === 'anatomy') return 'anatomy';

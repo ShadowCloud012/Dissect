@@ -44,7 +44,7 @@ export const experience = {
       group: 'Operative',
       sectionIds: ['surgical-anatomy'],
       aliases: ['surgical anatomy'],
-      keywords: ['caecum', 'mesoappendix', 'taeniae'],
+      keywords: ['appendix', 'caecum', 'mesoappendix', 'taeniae'],
     },
     {
       slug: 'appendicectomy',
