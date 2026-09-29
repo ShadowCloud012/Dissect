@@ -11,7 +11,7 @@ export const references = [
     evidenceType: 'patient-information',
     notes:
       'Page reviewed 9 August 2024. Patient-facing overview; not a prescribing protocol.',
-    accessedAt: '2026-09-28',
+    accessedAt: '2026-09-29',
   },
   {
     id: 'rcs-consent',
@@ -187,7 +187,7 @@ export const references = [
     evidenceType: 'textbook',
     notes:
       'StatPearls chapter updated 8 August 2023. Descriptive anatomy, not a management guideline.',
-    accessedAt: '2026-09-28',
+    accessedAt: '2026-09-29',
   },
   {
     id: 'appendectomy-textbook',
@@ -198,7 +198,33 @@ export const references = [
     evidenceType: 'textbook',
     notes:
       'StatPearls chapter updated 14 May 2025. Descriptive technique only; devices and strategies vary.',
-    accessedAt: '2026-09-28',
+    accessedAt: '2026-09-29',
+  },
+  {
+    id: 'ileocolic-anatomy',
+    authors: ['Adekunle E. Omole', 'Doug W. Byerly'],
+    title: 'Anatomy, Abdomen and Pelvis: Ileocolic Artery',
+    shortTitle: 'Textbook ileocolic anatomy',
+    publication: 'StatPearls',
+    year: 2026,
+    url: 'https://www.ncbi.nlm.nih.gov/sites/books/NBK544262/',
+    evidenceType: 'textbook',
+    notes:
+      'StatPearls chapter updated 13 May 2026. Current descriptive arterial anatomy (appendicular artery from the inferior branch of the ileocolic artery); supersedes older "ileocecal artery" wording used elsewhere.',
+    accessedAt: '2026-09-29',
+  },
+  {
+    id: 'surgical-access-textbook',
+    authors: ['Leandra A. Jelinek', 'Mia Marietta', 'Mark W. Jones'],
+    title: 'Surgical Access Incisions',
+    shortTitle: 'Textbook surgical access',
+    publication: 'StatPearls',
+    year: 2024,
+    url: 'https://www.ncbi.nlm.nih.gov/sites/books/NBK541018/',
+    evidenceType: 'textbook',
+    notes:
+      'StatPearls chapter updated 5 October 2024. Descriptive laparoscopic entry and abdominal-wall anatomy; not an appendicectomy guideline. Techniques vary by surgeon and setting.',
+    accessedAt: '2026-09-29',
   },
   {
     id: 'appendicitis-textbook',
@@ -220,9 +246,9 @@ export const references = [
     year: 2020,
     url: 'https://wjes.biomedcentral.com/articles/10.1186/s13017-020-00306-3',
     evidenceType: 'guideline',
-    accessedAt: '2026-09-28',
+    accessedAt: '2026-09-29',
     notes:
-      'Superseded edition, retained only for severity terminology and documented definitional variation. Current management is linked to the verified 2025 edition (published 2026).',
+      'Superseded edition, retained only for severity terminology and documented definitional variation. Not used for current operative recommendations; current management is linked to the 2025 edition (published 2026).',
   },
   {
     id: 'nhs-anaesthesia',

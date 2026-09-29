@@ -27,6 +27,34 @@ export const operativeCareSections = [
         referenceIds: ['appendix-anatomy', 'appendectomy-textbook'],
       },
       {
+        id: 'appendicular-artery',
+        type: 'prose',
+        minimumLevel: 'medical-student',
+        paragraphs: [
+          'The ileocolic artery is the most inferior branch of the superior mesenteric artery. The appendicular artery is described as arising from the inferior branch of the ileocolic artery; it runs within the mesoappendix, close to its free margin, and passes posterior to the terminal ileum.',
+        ],
+        referenceIds: ['ileocolic-anatomy'],
+      },
+      {
+        id: 'appendix-position',
+        type: 'prose',
+        minimumLevel: 'medical-student',
+        paragraphs: [
+          'The position of the appendix base is consistent but the tip is not: retrocaecal is by far the most common position, and others include subcaecal, pre-ileal, post-ileal, pelvic and as high as the hepatorenal recess. In pregnancy the enlarging uterus pushes the appendix upwards.',
+        ],
+        referenceIds: ['appendix-anatomy'],
+      },
+      {
+        id: 'abdominal-wall-access',
+        type: 'prose',
+        minimumLevel: 'medical-student',
+        paragraphs: [
+          'During secondary port placement the superficial and inferior epigastric and circumflex vessels of the abdominal wall are at risk. Their course varies, so no surface "safe zone" is reliable; transillumination and placing ports under direct vision help avoid them.',
+          'Operative texts describe decompressing the bladder and stomach before the first trocar is inserted; practice varies. Adhesions from inflammation or previous surgery can make structures beneath the entry site more vulnerable.',
+        ],
+        referenceIds: ['surgical-access-textbook'],
+      },
+      {
         id: 'structures-at-risk',
         type: 'prose',
         minimumLevel: 'medical-student',
@@ -79,6 +107,70 @@ export const operativeCareSections = [
         referenceIds: [],
       },
       {
+        id: 'access-technique',
+        type: 'prose',
+        minimumLevel: 'medical-student',
+        paragraphs: [
+          'Access is usually established at the umbilicus, using a Veress needle, an optical port or an open (Hasson) technique according to the clinical situation and surgeon preference; practice varies. Once the laparoscope is in, further ports are typically placed under direct vision.',
+        ],
+        referenceIds: ['surgical-access-textbook', 'appendectomy-textbook'],
+      },
+      // Rationale blocks quoted in full by the operative walkthrough.
+      {
+        id: 'positioning-rationale',
+        type: 'prose',
+        minimumLevel: 'medical-student',
+        paragraphs: [
+          'After the ports are placed, tilting the table head-down with the right side up improves visibility and access, which helps identify the appendix. Wide skin preparation and draping allow conversion to open surgery if needed.',
+        ],
+        referenceIds: ['appendectomy-textbook'],
+      },
+      {
+        id: 'identification-landmarks',
+        type: 'prose',
+        minimumLevel: 'medical-student',
+        paragraphs: [
+          'The terminal ileum can be recognised by the fold of Treves or its antimesenteric fat and followed to the caecum; the appendix base lies where the taeniae coli converge.',
+        ],
+        referenceIds: ['appendectomy-textbook', 'appendix-anatomy'],
+      },
+      {
+        id: 'base-division',
+        type: 'prose',
+        minimumLevel: 'medical-student',
+        paragraphs: [
+          'The base is divided close to the caecum, because a long residual stump can later become inflamed (stump appendicitis).',
+        ],
+        referenceIds: ['appendectomy-textbook'],
+      },
+      {
+        id: 'specimen-histology',
+        type: 'prose',
+        minimumLevel: 'medical-student',
+        paragraphs: [
+          'The appendix is removed in a retrieval bag and sent for histology: an appendiceal tumour can present as acute appendicitis, and the definitive diagnosis is made only on histology after removal.',
+        ],
+        referenceIds: ['appendectomy-textbook'],
+      },
+      {
+        id: 'final-inspection',
+        type: 'prose',
+        minimumLevel: 'medical-student',
+        paragraphs: [
+          'Before finishing, the secured base is checked to confirm haemostasis and its integrity, and the port sites are inspected from inside for bleeding from the abdominal wall.',
+        ],
+        referenceIds: ['appendectomy-textbook'],
+      },
+      {
+        id: 'vessel-control',
+        type: 'prose',
+        minimumLevel: 'medical-student',
+        paragraphs: [
+          'Inadequate ligation of the appendicular vessels can cause postoperative bleeding, so haemostasis and the integrity of the mesoappendix are confirmed before closure.',
+        ],
+        referenceIds: ['ileocolic-anatomy'],
+      },
+      {
         id: 'operative-sequence',
         type: 'checklist',
         minimumLevel: 'medical-student',
@@ -89,6 +181,15 @@ export const operativeCareSections = [
           'Expose and control the mesoappendix and its vessels; secure and divide the appendiceal base with an appropriate technique.',
           'Retrieve the specimen in a bag; assess contamination and inspect the operative field.',
           'Check haemostasis and the secured base. Inspect access sites and close the relevant abdominal-wall layers.',
+        ],
+        referenceIds: ['appendectomy-textbook'],
+      },
+      {
+        id: 'technique-variation',
+        type: 'prose',
+        minimumLevel: 'cst',
+        paragraphs: [
+          'Closure practice varies between surgeons: some accessory port sites are left open, and skin closure follows surgeon preference.',
         ],
         referenceIds: ['appendectomy-textbook'],
       },
@@ -109,6 +210,50 @@ export const operativeCareSections = [
           'With unexpected findings or complexity beyond your competence, involve an appropriately experienced colleague. Make the revised plan explicit and document the findings and decisions.',
         ],
         referenceIds: ['rcs-gsp'],
+      },
+      // Plan-changing findings, quoted in full by "What changes the plan".
+      {
+        id: 'difficult-position',
+        type: 'prose',
+        minimumLevel: 'cst',
+        paragraphs: [
+          'A retrocaecal appendix may need mobilisation of the caecum and ascending colon, and an unusual position such as a subhepatic appendix may need an additional port.',
+        ],
+        referenceIds: ['appendectomy-textbook'],
+      },
+      {
+        id: 'inflamed-tissue',
+        type: 'prose',
+        minimumLevel: 'cst',
+        paragraphs: [
+          'Complicated appendicitis with phlegmon or gangrene requires careful handling. Inflammatory adhesions between the appendix, small bowel and caecum may need blunt or sharp dissection; operative texts advise avoiding electrocautery here to prevent contact and conductive injury.',
+        ],
+        referenceIds: ['appendectomy-textbook'],
+      },
+      {
+        id: 'complex-findings',
+        type: 'prose',
+        minimumLevel: 'cst',
+        paragraphs: [
+          'A periappendicular abscess or diffuse peritonitis found at operation is associated with a higher chance of conversion and more postoperative complications.',
+        ],
+        referenceIds: ['appendicitis-textbook'],
+      },
+      {
+        id: 'conversion-consideration',
+        type: 'prose',
+        minimumLevel: 'cst',
+        paragraphs: [
+          'If visualisation or dissection of the appendix is suboptimal, conversion to open surgery is one option to consider.',
+        ],
+        referenceIds: ['appendectomy-textbook'],
+      },
+      {
+        id: 'operative-sources-todo',
+        type: 'sourceNote',
+        minimumLevel: 'medical-student',
+        text: 'Clinical-review TODO: current (2025) guidance has not been verified for the rationale of diagnostic exploration, peritoneal irrigation versus suction, drain use, management of a macroscopically normal appendix, or operative strategy for phlegmon or abscess, so none is presented here. Access, positioning, closure and difficult-anatomy content comes from descriptive textbook chapters, not UK operative guidance, and technique varies.',
+        referenceIds: [],
       },
     ],
   },
@@ -287,6 +432,27 @@ export const operativeCareSections = [
           'Clarify the scope of consent, including foreseeable changes in strategy, and the patient’s preferences. Support communication and decision-making capacity; involve appropriate expertise when consent is uncertain. Do not replace this with a fixed risk checklist.',
         ],
         referenceIds: ['rcs-consent'],
+      },
+      {
+        id: 'patient-understanding',
+        type: 'keyPoints',
+        minimumLevel: 'medical-student',
+        items: [
+          'The usual treatment is surgery to remove the appendix (appendicectomy) under general anaesthetic; the appendix is not needed, so removing it is not harmful.',
+          'It is usually keyhole surgery through small cuts using a camera; sometimes a larger cut in the lower right abdomen (open surgery) is needed.',
+          'The appendix is removed where it joins the bowel; if it has burst, the area is cleaned. The wounds are closed with stitches, clips or glue.',
+          'Antibiotics instead of surgery are sometimes possible, for example if the infection has not spread and surgery is high risk.',
+          'Complications are rare but can include wound infection, bleeding, an abscess where the appendix was, scar tissue (adhesions) that rarely blocks the bowel, and stump appendicitis.',
+          'Recovery takes longer after complications such as a burst appendix; people go home when doctors judge they are well enough, usually once they are eating, drinking and opening their bowels.',
+        ],
+        referenceIds: ['nhs-appendicitis'],
+      },
+      {
+        id: 'patient-understanding-note',
+        type: 'sourceNote',
+        minimumLevel: 'medical-student',
+        text: 'This summarises NHS patient information to support, not replace, an individual consent discussion. It includes no numerical risks.',
+        referenceIds: [],
       },
     ],
   },

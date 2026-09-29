@@ -216,7 +216,7 @@ export const questionsEvidenceSections = [
         id: 'evidence-limitations',
         type: 'sourceNote',
         minimumLevel: 'medical-student',
-        text: 'The latest verified WSES edition is titled 2025 and was published in 2026. Its accessible abstract supports this draft’s broad framework; full recommendation tables need clinician verification. The superseded 2020 edition is retained only for severity terminology. Non-operative eligibility, abscess follow-up and special-population pathways need particular scrutiny.',
+        text: 'The latest verified WSES edition is titled 2025 and was published in 2026. Its accessible abstract supports this draft’s broad framework; full recommendation tables need clinician verification. The superseded 2020 edition is retained only for severity terminology and is not used for current operative recommendations. Non-operative eligibility, abscess follow-up and special-population pathways need particular scrutiny.',
         referenceIds: [],
       },
       {

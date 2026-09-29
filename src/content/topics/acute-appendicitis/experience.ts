@@ -875,6 +875,36 @@ export const experience = {
       variant: 'danger',
     },
     {
+      blockId: 'appendicular-artery',
+      label: 'Blood supply',
+      variant: 'fact',
+    },
+    {
+      blockId: 'appendix-position',
+      label: 'Position of the tip',
+      variant: 'fact',
+    },
+    {
+      blockId: 'abdominal-wall-access',
+      label: 'Access · abdominal wall vessels',
+      variant: 'danger',
+    },
+    {
+      blockId: 'access-technique',
+      label: 'Establishing access',
+      variant: 'plain',
+    },
+    {
+      blockId: 'technique-variation',
+      label: 'Technique varies',
+      variant: 'plain',
+    },
+    {
+      blockId: 'patient-understanding',
+      label: 'What the patient should understand',
+      variant: 'fact',
+    },
+    {
       blockId: 'postoperative-review',
       label: 'Review on the ward',
       variant: 'fact',
@@ -957,14 +987,53 @@ export const experience = {
       id: 'appendicectomy',
       page: 'appendicectomy',
       blockId: 'operative-sequence',
+      absorbsBlockIds: [
+        'positioning-rationale',
+        'identification-landmarks',
+        'base-division',
+        'specimen-histology',
+        'final-inspection',
+        'vessel-control',
+      ],
       steps: [
         {
           itemIndex: 0,
           label: 'Position & access',
-          // The port answer explains why coordinates vary, not why this step
-          // is performed; it stays a linked question.
-          gaps: ['why'],
+          fields: [
+            {
+              // Authored as the purpose of positioning and draping.
+              kind: 'why',
+              extracts: [
+                {
+                  text: 'After the ports are placed, tilting the table head-down with the right side up improves visibility and access, which helps identify the appendix',
+                  blockId: 'positioning-rationale',
+                },
+                {
+                  text: 'Wide skin preparation and draping allow conversion to open surgery if needed',
+                  blockId: 'positioning-rationale',
+                },
+              ],
+            },
+            {
+              kind: 'danger',
+              extracts: [
+                {
+                  text: 'During secondary port placement the superficial and inferior epigastric and circumflex vessels of the abdominal wall are at risk',
+                  blockId: 'abdominal-wall-access',
+                },
+                {
+                  text: 'Operative texts describe decompressing the bladder and stomach before the first trocar is inserted; practice varies',
+                  blockId: 'abdominal-wall-access',
+                },
+              ],
+            },
+          ],
           links: [
+            {
+              label: 'Anatomy: abdominal wall at access',
+              page: 'anatomy',
+              blockId: 'abdominal-wall-access',
+            },
             {
               label: 'Hot Seat: why no fixed port coordinates',
               page: 'hot-seat',
@@ -975,16 +1044,16 @@ export const experience = {
         {
           itemIndex: 1,
           label: 'Explore & identify',
-          // The mesoappendix sentence describes dissection anatomy, not a
-          // rationale for exploring and identifying.
+          // The purpose of exploration was sourced only to the superseded
+          // 2020 WSES guideline; no current source verified, so it is a gap.
           gaps: ['why'],
           fields: [
             {
               kind: 'anatomy',
               extracts: [
                 {
-                  text: 'The appendix arises from the posteromedial caecum near the ileocaecal junction',
-                  blockId: 'appendix-origin',
+                  text: 'The terminal ileum can be recognised by the fold of Treves or its antimesenteric fat and followed to the caecum; the appendix base lies where the taeniae coli converge',
+                  blockId: 'identification-landmarks',
                 },
                 {
                   text: 'The tip can lie retrocaecally, in the pelvis or near the ileum',
@@ -1020,6 +1089,16 @@ export const experience = {
               blockId: 'appendix-origin',
             },
             {
+              label: 'Anatomy: position of the tip',
+              page: 'anatomy',
+              blockId: 'appendix-position',
+            },
+            {
+              label: 'What changes the plan',
+              page: 'appendicectomy',
+              blockId: 'operative-judgement',
+            },
+            {
               label: 'Hot Seat: finding the base',
               page: 'hot-seat',
               blockId: 'appendix-base',
@@ -1039,6 +1118,11 @@ export const experience = {
                   text: 'It contains the appendicular vascular supply; deliberate identification and control matter',
                   blockId: 'artery-question',
                 },
+                {
+                  // Authored as the reason for dividing close to the caecum.
+                  text: 'The base is divided close to the caecum, because a long residual stump can later become inflamed (stump appendicitis)',
+                  blockId: 'base-division',
+                },
               ],
             },
             {
@@ -1047,6 +1131,10 @@ export const experience = {
                 {
                   text: 'The mesoappendix carries the appendicular arterial supply',
                   blockId: 'mesoappendix',
+                },
+                {
+                  text: 'The appendicular artery is described as arising from the inferior branch of the ileocolic artery',
+                  blockId: 'appendicular-artery',
                 },
                 {
                   text: 'Following the caecal taeniae to their convergence helps locate the appendiceal base',
@@ -1073,6 +1161,11 @@ export const experience = {
               blockId: 'mesoappendix',
             },
             {
+              label: 'Anatomy: blood supply',
+              page: 'anatomy',
+              blockId: 'appendicular-artery',
+            },
+            {
               label: 'Danger areas',
               page: 'anatomy',
               blockId: 'structures-at-risk',
@@ -1083,18 +1176,77 @@ export const experience = {
               blockId: 'complications-table',
             },
             {
+              label: 'Complications: stump appendicitis',
+              page: 'complications',
+              blockId: 'stump-problem',
+            },
+            {
               label: 'Hot Seat: before dividing the base',
               page: 'hot-seat',
               blockId: 'base-question',
             },
           ],
         },
-        { itemIndex: 3, label: 'Retrieve & assess', gaps: ['why'] },
+        {
+          itemIndex: 3,
+          label: 'Retrieve & assess',
+          fields: [
+            {
+              // Authored as why the specimen is sent for histology.
+              kind: 'why',
+              extracts: [
+                {
+                  text: 'The appendix is removed in a retrieval bag and sent for histology: an appendiceal tumour can present as acute appendicitis, and the definitive diagnosis is made only on histology after removal',
+                  blockId: 'specimen-histology',
+                },
+              ],
+            },
+          ],
+          links: [
+            {
+              label: 'After theatre: histology follow-up',
+              page: 'post-op',
+              blockId: 'histology-follow-up',
+            },
+            {
+              label: 'Postoperative antibiotics',
+              page: 'post-op',
+              blockId: 'postoperative-antibiotics',
+            },
+          ],
+        },
         {
           itemIndex: 4,
           label: 'Inspect & close',
-          gaps: ['why'],
+          fields: [
+            {
+              // Authored as the purpose of the final check.
+              kind: 'why',
+              extracts: [
+                {
+                  // Authored (current ileocolic anatomy) as the reason for
+                  // confirming haemostasis before closure.
+                  text: 'Inadequate ligation of the appendicular vessels can cause postoperative bleeding, so haemostasis and the integrity of the mesoappendix are confirmed before closure',
+                  blockId: 'vessel-control',
+                },
+                {
+                  text: 'Before finishing, the secured base is checked to confirm haemostasis and its integrity, and the port sites are inspected from inside for bleeding from the abdominal wall',
+                  blockId: 'final-inspection',
+                },
+              ],
+            },
+          ],
           links: [
+            {
+              label: 'Anatomy: abdominal wall at access',
+              page: 'anatomy',
+              blockId: 'abdominal-wall-access',
+            },
+            {
+              label: 'Complications: bleeding',
+              page: 'complications',
+              blockId: 'complications-table',
+            },
             {
               label: 'After theatre: postoperative review',
               page: 'post-op',
@@ -1245,7 +1397,13 @@ export const experience = {
         'The textbook sequence is a starting point; operative judgement responds to findings.',
       variant: 'plan',
       replacesBlockId: 'operative-judgement',
-      absorbsBlockIds: ['unexpected-findings'],
+      absorbsBlockIds: [
+        'unexpected-findings',
+        'difficult-position',
+        'inflamed-tissue',
+        'complex-findings',
+        'conversion-consideration',
+      ],
       rows: [
         {
           label: 'Standard',
@@ -1293,6 +1451,62 @@ export const experience = {
             blockId: 'procedure-specific-discussion',
           },
         },
+        // Findings that make a routine operation stop being routine; quoted
+        // in full from their authored blocks and kept at technical depth.
+        {
+          label: 'Difficult position',
+          minimumLevel: 'cst',
+          extracts: [
+            {
+              text: 'A retrocaecal appendix may need mobilisation of the caecum and ascending colon, and an unusual position such as a subhepatic appendix may need an additional port',
+              blockId: 'difficult-position',
+            },
+          ],
+          link: {
+            label: 'Anatomy: position of the tip',
+            page: 'anatomy',
+            blockId: 'appendix-position',
+          },
+        },
+        {
+          label: 'Inflamed tissue',
+          minimumLevel: 'cst',
+          extracts: [
+            {
+              text: 'Complicated appendicitis with phlegmon or gangrene requires careful handling',
+              blockId: 'inflamed-tissue',
+            },
+            {
+              text: 'Inflammatory adhesions between the appendix, small bowel and caecum may need blunt or sharp dissection; operative texts advise avoiding electrocautery here to prevent contact and conductive injury',
+              blockId: 'inflamed-tissue',
+            },
+          ],
+        },
+        {
+          label: 'Abscess or peritonitis',
+          minimumLevel: 'cst',
+          extracts: [
+            {
+              text: 'A periappendicular abscess or diffuse peritonitis found at operation is associated with a higher chance of conversion and more postoperative complications',
+              blockId: 'complex-findings',
+            },
+          ],
+          link: {
+            label: 'Management: mass or abscess',
+            page: 'management',
+            blockId: 'abscess-options',
+          },
+        },
+        {
+          label: 'Consider conversion',
+          minimumLevel: 'cst',
+          extracts: [
+            {
+              text: 'If visualisation or dissection of the appendix is suboptimal, conversion to open surgery is one option to consider',
+              blockId: 'conversion-consideration',
+            },
+          ],
+        },
         {
           label: 'Strategy',
           minimumLevel: 'cst',
@@ -1333,6 +1547,76 @@ export const experience = {
   ],
   // Cross-links that explain why two concepts belong together.
   blockLinks: [
+    {
+      blockId: 'appendicular-artery',
+      links: [
+        {
+          label: 'In the operation: step 3 · controlling the mesoappendix',
+          page: 'appendicectomy',
+          step: 3,
+        },
+      ],
+    },
+    {
+      blockId: 'appendix-position',
+      links: [
+        {
+          label: 'In the operation: step 2 · Explore & identify',
+          page: 'appendicectomy',
+          step: 2,
+        },
+        {
+          label: 'What changes the plan: difficult position',
+          page: 'appendicectomy',
+          blockId: 'operative-judgement',
+        },
+      ],
+    },
+    {
+      blockId: 'abdominal-wall-access',
+      links: [
+        {
+          label: 'In the operation: step 1 · Position & access',
+          page: 'appendicectomy',
+          step: 1,
+        },
+        {
+          label: 'Step 5 · inspecting the port sites',
+          page: 'appendicectomy',
+          step: 5,
+        },
+      ],
+    },
+    {
+      blockId: 'access-technique',
+      links: [
+        {
+          label: 'Anatomy: abdominal wall at access',
+          page: 'anatomy',
+          blockId: 'abdominal-wall-access',
+        },
+      ],
+    },
+    {
+      blockId: 'stump-problem',
+      links: [
+        {
+          label: 'Why the base is divided close to the caecum (step 3)',
+          page: 'appendicectomy',
+          step: 3,
+        },
+      ],
+    },
+    {
+      blockId: 'histology-follow-up',
+      links: [
+        {
+          label: 'Why the specimen goes for histology (step 4)',
+          page: 'appendicectomy',
+          step: 4,
+        },
+      ],
+    },
     {
       blockId: 'appendix-origin',
       links: [
