@@ -1,6 +1,6 @@
-import type { TopicMetadata } from '@/schemas/topic';
+import type { ReviewState } from '@/schemas/topic';
 
-export function EditorialStatus({ metadata }: { metadata: TopicMetadata }) {
+export function EditorialStatus({ metadata }: { metadata: ReviewState }) {
   if (metadata.contentKind === 'non-clinical-demo')
     return (
       <p className="text-xs leading-6 text-dissect-muted">

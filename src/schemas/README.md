@@ -13,6 +13,7 @@ and a clinical review date. Demo metadata uses `demoReviewedAt` instead.
 Clinical topics require references, and factual blocks require reference IDs.
 `sourceNote` is the editorial exception; claims retain their own required IDs.
 Questions have a question, model answer, minimum level and required source IDs.
-Blocks can mark local-policy variation. One optional `showReferences` section
+Blocks can mark local-policy variation. A block marked `shared` came from the
+shared library and may fill only the walkthrough field kinds it lists. One optional `showReferences` section
 places the full bibliography in the reading column. Reference records support a
 compact source title and a patient-information evidence type.

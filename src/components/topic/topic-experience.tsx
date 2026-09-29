@@ -12,6 +12,9 @@ import {
   resolveBriefings,
   resolveWalkthroughs,
   selectQuickReference,
+  ownProcedureRelations,
+  relatedLinks,
+  type ProcedureRelation,
 } from '@/lib/topic-pages';
 import { trainingLevels } from '@/lib/training-level';
 import {
@@ -35,9 +38,13 @@ import {
 export function TopicExperience({
   topic,
   pageSlug,
+  procedures = ownProcedureRelations(topic),
 }: {
   topic: Topic;
   pageSlug?: string;
+  // Procedures related to this condition, from the registry; defaults to the
+  // ones this topic owns.
+  procedures?: ProcedureRelation[];
 }) {
   const base = topicHref(topic.metadata);
   const experience = topic.experience!;
@@ -94,9 +101,7 @@ export function TopicExperience({
   }
   const blockLinks = resolveBlockLinks(topic);
   // Condition ↔ procedure: a condition hub surfaces its operations, and a
-  // procedure page surfaces the condition it belongs to.
-  const procedures =
-    topic.metadata.contentKind === 'clinical' ? topic.metadata.procedures : [];
+  // procedure page surfaces the conditions it belongs to.
   const currentProcedure = procedures.find(
     (procedure) => procedure.page === pageSlug,
   );
@@ -139,7 +144,11 @@ export function TopicExperience({
         {currentProcedure && (
           <aside aria-label="Clinical context" className="kind-link">
             <span className="eyebrow">Clinical context</span>
-            <Link href={base}>{topic.metadata.title}</Link>
+            {currentProcedure.conditions.map((condition) => (
+              <Link key={condition.id} href={condition.href}>
+                {condition.title}
+              </Link>
+            ))}
             <span className="text-sm text-dissect-muted">
               Presentation, investigations and management of the condition
               behind this operation.
@@ -174,9 +183,7 @@ export function TopicExperience({
                     className="kind-link"
                   >
                     <span className="eyebrow">Related procedure</span>
-                    <Link href={`${base}/${procedure.page}`}>
-                      {procedure.title}
-                    </Link>
+                    <Link href={procedure.href}>{procedure.title}</Link>
                     {/* One line on phones so the snapshot stays in view. */}
                     <span className="hidden text-sm text-dissect-muted sm:inline">
                       {procedure.summary}
@@ -372,7 +379,9 @@ export function TopicExperience({
               </span>
             </Link>
           )}
-          {pageSlug && <RelatedContent topic={topic} current={pageSlug} />}
+          {pageSlug && (
+            <RelatedContent links={relatedLinks(topic, procedures, pageSlug)} />
+          )}
           <TrainingLevelSummary />
           <div className="mt-5 border-t border-dissect-border pt-4">
             <p className="eyebrow">Evidence & trust</p>

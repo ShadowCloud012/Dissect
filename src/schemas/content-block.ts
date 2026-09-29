@@ -1,12 +1,21 @@
 import { z } from 'zod';
 import { clinicalClaimSchema } from './clinical-claim';
 import { stableIdSchema, textSchema, trainingLevelSchema } from './shared';
+import { walkthroughFieldKinds } from './topic-experience';
+
+// Set only by composeTopic when a topic includes a block from the shared
+// library: it marks the block as shared and lists the walkthrough field kinds
+// it has been reviewed for. Local blocks never carry it.
+export const sharedBlockMarkerSchema = z.strictObject({
+  walkthroughFields: z.array(z.enum(walkthroughFieldKinds)),
+});
 
 const common = {
   id: stableIdSchema,
   minimumLevel: trainingLevelSchema,
   referenceIds: z.array(stableIdSchema).default([]),
   localPolicyMayVary: z.boolean().optional(),
+  shared: sharedBlockMarkerSchema.optional(),
 };
 export const contentBlockSchema = z.discriminatedUnion('type', [
   z.strictObject({
@@ -74,3 +83,4 @@ export const contentBlockSchema = z.discriminatedUnion('type', [
   }),
 ]);
 export type ContentBlock = z.infer<typeof contentBlockSchema>;
+export type ContentBlockInput = z.input<typeof contentBlockSchema>;

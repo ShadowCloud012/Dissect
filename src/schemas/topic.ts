@@ -9,7 +9,13 @@ import {
 } from './topic-experience';
 
 // All authored wording in a block, for verbatim-extract checks.
-const structuralKeys = new Set(['id', 'type', 'minimumLevel', 'referenceIds']);
+const structuralKeys = new Set([
+  'id',
+  'type',
+  'minimumLevel',
+  'referenceIds',
+  'shared',
+]);
 function strings(value: unknown): string[] {
   if (typeof value === 'string') return [value];
   if (Array.isArray(value)) return value.flatMap(strings);
@@ -40,7 +46,11 @@ const metadataFields = {
 // A clinical topic is a Condition. A Procedure is a first-class record owned
 // by the condition that most often leads to it: it has its own title,
 // aliases and keywords, and its canonical page is a subpage of that topic,
-// so there is one URL and no duplicated content.
+// so there is one URL and no duplicated content. The record is the single
+// source of truth for its relationships: further conditions it is relevant
+// to, and the owning topic's pages for its anatomy, complications and
+// aftercare (Condition → Procedure → Anatomy → Step → Danger → Complication
+// → Aftercare).
 export const procedureSchema = z.strictObject({
   id: stableIdSchema,
   title: textSchema,
@@ -48,6 +58,11 @@ export const procedureSchema = z.strictObject({
   summary: textSchema,
   aliases: z.array(textSchema).min(1),
   keywords: z.array(textSchema).min(1),
+  // Conditions besides the owner; resolved and checked by the registry.
+  linkedConditionIds: z.array(stableIdSchema).default([]),
+  anatomyPage: stableIdSchema.optional(),
+  complicationsPage: stableIdSchema.optional(),
+  aftercarePage: stableIdSchema.optional(),
 });
 export type Procedure = z.infer<typeof procedureSchema>;
 export const topicMetadataSchema = z.discriminatedUnion('contentKind', [
@@ -131,9 +146,28 @@ export const topicSchema = z
         const procedurePages = topic.metadata.procedures.map((p) => p.page);
         if (new Set(procedurePages).size !== procedurePages.length)
           fail('A page can represent only one procedure');
-        for (const procedure of topic.metadata.procedures)
-          if (!pageIds.has(procedure.page))
-            fail(`Unknown procedure page: ${procedure.page}`);
+        for (const procedure of topic.metadata.procedures) {
+          for (const page of [
+            procedure.page,
+            procedure.anatomyPage,
+            procedure.complicationsPage,
+            procedure.aftercarePage,
+          ])
+            if (page && !pageIds.has(page))
+              fail(`Unknown procedure page: ${page}`);
+          // The procedure record owns its names; its page does not repeat them.
+          if (
+            experience.pages.find((page) => page.slug === procedure.page)
+              ?.aliases.length
+          )
+            fail(
+              `Procedure page aliases belong on the procedure: ${procedure.id}`,
+            );
+          if (procedure.linkedConditionIds.includes(topic.metadata.id))
+            fail(
+              `A procedure already belongs to its own condition: ${procedure.id}`,
+            );
+        }
       }
       const pageOwns = (pageSlug: string, blockId: string) => {
         const page = experience.pages.find((entry) => entry.slug === pageSlug);
@@ -197,7 +231,21 @@ export const topicSchema = z
             fail(`Walkthrough must quote the block it represents: ${id}`);
         for (const step of walkthrough.steps) {
           for (const field of step.fields)
-            for (const extract of field.extracts) checkExtract(extract, true);
+            for (const extract of field.extracts) {
+              checkExtract(extract, true);
+              // A shared block may fill only the field kinds it was reviewed
+              // for; being valid in one role does not carry over to another.
+              const source = blocks.find(
+                (block) => block.id === extract.blockId,
+              );
+              if (
+                source?.shared &&
+                !source.shared.walkthroughFields.includes(field.kind)
+              )
+                fail(
+                  `Shared block ${source.id} is not approved for ${field.kind} fields`,
+                );
+            }
           for (const gap of step.gaps)
             if (step.fields.some((field) => field.kind === gap))
               fail(`Walkthrough gap is also populated: ${gap}`);
@@ -351,9 +399,6 @@ export const topicSchema = z
           if (!pageOwnsBlock(pathway.page, node.blockId))
             fail(`Pathway block must belong to its page: ${node.blockId}`);
       }
-      for (const related of experience.related)
-        if (!pageIds.has(related.page))
-          fail(`Unknown related page: ${related.page}`);
     }
     if (
       topic.metadata.contentKind === 'clinical' &&
@@ -433,7 +478,20 @@ export type Topic = z.infer<typeof topicSchema>;
 // Authored content files satisfy the input shape; defaults apply on parse.
 export type TopicInput = z.input<typeof topicSchema>;
 export type TopicMetadata = z.infer<typeof topicMetadataSchema>;
+type ClinicalMetadata = Extract<TopicMetadata, { contentKind: 'clinical' }>;
+type DemoMetadata = Extract<
+  TopicMetadata,
+  { contentKind: 'non-clinical-demo' }
+>;
+// What an editorial-status label needs; a procedure shows its owning topic's.
+export type ReviewState =
+  | Pick<
+      ClinicalMetadata,
+      'contentKind' | 'status' | 'clinicalReviewer' | 'lastClinicallyReviewed'
+    >
+  | Pick<DemoMetadata, 'contentKind' | 'demoReviewedAt'>;
 export type TopicSection = z.infer<typeof topicSectionSchema>;
+export type TopicSectionInput = z.input<typeof topicSectionSchema>;
 
 export function validateTopic(input: unknown, context = 'topic'): Topic {
   const result = topicSchema.safeParse(input);

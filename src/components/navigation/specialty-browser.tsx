@@ -132,7 +132,7 @@ export function SpecialtyBrowserView({
                     <Link href={procedure.href}>{procedure.title}</Link>
                   </p>
                 ))}
-                <EditorialStatus metadata={entry.metadata} />
+                <EditorialStatus metadata={entry.review} />
               </article>
             ))}
           </section>
@@ -162,7 +162,7 @@ export function SpecialtyBrowserView({
                     <Link href={condition.href}>{condition.title}</Link>
                   </p>
                 ))}
-                <EditorialStatus metadata={entry.metadata} />
+                <EditorialStatus metadata={entry.review} />
               </article>
             ))}
           </section>

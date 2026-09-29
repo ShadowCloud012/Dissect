@@ -1,4 +1,4 @@
-import type { TopicInput } from '@/schemas/topic';
+import { composeTopic } from '@/content/shared';
 import { presentationSections } from './presentation';
 import { managementSections } from './management';
 import { operativeCareSections } from './operative-care';
@@ -6,7 +6,7 @@ import { questionsEvidenceSections } from './questions-evidence';
 import { references } from './references';
 import { experience } from './experience';
 
-export const acuteAppendicitis = {
+export const acuteAppendicitis = composeTopic({
   metadata: {
     id: 'acute-appendicitis',
     slug: 'acute-appendicitis',
@@ -27,6 +27,9 @@ export const acuteAppendicitis = {
     procedures: [
       {
         id: 'laparoscopic-appendicectomy',
+        anatomyPage: 'anatomy',
+        complicationsPage: 'complications',
+        aftercarePage: 'post-op',
         title: 'Laparoscopic appendicectomy',
         page: 'appendicectomy',
         summary:
@@ -52,4 +55,4 @@ export const acuteAppendicitis = {
   ],
   references,
   experience,
-} satisfies TopicInput;
+});

@@ -1,4 +1,4 @@
-import type { TopicSection } from '@/schemas/topic';
+import type { AuthoredSection } from '@/lib/shared-content';
 
 export const operativeCareSections = [
   {
@@ -44,16 +44,7 @@ export const operativeCareSections = [
         ],
         referenceIds: ['appendix-anatomy'],
       },
-      {
-        id: 'abdominal-wall-access',
-        type: 'prose',
-        minimumLevel: 'medical-student',
-        paragraphs: [
-          'During secondary port placement the superficial and inferior epigastric and circumflex vessels of the abdominal wall are at risk. Their course varies, so no surface "safe zone" is reliable; transillumination and placing ports under direct vision help avoid them.',
-          'Operative texts describe decompressing the bladder and stomach before the first trocar is inserted; practice varies. Adhesions from inflammation or previous surgery can make structures beneath the entry site more vulnerable.',
-        ],
-        referenceIds: ['surgical-access-textbook'],
-      },
+      { include: 'abdominal-wall-access' },
       {
         id: 'structures-at-risk',
         type: 'prose',
@@ -73,13 +64,7 @@ export const operativeCareSections = [
     id: 'laparoscopic-appendicectomy',
     title: 'Laparoscopic appendicectomy',
     blocks: [
-      {
-        id: 'operative-disclaimer',
-        type: 'sourceNote',
-        minimumLevel: 'medical-student',
-        text: 'Operative learning only: this outline supports understanding and discussion with a supervisor. It does not replace supervised surgical training or a patient-specific operative plan.',
-        referenceIds: [],
-      },
+      { include: 'operative-disclaimer' },
       {
         id: 'operation-outline',
         type: 'prose',
@@ -456,4 +441,4 @@ export const operativeCareSections = [
       },
     ],
   },
-] satisfies TopicSection[];
+] satisfies AuthoredSection[];

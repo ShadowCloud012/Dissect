@@ -56,7 +56,6 @@ export const experience = {
         'Theatre prep, operative sequence and what changes the plan.',
       group: 'Operative',
       sectionIds: ['laparoscopic-cholecystectomy'],
-      aliases: ['lap chole', 'cholecystectomy', 'gallbladder removal'],
       keywords: ['critical view of safety', 'bile duct injury', 'conversion'],
     },
     {
@@ -733,14 +732,6 @@ export const experience = {
       blockId: 'patient-understanding',
       label: 'What the patient should understand',
       variant: 'fact',
-    },
-  ],
-  related: [
-    { kind: 'anatomy', title: 'Surgical anatomy', page: 'anatomy' },
-    {
-      kind: 'complication',
-      title: 'Complications after cholecystectomy',
-      page: 'complications',
     },
   ],
   // Step → Why → Anatomy → Danger → What changes the plan. Each field is

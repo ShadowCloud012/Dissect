@@ -1,4 +1,4 @@
-import type { TopicInput } from '@/schemas/topic';
+import { composeTopic } from '@/content/shared';
 import { clinicalSections } from './clinical';
 import { operativeSections } from './operative';
 import { questionsEvidenceSections } from './questions-evidence';
@@ -8,7 +8,7 @@ import { experience } from './experience';
 // One condition topic for the gallstone spectrum (biliary colic through acute
 // cholecystitis), following NICE CG188: splitting it would duplicate the
 // investigations, management and the same operation.
-export const gallstoneDisease = {
+export const gallstoneDisease = composeTopic({
   metadata: {
     id: 'gallstone-disease',
     slug: 'gallstone-disease',
@@ -36,6 +36,9 @@ export const gallstoneDisease = {
     procedures: [
       {
         id: 'laparoscopic-cholecystectomy',
+        anatomyPage: 'anatomy',
+        complicationsPage: 'complications',
+        aftercarePage: 'post-op',
         title: 'Laparoscopic cholecystectomy',
         page: 'laparoscopic-cholecystectomy',
         summary:
@@ -65,4 +68,4 @@ export const gallstoneDisease = {
   ],
   references,
   experience,
-} satisfies TopicInput;
+});

@@ -29,7 +29,10 @@ export default async function TopicPage({ params }: Props) {
   const { specialty, topic } = await params;
   const content = resolveTopic(specialty, topic);
   return content.experience ? (
-    <TopicExperience topic={content} />
+    <TopicExperience
+      topic={content}
+      procedures={topicRegistry.relationsFor(content)}
+    />
   ) : (
     <TopicLayout topic={content} />
   );

@@ -11,8 +11,10 @@ export const topicPageSchema = z.strictObject({
   description: textSchema,
   group: z.enum(topicPageGroups),
   sectionIds: z.array(stableIdSchema).min(1),
-  aliases: z.array(textSchema),
-  keywords: z.array(textSchema),
+  // Search terms for this page. A procedure page leaves aliases empty: its
+  // procedure record owns the procedure's names.
+  aliases: z.array(textSchema).default([]),
+  keywords: z.array(textSchema).default([]),
 });
 export const blockPresentationSchema = z.strictObject({
   blockId: stableIdSchema,
@@ -104,19 +106,6 @@ const pathwaySchema = z.strictObject({
     .array(z.strictObject({ label: textSchema, blockId: stableIdSchema }))
     .min(2),
 });
-export const relatedKinds = [
-  'related-condition',
-  'procedure',
-  'anatomy',
-  'complication',
-  'theatre-skill',
-] as const;
-// Only real destinations are allowed; currently pages within the same topic.
-const relatedSchema = z.strictObject({
-  kind: z.enum(relatedKinds),
-  title: textSchema,
-  page: stableIdSchema,
-});
 export const walkthroughFieldKinds = [
   'why',
   'anatomy',
@@ -185,7 +174,6 @@ export const topicExperienceSchema = z.strictObject({
   ),
   presentation: z.array(blockPresentationSchema),
   pathways: z.array(pathwaySchema).default([]),
-  related: z.array(relatedSchema).default([]),
   journey: z.array(journeyStepSchema).default([]),
   walkthroughs: z.array(walkthroughSchema).default([]),
   briefings: z.array(briefingSchema).default([]),

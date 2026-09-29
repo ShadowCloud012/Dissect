@@ -2,15 +2,14 @@ import Link from 'next/link';
 import type { Topic } from '@/schemas/topic';
 import type { ContentBlock } from '@/schemas/content-block';
 import { ExtractRows } from '@/components/content/extract-rows';
-import type { relatedKinds } from '@/schemas/topic-experience';
 import {
   groupQuickReference,
+  relatedKindLabels,
+  relatedLinks,
   topicHref,
   topicJourney,
 } from '@/lib/topic-pages';
 import { Sources } from '@/components/content/content-renderer';
-
-type RelatedKind = (typeof relatedKinds)[number];
 
 // Renders authored wording verbatim: a whole block, one list item or one
 // table row (without its label cell).
@@ -198,35 +197,24 @@ export function PatientJourney({ topic }: { topic: Topic }) {
     </nav>
   );
 }
-const relatedKindLabels: Record<RelatedKind, string> = {
-  'related-condition': 'Related condition',
-  procedure: 'Procedure',
-  anatomy: 'Anatomy',
-  complication: 'Complications',
-  'theatre-skill': 'Theatre skill',
-};
+// Relationship-driven links (see relatedLinks); nothing generic.
 export function RelatedContent({
-  topic,
-  current,
+  links,
 }: {
-  topic: Topic;
-  current?: string;
+  links: ReturnType<typeof relatedLinks>;
 }) {
-  const related = (topic.experience?.related ?? []).filter(
-    (item) => item.page !== current,
-  );
-  if (related.length === 0) return null;
+  if (links.length === 0) return null;
   return (
     <section aria-labelledby="related-heading" className="related-content">
       <h2 id="related-heading" className="eyebrow">
         Related
       </h2>
       <ul>
-        {related.map((item) => (
-          <li key={`${item.kind}-${item.page}`}>
-            <Link href={`${topicHref(topic.metadata)}/${item.page}`}>
-              <span className="eyebrow">{relatedKindLabels[item.kind]}</span>
-              {item.title}
+        {links.map((link) => (
+          <li key={link.href}>
+            <Link href={link.href}>
+              <span className="eyebrow">{relatedKindLabels[link.kind]}</span>
+              {link.title}
             </Link>
           </li>
         ))}

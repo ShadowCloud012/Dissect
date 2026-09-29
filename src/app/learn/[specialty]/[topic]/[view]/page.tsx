@@ -32,5 +32,11 @@ export async function generateMetadata({ params }: Props) {
 }
 export default async function TopicSubpage({ params }: Props) {
   const { topic, page } = resolve(await params);
-  return <TopicExperience topic={topic} pageSlug={page.slug} />;
+  return (
+    <TopicExperience
+      topic={topic}
+      pageSlug={page.slug}
+      procedures={topicRegistry.relationsFor(topic)}
+    />
+  );
 }

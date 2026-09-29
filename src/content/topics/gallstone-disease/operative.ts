@@ -1,4 +1,4 @@
-import type { TopicSection } from '@/schemas/topic';
+import type { AuthoredSection } from '@/lib/shared-content';
 
 export const operativeSections = [
   {
@@ -67,13 +67,7 @@ export const operativeSections = [
     id: 'laparoscopic-cholecystectomy',
     title: 'Laparoscopic cholecystectomy',
     blocks: [
-      {
-        id: 'operative-disclaimer',
-        type: 'sourceNote',
-        minimumLevel: 'medical-student',
-        text: 'Operative learning only: this outline supports understanding and discussion with a supervisor. It does not replace supervised surgical training or a patient-specific operative plan.',
-        referenceIds: [],
-      },
+      { include: 'operative-disclaimer' },
       {
         id: 'operation-outline',
         type: 'prose',
@@ -413,4 +407,4 @@ export const operativeSections = [
       },
     ],
   },
-] satisfies TopicSection[];
+] satisfies AuthoredSection[];

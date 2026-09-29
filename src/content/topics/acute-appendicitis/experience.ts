@@ -54,7 +54,6 @@ export const experience = {
       description: 'Preparation, sequence and operative judgement.',
       group: 'Operative',
       sectionIds: ['laparoscopic-appendicectomy'],
-      aliases: ['laparoscopic appendicectomy', 'appendectomy'],
       keywords: ['positioning', 'ports', 'base', 'retrieval'],
     },
     {
@@ -962,19 +961,6 @@ export const experience = {
         },
         { label: 'Mass or abscess', blockId: 'abscess-options' },
       ],
-    },
-  ],
-  related: [
-    {
-      kind: 'procedure',
-      title: 'Laparoscopic appendicectomy',
-      page: 'appendicectomy',
-    },
-    { kind: 'anatomy', title: 'Surgical anatomy', page: 'anatomy' },
-    {
-      kind: 'complication',
-      title: 'Complications after appendicectomy',
-      page: 'complications',
     },
   ],
   // Step → Why → Anatomy → Danger → What changes the plan. Walkthrough content

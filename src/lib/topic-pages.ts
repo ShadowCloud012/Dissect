@@ -251,17 +251,92 @@ export function localPolicyEntries(topic: Topic) {
       }));
   });
 }
-// Index-ready records, not a search implementation or duplicated clinical content.
-export function topicIndexEntries(topic: Topic) {
-  return (topic.experience?.pages ?? []).map((page) => ({
-    title: page.title,
-    aliases: page.aliases,
-    keywords: page.keywords,
-    specialty: topic.metadata.specialty,
-    categories: topic.metadata.categories,
-    route: `${topicHref(topic.metadata)}/${page.slug}`,
-    headings: resolveTopicPage(topic, page.slug)!.sections.map(
-      (section) => section.title,
-    ),
+export type EntityLink = { id: string; title: string; href: string };
+// A procedure as seen from one condition topic. `page` is set when the
+// procedure's canonical page belongs to this topic.
+export type ProcedureRelation = EntityLink & {
+  summary: string;
+  page?: string;
+  conditions: EntityLink[];
+  anatomyPage?: string;
+  complicationsPage?: string;
+  aftercarePage?: string;
+};
+// The procedures a topic owns, without registry context (no cross-topic
+// links). The registry's relationsFor adds linked procedures and conditions.
+export function ownProcedureRelations(topic: Topic): ProcedureRelation[] {
+  if (topic.metadata.contentKind !== 'clinical') return [];
+  const base = topicHref(topic.metadata);
+  const condition = {
+    id: topic.metadata.id,
+    title: topic.metadata.title,
+    href: base,
+  };
+  return topic.metadata.procedures.map((procedure) => ({
+    id: procedure.id,
+    title: procedure.title,
+    summary: procedure.summary,
+    href: `${base}/${procedure.page}`,
+    page: procedure.page,
+    conditions: [condition],
+    anatomyPage: procedure.anatomyPage,
+    complicationsPage: procedure.complicationsPage,
+    aftercarePage: procedure.aftercarePage,
   }));
+}
+export const relatedKindLabels = {
+  procedure: 'Procedure',
+  anatomy: 'Anatomy',
+  complications: 'Complications',
+  aftercare: 'Aftercare',
+} as const;
+// Related links follow declared relationships only: procedure → anatomy,
+// complications and aftercare; anatomy → procedure; complications →
+// procedure and aftercare; aftercare → complications and procedure; any
+// other page of a condition → its procedures.
+export function relatedLinks(
+  topic: Topic,
+  procedures: ProcedureRelation[],
+  current: string,
+) {
+  const base = topicHref(topic.metadata);
+  const pageLink = (kind: keyof typeof relatedKindLabels, slug?: string) => {
+    const page = topic.experience?.pages.find((entry) => entry.slug === slug);
+    return page
+      ? [{ kind, title: page.title, href: `${base}/${page.slug}` }]
+      : [];
+  };
+  const procedureLink = (procedure: ProcedureRelation) => [
+    {
+      kind: 'procedure' as const,
+      title: procedure.title,
+      href: procedure.href,
+    },
+  ];
+  const links = procedures.flatMap((procedure) => {
+    if (procedure.page === current)
+      return [
+        ...pageLink('anatomy', procedure.anatomyPage),
+        ...pageLink('complications', procedure.complicationsPage),
+        ...pageLink('aftercare', procedure.aftercarePage),
+      ];
+    if (procedure.anatomyPage === current) return procedureLink(procedure);
+    if (procedure.complicationsPage === current)
+      return [
+        ...procedureLink(procedure),
+        ...pageLink('aftercare', procedure.aftercarePage),
+      ];
+    if (procedure.aftercarePage === current)
+      return [
+        ...pageLink('complications', procedure.complicationsPage),
+        ...procedureLink(procedure),
+      ];
+    return procedureLink(procedure);
+  });
+  const currentHref = `${base}/${current}`;
+  return links.filter(
+    (link, index) =>
+      link.href !== currentHref &&
+      links.findIndex((other) => other.href === link.href) === index,
+  );
 }
