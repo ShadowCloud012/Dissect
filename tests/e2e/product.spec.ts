@@ -172,7 +172,7 @@ for (const width of [320, 375, 390, 430])
     for (const height of heights) expect(height).toBeGreaterThanOrEqual(43);
     // Advanced strategy stays gated at the default Medical Student depth.
     const plan = page.getByRole('region', { name: 'What changes the plan' });
-    await expect(plan.getByText('Further detail at CST depth')).toBeVisible();
+    await expect(plan.getByText('Further detail at CST depth')).toHaveCount(5);
     await expect(plan.getByText(/Device choice and strategy/)).toHaveCount(0);
     await expect(
       page.getByText('Draft educational content — awaiting clinical review', {

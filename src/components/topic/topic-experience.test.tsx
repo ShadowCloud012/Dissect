@@ -226,11 +226,31 @@ it('turns Appendicectomy into an operative walkthrough with theatre prep', async
   expect(field(3, 'Why')).toHaveTextContent(
     'It contains the appendicular vascular supply; deliberate identification and control matter',
   );
-  // Related facts not written as a rationale leave a visible gap instead.
-  for (const n of [1, 2, 4, 5])
-    expect(field(n, 'Why')).toHaveTextContent(
-      'Clinical/editorial content needed',
-    );
+  // Each step's Why is a sourced purpose statement visible to students.
+  expect(field(1, 'Why')).toHaveTextContent(
+    'After the ports are placed, tilting the table head-down with the right side up improves visibility and access',
+  );
+  // No current source for the purpose of exploration: a visible gap.
+  expect(field(2, 'Why')).toHaveTextContent(
+    'Clinical/editorial content needed',
+  );
+  expect(field(4, 'Why')).toHaveTextContent(
+    'an appendiceal tumour can present as acute appendicitis, and the definitive diagnosis is made only on histology after removal',
+  );
+  expect(field(5, 'Why')).toHaveTextContent(
+    'Inadequate ligation of the appendicular vessels can cause postoperative bleeding',
+  );
+  expect(field(1, 'Danger')).toHaveTextContent(
+    'the superficial and inferior epigastric and circumflex vessels',
+  );
+  // Step 2's Why is the only remaining gap.
+  expect(screen.getAllByText('Clinical/editorial content needed')).toHaveLength(
+    1,
+  );
+  // Absorbed rationale blocks are not rendered a second time.
+  expect(
+    screen.getAllByText(/definitive diagnosis is made only on histology/),
+  ).toHaveLength(1);
   // Technique choice is not presented as a change of plan.
   expect(step(3).queryByText('Changes the plan')).toBeNull();
   expect(
@@ -256,10 +276,60 @@ it('turns Appendicectomy into an operative walkthrough with theatre prep', async
     screen.queryAllByText(/Device choice and strategy/).length,
   ).toBeLessThanOrEqual(1);
   expect(document.getElementById('block-unexpected-findings')).not.toBeNull();
+  // Plan-changing findings are technical depth, with visible hints.
+  for (const label of [
+    'Difficult position',
+    'Inflamed tissue',
+    'Consider conversion',
+    'Abscess or peritonitis',
+  ])
+    expect(planRow(label)).toHaveTextContent('Further detail at CST depth');
+  // Superseded-only recommendations are not shown as current content.
+  expect(plan.queryByText('Normal-looking appendix')).toBeNull();
+  expect(plan.queryByText('Phlegmon or abscess')).toBeNull();
+  await user.selectOptions(screen.getByRole('combobox'), 'cst');
+  expect(planRow('Consider conversion')).toHaveTextContent(
+    'If visualisation or dissection of the appendix is suboptimal, conversion to open surgery is one option to consider',
+  );
   await user.selectOptions(screen.getByRole('combobox'), 'registrar');
   expect(planRow('Unexpected findings')).toHaveTextContent(
     'Involve an appropriately experienced colleague',
   );
+});
+it('adds access anatomy, a patient summary and review TODOs to their pages', () => {
+  const base = '/learn/general-surgery/acute-appendicitis';
+  const first = render(<TopicExperience topic={topic} pageSlug="anatomy" />);
+  const access = within(
+    document.getElementById('block-abdominal-wall-access')!,
+  );
+  expect(
+    access.getByRole('link', { name: /step 1 · Position & access/ }),
+  ).toHaveAttribute('href', `${base}/appendicectomy#step-appendicectomy-1`);
+  expect(
+    access.getByRole('link', { name: /^Source: Textbook surgical access/ }),
+  ).toHaveAttribute(
+    'href',
+    `${base}/evidence#reference-surgical-access-textbook`,
+  );
+  first.unmount();
+  const consent = render(<TopicExperience topic={topic} pageSlug="consent" />);
+  expect(
+    screen.getByRole('heading', { name: 'What the patient should understand' }),
+  ).toBeVisible();
+  expect(
+    screen.getByText(/support, not replace, an individual consent discussion/),
+  ).toBeVisible();
+  consent.unmount();
+  render(<TopicExperience topic={topic} pageSlug="evidence" />);
+  const todos = within(
+    screen.getByRole('region', { name: 'Unresolved clinical-review TODOs' }),
+  );
+  expect(
+    todos.getByText(/current \(2025\) guidance has not been verified/),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByText('Leandra A. Jelinek, Mia Marietta, Mark W. Jones'),
+  ).toBeInTheDocument();
 });
 it('links anatomy, complications and Hot Seat back into the operation', () => {
   const base = '/learn/general-surgery/acute-appendicitis';
