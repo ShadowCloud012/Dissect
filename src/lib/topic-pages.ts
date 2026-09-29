@@ -189,6 +189,7 @@ export function resolveWalkthroughs(topic: Topic, page: string) {
       return {
         id: walkthrough.id,
         block,
+        absorbsBlockIds: walkthrough.absorbsBlockIds,
         steps,
         referenceIds: uniqueReferences([
           block,

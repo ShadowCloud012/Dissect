@@ -85,6 +85,9 @@ export function OperativeWalkthrough({
 }) {
   return (
     <div className="walkthrough">
+      {walkthrough.absorbsBlockIds.map((id) => (
+        <span key={id} id={`block-${id}`} className="anchor-target" />
+      ))}
       <div className="walkthrough-head">
         <h3 className="text-lg font-semibold">Operative walkthrough</h3>
         <p className="eyebrow" aria-hidden="true">

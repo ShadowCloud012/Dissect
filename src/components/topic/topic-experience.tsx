@@ -67,7 +67,8 @@ export function TopicExperience({
   const replacements: Record<string, ReactNode> = {};
   for (const walkthrough of pageSlug
     ? resolveWalkthroughs(topic, pageSlug)
-    : [])
+    : []) {
+    for (const id of walkthrough.absorbsBlockIds) replacements[id] = null;
     replacements[walkthrough.block.id] = (
       <OperativeWalkthrough
         walkthrough={walkthrough}
@@ -76,6 +77,7 @@ export function TopicExperience({
         }
       />
     );
+  }
   const briefings = pageSlug ? resolveBriefings(topic, pageSlug) : [];
   for (const briefing of briefings) {
     if (!briefing.replacesBlockId) continue;

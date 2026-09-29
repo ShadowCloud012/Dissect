@@ -132,6 +132,9 @@ const walkthroughSchema = z.strictObject({
   // The checklist block whose items are the steps; the walkthrough renders
   // in its place.
   blockId: stableIdSchema,
+  // Rationale/anatomy blocks written for walkthrough fields and quoted in
+  // full there, so they are not rendered a second time.
+  absorbsBlockIds: z.array(stableIdSchema).default([]),
   steps: z
     .array(
       z.strictObject({

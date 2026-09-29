@@ -162,6 +162,16 @@ export const topicSchema = z
           block.items.map((_, index) => index).join()
         )
           fail('Walkthrough steps must cover each authored step in order');
+        const quoted = new Set(
+          walkthrough.steps.flatMap((step) =>
+            step.fields.flatMap((field) =>
+              field.extracts.map((extract) => extract.blockId),
+            ),
+          ),
+        );
+        for (const id of walkthrough.absorbsBlockIds)
+          if (!pageOwns(walkthrough.page, id) || !quoted.has(id))
+            fail(`Walkthrough must quote the block it represents: ${id}`);
         for (const step of walkthrough.steps) {
           for (const field of step.fields)
             for (const extract of field.extracts) checkExtract(extract, true);
