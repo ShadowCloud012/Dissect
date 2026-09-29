@@ -45,7 +45,12 @@ export const experience = {
       group: 'Operative',
       sectionIds: ['surgical-anatomy'],
       aliases: ['surgical anatomy', 'Calot triangle', 'hepatocystic triangle'],
-      keywords: ['cystic duct', 'cystic artery', 'common bile duct'],
+      keywords: [
+        'cystic duct',
+        'cystic artery',
+        'common bile duct',
+        'common hepatic duct',
+      ],
     },
     {
       slug: 'laparoscopic-cholecystectomy',
@@ -1222,6 +1227,254 @@ export const experience = {
     },
   ],
   // Cross-links that explain why two concepts belong together.
+  // Schematic operative anatomy for the cholecystectomy. Every statement is a
+  // verbatim extract; each step link must be quoted by that walkthrough step.
+  // The critical-view criteria stay at CST depth with their textbook source.
+  anatomyViews: [
+    {
+      id: 'cholecystectomy-anatomy',
+      page: 'anatomy',
+      walkthroughId: 'cholecystectomy',
+      title: 'The hepatocystic triangle',
+      caption:
+        'The structures identified for the critical view of safety, the structures divided, and the bile ducts to be protected.',
+      structures: [
+        {
+          id: 'gallbladder',
+          label: 'Gallbladder',
+          roles: ['removed'],
+          fields: [
+            {
+              kind: 'what',
+              extracts: [
+                {
+                  text: 'The gallbladder lies on the underside of the liver, between segments IVb and V, and has a fundus, body, infundibulum and neck',
+                  blockId: 'gallbladder-structure',
+                },
+              ],
+            },
+            {
+              kind: 'why',
+              extracts: [
+                {
+                  text: 'Retracting the gallbladder fundus upwards and laterally towards the right shoulder exposes the hepatocystic triangle',
+                  blockId: 'exposure-rationale',
+                },
+                {
+                  text: 'Dissect the gallbladder from the liver bed, from the infundibulum towards the fundus',
+                  blockId: 'operative-sequence',
+                },
+                {
+                  text: 'retrieve the gallbladder in a pouch',
+                  blockId: 'operative-sequence',
+                },
+              ],
+            },
+          ],
+          steps: [2, 5, 6],
+        },
+        {
+          id: 'hepatocystic-triangle',
+          label: 'Hepatocystic triangle',
+          roles: ['landmark'],
+          fields: [
+            {
+              kind: 'what',
+              extracts: [
+                {
+                  text: 'The space bounded by the cystic duct, the common hepatic duct and the edge of the liver',
+                  blockId: 'hepatocystic-triangle',
+                },
+                {
+                  text: 'It usually contains the cystic artery and a lymph node (the Lund node, sometimes miscalled the Calot node)',
+                  blockId: 'hepatocystic-triangle',
+                },
+              ],
+            },
+            {
+              kind: 'why',
+              extracts: [
+                {
+                  text: 'Dissect the hepatocystic triangle to achieve the critical view of safety before clipping or dividing any structure',
+                  blockId: 'operative-sequence',
+                },
+              ],
+            },
+            {
+              kind: 'identify',
+              extracts: [
+                {
+                  text: 'Clear all fibrofatty tissue from the hepatocystic triangle',
+                  blockId: 'cvs-criteria',
+                },
+              ],
+            },
+          ],
+          steps: [2, 3],
+          links: [
+            {
+              label: 'The three criteria of the critical view (CST depth)',
+              page: 'laparoscopic-cholecystectomy',
+              blockId: 'cvs-criteria',
+            },
+          ],
+        },
+        {
+          id: 'cystic-duct',
+          label: 'Cystic duct',
+          roles: ['controlled'],
+          fields: [
+            {
+              kind: 'what',
+              extracts: [
+                {
+                  text: 'The cystic duct usually connects the gallbladder to the common bile duct',
+                  blockId: 'biliary-anatomy',
+                },
+              ],
+            },
+            {
+              kind: 'why',
+              extracts: [
+                {
+                  text: 'A multi-society guideline suggests using the critical view of safety to identify the cystic duct and cystic artery before they are clipped and divided',
+                  blockId: 'cvs-purpose',
+                },
+                {
+                  text: 'The recommendation rests on expert opinion, not direct comparative evidence; the critical view helps minimise, but does not remove, the risk of bile duct injury',
+                  blockId: 'cvs-purpose',
+                },
+              ],
+            },
+            {
+              kind: 'identify',
+              extracts: [
+                {
+                  text: 'Identify two, and only two, tubular structures entering the gallbladder: the cystic duct and the cystic artery',
+                  blockId: 'cvs-criteria',
+                },
+              ],
+            },
+          ],
+          steps: [3, 4],
+        },
+        {
+          id: 'cystic-artery',
+          label: 'Cystic artery',
+          roles: ['controlled'],
+          fields: [
+            {
+              kind: 'what',
+              extracts: [
+                {
+                  text: 'The cystic artery usually arises from the right hepatic artery, but its origin and course vary',
+                  blockId: 'cystic-artery',
+                },
+              ],
+            },
+            {
+              kind: 'why',
+              extracts: [
+                {
+                  text: 'A multi-society guideline suggests using the critical view of safety to identify the cystic duct and cystic artery before they are clipped and divided',
+                  blockId: 'cvs-purpose',
+                },
+              ],
+            },
+            {
+              kind: 'identify',
+              extracts: [
+                {
+                  text: 'Identify two, and only two, tubular structures entering the gallbladder: the cystic duct and the cystic artery',
+                  blockId: 'cvs-criteria',
+                },
+              ],
+            },
+          ],
+          steps: [3, 4],
+        },
+        {
+          id: 'common-hepatic-duct',
+          label: 'Common hepatic duct',
+          roles: ['at-risk'],
+          fields: [
+            {
+              kind: 'what',
+              extracts: [
+                {
+                  text: 'the common hepatic duct lies above this junction',
+                  blockId: 'biliary-anatomy',
+                },
+              ],
+            },
+            {
+              kind: 'risk',
+              extracts: [
+                {
+                  text: 'Bile duct injury is the most common serious complication of laparoscopic cholecystectomy, and the critical view of safety is used to minimise that risk',
+                  blockId: 'bile-duct-danger',
+                },
+              ],
+            },
+          ],
+          steps: [3, 4],
+          links: [
+            {
+              label: 'Complications: bile duct or organ injury',
+              page: 'complications',
+              blockId: 'complications-table',
+            },
+          ],
+        },
+        {
+          id: 'common-bile-duct',
+          label: 'Common bile duct',
+          roles: ['at-risk'],
+          fields: [
+            {
+              kind: 'what',
+              extracts: [
+                {
+                  text: 'The cystic duct usually connects the gallbladder to the common bile duct',
+                  blockId: 'biliary-anatomy',
+                },
+              ],
+            },
+            {
+              kind: 'risk',
+              extracts: [
+                {
+                  text: 'Bile duct injury is the most common serious complication of laparoscopic cholecystectomy, and the critical view of safety is used to minimise that risk',
+                  blockId: 'bile-duct-danger',
+                },
+              ],
+            },
+          ],
+          steps: [3, 4],
+          links: [
+            {
+              label: 'Complications: bile duct or organ injury',
+              page: 'complications',
+              blockId: 'complications-table',
+            },
+          ],
+        },
+      ],
+      notes: [
+        {
+          text: 'Biliary anatomy varies considerably, which matters for surgical safety',
+          blockId: 'biliary-anatomy',
+        },
+      ],
+      links: [
+        {
+          label: 'When the anatomy is unclear: what changes the plan',
+          page: 'laparoscopic-cholecystectomy',
+          blockId: 'senior-help',
+        },
+      ],
+    },
+  ],
   blockLinks: [
     {
       blockId: 'hepatocystic-triangle',

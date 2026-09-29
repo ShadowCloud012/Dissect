@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react';
 import { AppendicectomyArtwork } from './appendicectomy-artwork';
+import { CholecystectomyArtwork } from './cholecystectomy-artwork';
 
 // How the viewer asks a procedure-specific artwork to draw each structure.
 // Artwork draws shapes only: names and every statement come from content.
@@ -35,5 +36,18 @@ export const anatomyArtwork: Record<string, Artwork> = {
     Component: AppendicectomyArtwork,
     viewBox: '0 0 320 300',
     legend: 'Dashed vessel: posterior to the terminal ileum.',
+  },
+  'cholecystectomy-anatomy': {
+    structureIds: [
+      'gallbladder',
+      'hepatocystic-triangle',
+      'cystic-duct',
+      'cystic-artery',
+      'common-hepatic-duct',
+      'common-bile-duct',
+    ],
+    Component: CholecystectomyArtwork,
+    viewBox: '64 24 256 276',
+    legend: 'The cystic artery is drawn without its origin.',
   },
 };
