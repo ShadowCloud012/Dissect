@@ -175,3 +175,38 @@ describe('anatomy view validation', () => {
           expect(known.has(extract.blockId)).toBe(true);
   });
 });
+
+describe('anatomy schema hardening', () => {
+  const appendicitis = () => structuredClone(topic());
+  const structureOf = (copy: ReturnType<typeof appendicitis>, id: string) =>
+    copy.experience!.anatomyViews[0].structures.find(
+      (structure) => structure.id === id,
+    )!;
+  it('rejects duplicate view IDs, roles and steps', () => {
+    const views = appendicitis();
+    views.experience!.anatomyViews.push(views.experience!.anatomyViews[0]);
+    expect(() => validateTopic(views)).toThrow(/Duplicate anatomy view ID/);
+    const roles = appendicitis();
+    structureOf(roles, 'caecum').roles = ['landmark', 'landmark'];
+    expect(() => validateTopic(roles)).toThrow(
+      /Duplicate anatomy role: caecum/,
+    );
+    const steps = appendicitis();
+    structureOf(steps, 'caecum').steps = [2, 2];
+    expect(() => validateTopic(steps)).toThrow(
+      /Duplicate anatomy step: caecum/,
+    );
+  });
+  it('keeps controlled and at-risk apart, and bleeding risk on controlled structures', () => {
+    const both = appendicitis();
+    structureOf(both, 'mesoappendix').roles = ['controlled', 'at-risk'];
+    expect(() => validateTopic(both)).toThrow(
+      /A controlled structure cannot be at risk: mesoappendix/,
+    );
+    const bleeding = appendicitis();
+    structureOf(bleeding, 'mesoappendix').roles = ['bleeding-risk'];
+    expect(() => validateTopic(bleeding)).toThrow(
+      /Bleeding risk requires a controlled structure: mesoappendix/,
+    );
+  });
+});

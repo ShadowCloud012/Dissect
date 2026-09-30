@@ -155,9 +155,7 @@ for (const width of [320, 375, 390, 430])
       ['cystic-duct', 'Cystic duct'],
       ['common-hepatic-duct', 'Common hepatic duct'],
     ]) {
-      await view(page)
-        .locator(`[data-structure="${id}"] .anatomy-marker`)
-        .click();
+      await view(page).locator(`[data-marker="${id}"]`).click();
       const detail = view(page).getByRole('heading', {
         level: 3,
         name: new RegExp(name),

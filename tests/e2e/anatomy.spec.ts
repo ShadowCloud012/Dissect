@@ -48,7 +48,7 @@ test('select structures by tap and see sourced detail', async ({
     ],
   ]) {
     // Tap the drawing itself.
-    await view.locator(`[data-structure="${id}"] .anatomy-marker`).click();
+    await view.locator(`[data-marker="${id}"]`).click();
     await expect(structure(page, name)).toHaveAttribute('aria-pressed', 'true');
     await expect(view).toContainText(text);
     expect(await state(page, id)).toBe('selected');
@@ -132,9 +132,7 @@ for (const width of [320, 375, 390, 430])
       );
     for (const height of heights) expect(height).toBeGreaterThanOrEqual(43);
     // A tap on the drawing puts the detail directly beneath it.
-    await view
-      .locator('[data-structure="mesoappendix"] .anatomy-marker')
-      .click();
+    await view.locator('[data-marker="mesoappendix"]').click();
     const detail = view.getByRole('heading', {
       level: 3,
       name: /Mesoappendix/,

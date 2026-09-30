@@ -130,9 +130,7 @@ it('opens with the step named in the URL hash', () => {
 it('selects a structure by tapping the drawing', async () => {
   renderView();
   await userEvent.click(
-    document.querySelector(
-      '[data-structure="terminal-ileum"] .anatomy-marker',
-    )!,
+    document.querySelector('[data-marker="terminal-ileum"]')!,
   );
   expect(structureButton(/^Terminal ileum/)).toHaveAttribute(
     'aria-pressed',

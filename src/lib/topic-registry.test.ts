@@ -156,3 +156,14 @@ it('rejects malformed and duplicate registrations', () => {
     /Duplicate topic registration/,
   );
 });
+
+it('rejects the same anatomy view ID in two topics', () => {
+  const gallstone = structuredClone(gallstoneDisease);
+  gallstone.experience.anatomyViews[0].id = 'appendicectomy-anatomy';
+  expect(() =>
+    createTopicRegistry([
+      { source: 'appendicitis', content: acuteAppendicitis },
+      { source: 'gallstone', content: gallstone },
+    ]),
+  ).toThrow(/Duplicate anatomy view ID: appendicectomy-anatomy/);
+});
