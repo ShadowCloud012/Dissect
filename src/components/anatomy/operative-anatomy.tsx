@@ -7,7 +7,11 @@ import {
   Gate,
   joinExtracts,
 } from '@/components/content/extract-rows';
-import { anatomyArtwork, type StructureState } from './artwork';
+import {
+  anatomyArtwork,
+  orientationCues,
+  type StructureState,
+} from './artwork';
 
 const roleLabels: Record<string, string> = {
   landmark: 'Landmark',
@@ -53,6 +57,7 @@ export function OperativeAnatomy({
   noteSources?: ReactNode;
 }) {
   const artwork = anatomyArtwork[view.id];
+  const orientation = orientationCues[artwork.orientation];
   // A link such as …/anatomy#<view>-step-3 opens with that step selected.
   const hash = useSyncExternalStore(
     subscribeToHash,
@@ -149,6 +154,12 @@ export function OperativeAnatomy({
       </div>
       <div className="anatomy-layout">
         <figure className="anatomy-figure">
+          {/* Laterality cannot be misread: every artwork declares its view. */}
+          <p className="anatomy-orientation-summary">{orientation.summary}</p>
+          <p className="anatomy-orientation" aria-hidden="true">
+            <span>← {orientation.viewerLeft}</span>
+            <span>{orientation.viewerRight} →</span>
+          </p>
           <svg
             viewBox={artwork.viewBox}
             role="img"
@@ -156,7 +167,7 @@ export function OperativeAnatomy({
             aria-describedby={`${view.id}-svg-desc`}
           >
             <desc id={`${view.id}-svg-desc`}>
-              {`Numbered structures: ${view.structures
+              {`${orientation.summary}. Numbered structures: ${view.structures
                 .map((item, index) => `${index + 1} ${item.label}`)
                 .join(', ')}. Select them from the list of structures.`}
             </desc>

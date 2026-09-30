@@ -164,6 +164,26 @@
   .anatomy-tube-small.anatomy-tube {
     stroke-width: 11;
   }
+  /* Context anatomy orients the reader; it is fainter and not selectable. */
+  .anatomy-context-vessel {
+    @apply fill-none stroke-dissect-red;
+    stroke-width: 3.5;
+    stroke-linecap: round;
+    opacity: 0.45;
+  }
+  .anatomy-context-label {
+    @apply fill-dissect-muted font-mono text-[10px] tracking-wide uppercase;
+  }
+  /* The appendix lumen is tinted so it is not mistaken for the ileum. */
+  .anatomy-tube-appendix {
+    @apply stroke-dissect-amber-soft;
+  }
+  .anatomy-orientation {
+    @apply mb-1 flex items-baseline justify-between gap-2 px-1 font-mono text-[11px] tracking-wide text-dissect-muted uppercase;
+  }
+  .anatomy-orientation-summary {
+    @apply mb-1 px-1 text-xs text-dissect-muted;
+  }
   .anatomy-duct-outline {
     @apply fill-none stroke-dissect-ink;
     stroke-width: 11;
