@@ -171,6 +171,15 @@ export function createTopicRegistry(
     ids.add(topic.metadata.id);
     paths.add(path);
   }
+  // Anatomy artwork is looked up by view ID, so IDs are unique site-wide.
+  const viewIds = topics.flatMap(
+    (topic) => topic.experience?.anatomyViews.map((view) => view.id) ?? [],
+  );
+  const duplicateView = viewIds.find(
+    (id, index) => viewIds.indexOf(id) !== index,
+  );
+  if (duplicateView)
+    throw new Error(`Duplicate anatomy view ID: ${duplicateView}`);
   const { discovery, relationsFor } = buildRelationships(topics);
   // Condition and procedure IDs share one namespace so links are unambiguous.
   const discoveryIds = discovery.map((entry) => entry.id);

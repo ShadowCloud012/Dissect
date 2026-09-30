@@ -275,6 +275,9 @@ export const topicSchema = z
           if (row.link) checkLink(row.link);
         }
       }
+      const viewIds = experience.anatomyViews.map((view) => view.id);
+      if (new Set(viewIds).size !== viewIds.length)
+        fail('Duplicate anatomy view ID');
       for (const view of experience.anatomyViews) {
         if (!pageIds.has(view.page))
           fail(`Unknown anatomy view page: ${view.page}`);
@@ -304,6 +307,20 @@ export const topicSchema = z
             ) !== structure.fields.some((field) => field.kind === 'risk')
           )
             fail(`Risk role and risk field must agree: ${structure.id}`);
+          // Roles keep one meaning: a structure intentionally divided is not
+          // one the operator is trying not to injure, and a bleeding risk is
+          // the risk of controlling a structure.
+          const roles = structure.roles;
+          if (new Set(roles).size !== roles.length)
+            fail(`Duplicate anatomy role: ${structure.id}`);
+          if (roles.includes('controlled') && roles.includes('at-risk'))
+            fail(`A controlled structure cannot be at risk: ${structure.id}`);
+          if (roles.includes('bleeding-risk') && !roles.includes('controlled'))
+            fail(
+              `Bleeding risk requires a controlled structure: ${structure.id}`,
+            );
+          if (new Set(structure.steps).size !== structure.steps.length)
+            fail(`Duplicate anatomy step: ${structure.id}`);
           const sources = new Set(extracts.map((extract) => extract.blockId));
           for (const number of structure.steps) {
             const step = walkthrough.steps[number - 1];
