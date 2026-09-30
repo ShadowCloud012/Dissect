@@ -177,6 +177,11 @@ describe('real terms', () => {
     expect(summary('appendicectomy')).toEqual([
       ['procedure', '/learn/general-surgery/acute-appendicitis/appendicectomy'],
       ['condition', '/learn/general-surgery/acute-appendicitis'],
+      // Theatre Prep is found by the procedure's names, never ahead of it.
+      [
+        'page',
+        '/learn/general-surgery/acute-appendicitis/appendicectomy/theatre-prep',
+      ],
     ]);
   });
   it('explains non-title matches with the authored term', () => {
@@ -237,6 +242,7 @@ describe('prefix search on real content', () => {
         ['condition', 'acute-appendicitis'],
         ['procedure', 'acute-appendicitis/appendicectomy'],
         ['anatomy', 'acute-appendicitis/anatomy'],
+        ['page', 'acute-appendicitis/appendicectomy/theatre-prep'],
         ['complications', 'acute-appendicitis/complications'],
       ]);
     },

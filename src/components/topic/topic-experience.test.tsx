@@ -191,7 +191,7 @@ it('turns Appendicectomy into an operative walkthrough with theatre prep', async
   const base = '/learn/general-surgery/acute-appendicitis';
   // 5-minute prep: verbatim rows with cross-links, at the top of the page.
   const prep = within(
-    screen.getByRole('region', { name: '5-minute theatre prep' }),
+    screen.getByRole('region', { name: 'Theatre prep at a glance' }),
   );
   const prepRow = (label: string) =>
     prep.getByText(label, { selector: 'dt' }).nextElementSibling!;

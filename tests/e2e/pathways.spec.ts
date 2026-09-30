@@ -97,7 +97,7 @@ for (const width of [320, 390])
     expect(await noOverflow(page)).toBe(true);
     // Procedure identity and prep are in the first screen.
     await expect(page.getByText('Procedure', { exact: true })).toBeVisible();
-    const prep = page.getByRole('region', { name: '5-minute theatre prep' });
+    const prep = page.getByRole('region', { name: 'Theatre prep at a glance' });
     expect((await prep.boundingBox())!.y).toBeLessThan(900);
     // The core operation is visible at the default Medical Student depth.
     const steps = page.locator('.walkthrough-steps > li');

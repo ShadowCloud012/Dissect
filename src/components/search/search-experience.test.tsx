@@ -32,7 +32,7 @@ it('shows compact, labelled results with why they matched and review status', as
   await userEvent.type(screen.getByRole('searchbox'), 'lap chole');
   expect(window.location.search).toBe('?q=lap%20chole');
   expect(screen.getByRole('status')).toHaveTextContent(
-    '1 result for “lap chole”',
+    '2 results for “lap chole”',
   );
   const [result] = within(
     screen.getByRole('list', { name: 'Search results' }),

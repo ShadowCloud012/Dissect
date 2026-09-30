@@ -22,7 +22,7 @@ it('generates one document per canonical URL, deterministically', () => {
   expect(new Set(ids).size).toBe(ids.length);
   expect(new Set(hrefs).size).toBe(hrefs.length);
   expect(topicRegistry.searchDocuments()).toEqual(documents);
-  // Two condition hubs, two procedure pages and 18 other subpages; the
+  // Two condition hubs, two procedure pages and 20 other pages; the
   // procedure pages are not indexed a second time as plain pages.
   expect(documents.filter((entry) => entry.kind === 'condition')).toHaveLength(
     2,
@@ -30,7 +30,8 @@ it('generates one document per canonical URL, deterministically', () => {
   expect(documents.filter((entry) => entry.kind === 'procedure')).toHaveLength(
     2,
   );
-  expect(documents.filter((entry) => entry.kind === 'page')).toHaveLength(18);
+  // 18 topic subpages plus one Theatre Prep page per procedure.
+  expect(documents.filter((entry) => entry.kind === 'page')).toHaveLength(20);
   expect(hrefs).not.toContain(
     '/learn/general-surgery/how-dissect-content-works',
   );

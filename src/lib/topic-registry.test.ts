@@ -160,6 +160,7 @@ it('rejects malformed and duplicate registrations', () => {
 it('rejects the same anatomy view ID in two topics', () => {
   const gallstone = structuredClone(gallstoneDisease);
   gallstone.experience.anatomyViews[0].id = 'appendicectomy-anatomy';
+  gallstone.experience.theatrePreps[0].anatomyViewId = 'appendicectomy-anatomy';
   expect(() =>
     createTopicRegistry([
       { source: 'appendicitis', content: acuteAppendicitis },

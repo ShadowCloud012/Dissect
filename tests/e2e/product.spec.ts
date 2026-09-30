@@ -156,7 +156,7 @@ for (const width of [320, 375, 390, 430])
     await page.goto(`${base}/appendicectomy`);
     expect(await noOverflow(page)).toBe(true);
     // Theatre prep starts in the first screen; the walkthrough stays open.
-    const prep = page.getByRole('region', { name: '5-minute theatre prep' });
+    const prep = page.getByRole('region', { name: 'Theatre prep at a glance' });
     expect((await prep.boundingBox())!.y).toBeLessThan(740);
     const steps = page.locator('.walkthrough-steps > li');
     await expect(steps).toHaveCount(5);
@@ -202,6 +202,7 @@ test('every topic cross-link resolves to a real route and anchor', async ({
     '/learn/general-surgery',
     ...topicPages('acute-appendicitis', [
       'appendicectomy',
+      'appendicectomy/theatre-prep',
       'anatomy',
       'complications',
       'consent',
@@ -212,6 +213,7 @@ test('every topic cross-link resolves to a real route and anchor', async ({
       'assessment',
       'management',
       'laparoscopic-cholecystectomy',
+      'laparoscopic-cholecystectomy/theatre-prep',
       'anatomy',
       'complications',
       'consent',
