@@ -17,7 +17,8 @@ function uniqueTerms(terms: string[]) {
 
 export type SearchDocumentKind = 'condition' | 'procedure' | 'page';
 // What a topic subpage is to its procedure(s), if anything.
-export type SearchPageRole = 'anatomy' | 'complications' | 'aftercare';
+export type SearchPageRole =
+  'anatomy' | 'complications' | 'aftercare' | 'theatre-prep';
 // Curated metadata and headings only; no clinical prose is indexed.
 export type SearchDocument = {
   id: string;
@@ -183,6 +184,36 @@ export function buildSearchDocuments(
             .filter((title, index, all) => all.indexOf(title) === index),
         };
       });
-    return [conditionDocument, ...procedureDocuments, ...pageDocuments];
+    // Theatre Prep pages: found by their procedure's names as keywords, so the
+    // Procedure itself always outranks them for those names.
+    const prepDocuments = owned
+      .filter((procedure) =>
+        topic.experience!.theatrePreps.some(
+          (prep) => prep.procedureId === procedure.id,
+        ),
+      )
+      .map((procedure): SearchDocument => ({
+        ...common,
+        id: `theatre-prep:${procedure.id}`,
+        kind: 'page',
+        pageRole: 'theatre-prep',
+        title: 'Theatre Prep',
+        href: `${topicHref(metadata)}/${procedure.page}/theatre-prep`,
+        categories: metadata.categories,
+        aliases: [],
+        keywords: uniqueTerms([procedure.title, ...procedure.aliases]),
+        pageTitles: [],
+        headings: [],
+        anatomyTerms: [],
+        complicationTerms: [],
+        conditions: [metadata.title],
+        procedures: [procedure.title],
+      }));
+    return [
+      conditionDocument,
+      ...procedureDocuments,
+      ...pageDocuments,
+      ...prepDocuments,
+    ];
   });
 }

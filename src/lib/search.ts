@@ -151,7 +151,9 @@ export function searchIndex(
         // Subpage titles ("Anatomy") are named with their condition.
         title:
           document.kind === 'page'
-            ? `${document.title} — ${parent}`
+            ? // Theatre Prep is named with its procedure, other pages with
+              // their condition.
+              `${document.title} — ${document.pageRole === 'theatre-prep' ? document.procedures[0] : parent}`
             : document.title,
         href: document.href,
         specialty: specialtyTitles[document.specialty] ?? document.specialty,
