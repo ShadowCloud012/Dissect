@@ -57,7 +57,7 @@ function buildRelationships(topics: Topic[]) {
     title: metadata.title,
     href: topicHrefOf(metadata),
   });
-  const procedures = clinical.flatMap(({ metadata }) =>
+  const procedures = clinical.flatMap(({ topic, metadata }) =>
     metadata.procedures.map((procedure) => {
       const linked = procedure.linkedConditionIds.map((id) => {
         const match = clinical.find((entry) => entry.metadata.id === id);
@@ -72,6 +72,9 @@ function buildRelationships(topics: Topic[]) {
         procedure,
         href: `${topicHrefOf(metadata)}/${procedure.page}`,
         conditionMetadata: [metadata, ...linked],
+        hasTheatrePrep: !!topic.experience?.theatrePreps.some(
+          (prep) => prep.procedureId === procedure.id,
+        ),
       };
     }),
   );
@@ -124,7 +127,7 @@ function buildRelationships(topics: Topic[]) {
       .filter((entry) =>
         entry.conditionMetadata.some((item) => item.id === topic.metadata.id),
       )
-      .map(({ owner, procedure, href, conditionMetadata }) => {
+      .map(({ owner, procedure, href, conditionMetadata, hasTheatrePrep }) => {
         const own = owner.id === topic.metadata.id;
         return {
           id: procedure.id,
@@ -139,6 +142,7 @@ function buildRelationships(topics: Topic[]) {
             complicationsPage: procedure.complicationsPage,
             aftercarePage: procedure.aftercarePage,
           }),
+          ...(hasTheatrePrep && { theatrePrepHref: `${href}/theatre-prep` }),
         };
       });
   return { discovery, relationsFor };

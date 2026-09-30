@@ -39,3 +39,16 @@ complications and aftercare pages, and any further conditions it is relevant
 to (`linkedConditionIds`). The registry derives condition ↔ procedure links,
 related-page links and search documents from it; procedure pages do not repeat
 the procedure's aliases.
+
+## Theatre Prep
+
+`experience.theatrePreps` composes a 5-minute briefing for one procedure,
+served at `/learn/<specialty>/<topic>/<procedure page>/theatre-prep`. It holds
+no clinical prose: the patient, before-theatre, consent and after-surgery
+sections are verbatim extract rows (validated like briefings), and the
+anatomy, operation, risks and plan sections come from the referenced anatomy
+view, walkthrough (one line per step), the view's risk roles and the plan
+panel. A row may not be shown at a shallower depth than its deepest source
+block. Unsourced content stays visible through `gaps`: existing clinical-review
+TODO notes placed in a section, optionally only below a depth (for example the
+operation-specific consent gap below CST, where the sourced risks start).

@@ -1,6 +1,10 @@
 import type { Topic, TopicMetadata } from '@/schemas/topic';
 import type { ContentBlock } from '@/schemas/content-block';
-import { isExtractSelection, type TopicLink } from '@/schemas/topic-experience';
+import {
+  isExtractSelection,
+  type AnatomyView,
+  type TopicLink,
+} from '@/schemas/topic-experience';
 import {
   trainingLevelRank,
   trainingLevels,
@@ -264,6 +268,8 @@ export type ProcedureRelation = EntityLink & {
   anatomyPage?: string;
   complicationsPage?: string;
   aftercarePage?: string;
+  // Set when the procedure has a Theatre Prep composition.
+  theatrePrepHref?: string;
 };
 // The procedures a topic owns, without registry context (no cross-topic
 // links). The registry's relationsFor adds linked procedures and conditions.
@@ -285,6 +291,11 @@ export function ownProcedureRelations(topic: Topic): ProcedureRelation[] {
     anatomyPage: procedure.anatomyPage,
     complicationsPage: procedure.complicationsPage,
     aftercarePage: procedure.aftercarePage,
+    theatrePrepHref: topic.experience?.theatrePreps.some(
+      (prep) => prep.procedureId === procedure.id,
+    )
+      ? `${base}/${procedure.page}/theatre-prep`
+      : undefined,
   }));
 }
 export const relatedKindLabels = {
@@ -360,72 +371,212 @@ function anatomyStepLinks(topic: Topic, walkthroughId: string, step: number) {
     }));
 }
 export function resolveAnatomyViews(topic: Topic, page: string) {
+  return resolveViews(topic, (view) => view.page === page);
+}
+function resolveViews(topic: Topic, include: (view: AnatomyView) => boolean) {
   const experience = topic.experience;
   const base = topicHref(topic.metadata);
-  return (experience?.anatomyViews ?? [])
-    .filter((view) => view.page === page)
-    .map((view) => {
-      const walkthrough = experience!.walkthroughs.find(
-        (entry) => entry.id === view.walkthroughId,
-      )!;
-      const stepLink = (number: number) => ({
-        number,
-        label: walkthrough.steps[number - 1].label,
-        href: `${base}/${walkthrough.page}#${stepAnchor(walkthrough.id, number)}`,
-        anchor: anatomyStepAnchor(view.id, number),
-      });
-      const structures = view.structures.map((structure) => {
-        const fields = structure.fields.map((field) => {
-          const blocks = field.extracts.map((extract) =>
-            findBlock(topic, extract.blockId),
-          );
-          return {
-            kind: field.kind,
-            minimumLevel: deepestLevel(blocks),
-            texts: field.extracts.map((extract) => extract.text),
-            referenceIds: uniqueReferences(blocks),
-          };
-        });
+  return (experience?.anatomyViews ?? []).filter(include).map((view) => {
+    const walkthrough = experience!.walkthroughs.find(
+      (entry) => entry.id === view.walkthroughId,
+    )!;
+    const stepLink = (number: number) => ({
+      number,
+      label: walkthrough.steps[number - 1].label,
+      href: `${base}/${walkthrough.page}#${stepAnchor(walkthrough.id, number)}`,
+      anchor: anatomyStepAnchor(view.id, number),
+    });
+    const structures = view.structures.map((structure) => {
+      const fields = structure.fields.map((field) => {
+        const blocks = field.extracts.map((extract) =>
+          findBlock(topic, extract.blockId),
+        );
         return {
-          id: structure.id,
-          label: structure.label,
-          roles: structure.roles,
-          fields,
-          steps: structure.steps.map(stepLink),
-          links: resolveLinks(topic, structure.links),
-          referenceIds: [
-            ...new Set(fields.flatMap((field) => field.referenceIds)),
-          ],
+          kind: field.kind,
+          minimumLevel: deepestLevel(blocks),
+          texts: field.extracts.map((extract) => extract.text),
+          referenceIds: uniqueReferences(blocks),
         };
       });
-      const noteBlocks = view.notes.map((note) =>
-        findBlock(topic, note.blockId),
-      );
       return {
-        id: view.id,
-        title: view.title,
-        caption: view.caption,
-        walkthroughHref: `${base}/${walkthrough.page}#${stepAnchor(walkthrough.id, 1)}`,
-        structures,
-        // Steps that involve at least one structure in this view.
-        steps: walkthrough.steps
-          .map((_, index) => ({
-            ...stepLink(index + 1),
-            structureIds: structures
-              .filter((structure) =>
-                structure.steps.some((step) => step.number === index + 1),
-              )
-              .map((structure) => structure.id),
-          }))
-          .filter((step) => step.structureIds.length > 0),
-        links: resolveLinks(topic, view.links),
-        notes: {
-          texts: view.notes.map((note) => note.text),
-          referenceIds: uniqueReferences(noteBlocks),
-        },
+        id: structure.id,
+        label: structure.label,
+        roles: structure.roles,
+        fields,
+        steps: structure.steps.map(stepLink),
+        links: resolveLinks(topic, structure.links),
+        referenceIds: [
+          ...new Set(fields.flatMap((field) => field.referenceIds)),
+        ],
       };
     });
+    const noteBlocks = view.notes.map((note) => findBlock(topic, note.blockId));
+    return {
+      id: view.id,
+      title: view.title,
+      caption: view.caption,
+      walkthroughHref: `${base}/${walkthrough.page}#${stepAnchor(walkthrough.id, 1)}`,
+      structures,
+      // Steps that involve at least one structure in this view.
+      steps: walkthrough.steps
+        .map((_, index) => ({
+          ...stepLink(index + 1),
+          structureIds: structures
+            .filter((structure) =>
+              structure.steps.some((step) => step.number === index + 1),
+            )
+            .map((structure) => structure.id),
+        }))
+        .filter((step) => step.structureIds.length > 0),
+      links: resolveLinks(topic, view.links),
+      notes: {
+        texts: view.notes.map((note) => note.text),
+        referenceIds: uniqueReferences(noteBlocks),
+      },
+    };
+  });
 }
 export type ResolvedAnatomyView = ReturnType<
   typeof resolveAnatomyViews
 >[number];
+// Theatre Prep for one procedure page, composed from existing content: the
+// authored extract rows, the procedure's walkthrough (one line per step), its
+// anatomy view, the structures that view marks as risks, and its plan panel.
+export const theatrePrepSlug = 'theatre-prep';
+export function theatrePrepHref(topic: Topic, procedurePage: string) {
+  return `${topicHref(topic.metadata)}/${procedurePage}/${theatrePrepSlug}`;
+}
+export function resolveTheatrePrep(topic: Topic, procedurePage: string) {
+  const experience = topic.experience;
+  if (!experience || topic.metadata.contentKind !== 'clinical')
+    return undefined;
+  const procedure = topic.metadata.procedures.find(
+    (entry) => entry.page === procedurePage,
+  );
+  const prep = experience.theatrePreps.find(
+    (entry) => entry.procedureId === procedure?.id,
+  );
+  if (!procedure || !prep) return undefined;
+  const base = topicHref(topic.metadata);
+  const pageHref = (slug?: string) => (slug ? `${base}/${slug}` : undefined);
+  const walkthrough = resolveWalkthroughs(topic, procedure.page).find(
+    (entry) => entry.id === prep.walkthroughId,
+  )!;
+  const [anatomy] = resolveViews(
+    topic,
+    (view) => view.id === prep.anatomyViewId,
+  );
+  const plan = resolveBriefings(topic, procedure.page).find(
+    (entry) => entry.id === prep.planBriefingId,
+  )!;
+  const section = (rows: typeof prep.patient) => {
+    const resolved = resolveRows(topic, rows);
+    return {
+      rows: resolved,
+      referenceIds: uniqueReferences(
+        resolved.flatMap((row) => row.extracts.map((extract) => extract.block)),
+      ),
+    };
+  };
+  const riskRoles: string[] = ['at-risk', 'bleeding-risk'];
+  return {
+    procedure: {
+      title: procedure.title,
+      href: `${base}/${procedure.page}`,
+    },
+    condition: { title: topic.metadata.title, href: base },
+    href: theatrePrepHref(topic, procedure.page),
+    patient: section(prep.patient),
+    before: section(prep.before),
+    consent: section(prep.consent),
+    after: section(prep.after),
+    gaps: prep.gaps.map((gap) => ({
+      section: gap.section,
+      belowLevel: gap.belowLevel,
+      block: findBlock(topic, gap.blockId),
+    })),
+    anatomy,
+    // Operation in 60 seconds: the walkthrough's own steps, not a copy.
+    steps: walkthrough.steps.map((step) => ({
+      number: step.number,
+      label: step.label,
+      text: step.text,
+      href: `${base}/${procedure.page}#${step.anchor}`,
+    })),
+    walkthroughHref: `${base}/${procedure.page}#${walkthrough.steps[0].anchor}`,
+    // Structures the anatomy view marks as a risk, with their quoted risk.
+    risks: anatomy.structures
+      .filter((structure) =>
+        structure.roles.some((role) => riskRoles.includes(role)),
+      )
+      .map((structure) => ({
+        id: structure.id,
+        label: structure.label,
+        roles: structure.roles,
+        risk: structure.fields.filter((field) => field.kind === 'risk'),
+        steps: structure.steps,
+        referenceIds: structure.referenceIds,
+      })),
+    // The same risks grouped by role: structures to protect (at-risk) apart
+    // from bleeding risks of controlled structures. Structures whose quoted
+    // risk is the same (or one contains the other, at the same depth) share
+    // one entry, so a sentence is not repeated per structure.
+    riskGroups: (['at-risk', 'bleeding-risk'] as const)
+      .map((role) => {
+        const entries: {
+          labels: string[];
+          text: string;
+          minimumLevel: TrainingLevel;
+          steps: (typeof anatomy.structures)[number]['steps'];
+          referenceIds: string[];
+        }[] = [];
+        for (const structure of anatomy.structures.filter((item) =>
+          item.roles.includes(role),
+        ))
+          for (const field of structure.fields.filter(
+            (entry) => entry.kind === 'risk',
+          )) {
+            const text = field.texts.join(' · ');
+            const match = entries.find(
+              (entry) =>
+                entry.minimumLevel === field.minimumLevel &&
+                (entry.text.includes(text) || text.includes(entry.text)),
+            );
+            if (!match) {
+              entries.push({
+                labels: [structure.label],
+                text,
+                minimumLevel: field.minimumLevel,
+                steps: [...structure.steps],
+                referenceIds: [...field.referenceIds],
+              });
+              continue;
+            }
+            match.labels.push(structure.label);
+            if (text.length > match.text.length) match.text = text;
+            for (const step of structure.steps)
+              if (!match.steps.some((item) => item.number === step.number))
+                match.steps.push(step);
+            match.steps.sort((a, b) => a.number - b.number);
+            match.referenceIds = [
+              ...new Set([...match.referenceIds, ...field.referenceIds]),
+            ];
+          }
+        return { role, entries };
+      })
+      .filter((group) => group.entries.length > 0),
+    plan,
+    planHref: `${base}/${procedure.page}#${plan.replacesBlockId ? `block-${plan.replacesBlockId}` : `briefing-${plan.id}`}`,
+    links: {
+      overview: base,
+      anatomy: pageHref(procedure.anatomyPage),
+      walkthrough: `${base}/${procedure.page}`,
+      consent: pageHref(procedure.consentPage),
+      complications: pageHref(procedure.complicationsPage),
+      aftercare: pageHref(procedure.aftercarePage),
+    },
+  };
+}
+export type ResolvedTheatrePrep = NonNullable<
+  ReturnType<typeof resolveTheatrePrep>
+>;

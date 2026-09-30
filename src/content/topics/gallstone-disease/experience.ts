@@ -974,7 +974,7 @@ export const experience = {
     {
       id: 'theatre-prep',
       page: 'laparoscopic-cholecystectomy',
-      title: '5-minute theatre prep',
+      title: 'Theatre prep at a glance',
       caption:
         'Seeing or assisting with this case soon? Start here — the walkthrough below goes deeper.',
       variant: 'prep',
@@ -1471,6 +1471,247 @@ export const experience = {
           label: 'When the anatomy is unclear: what changes the plan',
           page: 'laparoscopic-cholecystectomy',
           blockId: 'senior-help',
+        },
+      ],
+    },
+  ],
+  // Theatre Prep composes existing content only: verbatim extracts, plus the
+  // anatomy view, walkthrough and plan panel by ID.
+  theatrePreps: [
+    {
+      procedureId: 'laparoscopic-cholecystectomy',
+      anatomyViewId: 'cholecystectomy-anatomy',
+      walkthroughId: 'cholecystectomy',
+      planBriefingId: 'what-changes-the-plan',
+      patient: [
+        {
+          label: 'Why this operation',
+          extracts: [
+            {
+              text: 'People with symptomatic gallbladder stones are offered laparoscopic cholecystectomy',
+              blockId: 'surgery-indications',
+            },
+            {
+              text: 'People with acute cholecystitis are offered early laparoscopic cholecystectomy, within 1 week of diagnosis',
+              blockId: 'surgery-indications',
+            },
+          ],
+          link: {
+            label: 'Management',
+            page: 'management',
+            blockId: 'surgery-indications',
+          },
+        },
+        {
+          label: 'Why it matters',
+          extracts: [
+            {
+              text: 'Acute cholecystitis can lead to gangrene of the gallbladder or perforation, which can spread infection within the abdomen (peritonitis) or form an abscess',
+              blockId: 'gallstone-complications',
+            },
+          ],
+        },
+        {
+          label: 'Bile duct stones',
+          minimumLevel: 'cst',
+          extracts: [
+            {
+              text: 'Bile duct stones are cleared alongside laparoscopic cholecystectomy, either surgically during the operation or by ERCP before or during it',
+              blockId: 'bile-duct-stones',
+            },
+          ],
+        },
+        {
+          label: 'If surgery is not suitable',
+          minimumLevel: 'cst',
+          extracts: [
+            {
+              text: 'Percutaneous cholecystostomy is offered for gallbladder empyema when surgery is contraindicated and conservative management has failed',
+              blockId: 'not-fit-for-surgery',
+            },
+          ],
+        },
+      ],
+      before: [
+        {
+          label: 'Bloods',
+          extracts: [
+            {
+              text: 'Liver function tests are offered with ultrasound to people with suspected gallstone disease',
+              blockId: 'blood-tests',
+            },
+            {
+              text: 'A raised CRP and white cell count support acute cholecystitis but do not establish it on their own',
+              blockId: 'blood-tests',
+            },
+            {
+              text: 'Raised bilirubin raises suspicion of bile duct obstruction',
+              blockId: 'blood-tests',
+            },
+          ],
+          link: { label: 'Investigations', page: 'investigations' },
+        },
+        {
+          label: 'Imaging',
+          extracts: [
+            {
+              text: 'The first-line imaging test: it shows gallstones and signs of inflammation such as gallbladder wall thickening and pericholecystic fluid, and can show a dilated bile duct',
+              blockId: 'ultrasound',
+            },
+          ],
+        },
+        {
+          label: 'MRCP',
+          minimumLevel: 'foundation',
+          extracts: [
+            {
+              text: 'MRCP is considered when ultrasound has not shown bile duct stones but the duct is dilated or liver function tests are abnormal',
+              blockId: 'mrcp',
+            },
+          ],
+        },
+        {
+          label: 'Team and initial care',
+          minimumLevel: 'foundation',
+          extracts: [
+            {
+              text: 'Arrange surgical assessment and senior help appropriate to severity and your competence',
+              blockId: 'initial-care',
+            },
+            {
+              text: 'Give intravenous fluids and analgesia; patients are usually kept nil by mouth at first',
+              blockId: 'initial-care',
+            },
+          ],
+        },
+        {
+          label: 'Checklist, VTE and prophylaxis',
+          minimumLevel: 'foundation',
+          extracts: [
+            {
+              text: 'Confirm the agreed procedure and perioperative plan during the safety checklist',
+              blockId: 'operative-preparation',
+            },
+            {
+              text: 'Assess VTE and bleeding risk and agree appropriate prophylaxis; give prophylactic antibiotics according to institutional protocol',
+              blockId: 'operative-preparation',
+            },
+          ],
+        },
+        {
+          label: 'Escalate',
+          minimumLevel: 'foundation',
+          extracts: [
+            {
+              text: 'Clinical deterioration or failure to improve with initial treatment should raise concern about complications such as gallbladder empyema, and prompt escalation for possible sepsis using the applicable pathway',
+              blockId: 'deterioration',
+            },
+          ],
+        },
+      ],
+      consent: [
+        {
+          label: 'Why and what',
+          extracts: [
+            {
+              text: 'Explain why cholecystectomy is proposed and what the operation involves',
+              blockId: 'supported-decision',
+            },
+          ],
+        },
+        {
+          label: 'Alternatives',
+          extracts: [
+            {
+              text: 'Discuss reasonable alternatives and what no treatment could mean; in acute cholecystitis, drainage of the gallbladder may be offered when surgery is not an option',
+              blockId: 'supported-decision',
+            },
+          ],
+        },
+        {
+          label: 'What patients are told',
+          extracts: [
+            {
+              text: 'It is usually keyhole surgery under general anaesthetic through a few small cuts; open surgery is sometimes needed, for example if the gallbladder is very inflamed',
+              blockId: 'patient-understanding',
+            },
+            {
+              text: 'Risks include blood clots, wound infection, bile leak, stones left in the bile ducts and injury to the bile ducts or other organs; individual risk depends on age and general health',
+              blockId: 'patient-understanding',
+            },
+          ],
+        },
+        {
+          label: 'Risks to discuss',
+          minimumLevel: 'cst',
+          extracts: [
+            {
+              text: 'Discuss bleeding, infection, injury to the bile ducts or other organs, bile leak, retained stones and blood clots in relation to this patient, and explain that open surgery is sometimes needed',
+              blockId: 'procedure-risks',
+            },
+          ],
+        },
+      ],
+      after: [
+        {
+          label: 'Recovery',
+          extracts: [
+            {
+              text: 'Many people go home on the same day; some need to stay overnight',
+              blockId: 'recovery-basics',
+            },
+            {
+              text: 'Shoulder-tip pain from retained carbon dioxide can occur and settles as the gas is absorbed',
+              blockId: 'recovery-basics',
+            },
+          ],
+        },
+        {
+          label: 'Red flags',
+          extracts: [
+            {
+              text: 'Severe or worsening pain, yellowing of the skin or eyes, a high temperature or shivering, wound redness, swelling or pus, or leg swelling need prompt assessment',
+              blockId: 'postoperative-warning',
+            },
+          ],
+        },
+        {
+          label: 'Ward review',
+          minimumLevel: 'foundation',
+          extracts: [
+            {
+              text: 'Review observations, pain, the wounds and the operative findings; escalate deterioration promptly',
+              blockId: 'postoperative-review',
+            },
+          ],
+        },
+        {
+          label: 'Antibiotics',
+          minimumLevel: 'foundation',
+          extracts: [
+            {
+              text: 'Do not continue antibiotics routinely after surgery for uncomplicated cholecystitis when the source is controlled',
+              blockId: 'postoperative-review',
+            },
+          ],
+        },
+        {
+          label: 'Bile leak',
+          minimumLevel: 'cst',
+          extracts: [
+            {
+              text: 'A postoperative bile leak can present with vague pain, fever and raised bilirubin',
+              blockId: 'bile-leak',
+            },
+          ],
+        },
+      ],
+      gaps: [
+        { section: 'before', blockId: 'preoperative-preparation-todo' },
+        {
+          section: 'consent',
+          blockId: 'operation-consent-todo',
+          belowLevel: 'cst',
         },
       ],
     },

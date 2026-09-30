@@ -2,9 +2,11 @@ import { z } from 'zod';
 import { contentBlockSchema } from './content-block';
 import { referenceSchema } from './reference';
 import { dateSchema, stableIdSchema, textSchema } from './shared';
+import { trainingLevelRank } from '@/lib/training-level';
 import {
   anatomyRiskRoles,
   isExtractSelection,
+  theatrePrepSectionIds,
   topicExperienceSchema,
   type TopicLink,
 } from './topic-experience';
@@ -64,6 +66,7 @@ export const procedureSchema = z.strictObject({
   anatomyPage: stableIdSchema.optional(),
   complicationsPage: stableIdSchema.optional(),
   aftercarePage: stableIdSchema.optional(),
+  consentPage: stableIdSchema.optional(),
 });
 export type Procedure = z.infer<typeof procedureSchema>;
 export const topicMetadataSchema = z.discriminatedUnion('contentKind', [
@@ -153,6 +156,7 @@ export const topicSchema = z
             procedure.anatomyPage,
             procedure.complicationsPage,
             procedure.aftercarePage,
+            procedure.consentPage,
           ])
             if (page && !pageIds.has(page))
               fail(`Unknown procedure page: ${page}`);
@@ -343,6 +347,74 @@ export const topicSchema = z
             if (!quotesSource && !quotesStep)
               fail(
                 `Anatomy step not supported by the walkthrough: ${structure.id} ${number}`,
+              );
+          }
+        }
+      }
+      const prepProcedures = experience.theatrePreps.map(
+        (prep) => prep.procedureId,
+      );
+      if (new Set(prepProcedures).size !== prepProcedures.length)
+        fail('One Theatre Prep per procedure');
+      for (const prep of experience.theatrePreps) {
+        const procedure =
+          topic.metadata.contentKind === 'clinical'
+            ? topic.metadata.procedures.find(
+                (entry) => entry.id === prep.procedureId,
+              )
+            : undefined;
+        if (!procedure) {
+          fail(`Theatre Prep for an unknown procedure: ${prep.procedureId}`);
+          continue;
+        }
+        const walkthrough = experience.walkthroughs.find(
+          (entry) => entry.id === prep.walkthroughId,
+        );
+        if (walkthrough?.page !== procedure.page)
+          fail(
+            `Theatre Prep walkthrough is not the procedure's: ${prep.walkthroughId}`,
+          );
+        const view = experience.anatomyViews.find(
+          (entry) => entry.id === prep.anatomyViewId,
+        );
+        if (view?.walkthroughId !== prep.walkthroughId)
+          fail(
+            `Theatre Prep anatomy view does not match its walkthrough: ${prep.anatomyViewId}`,
+          );
+        const plan = experience.briefings.find(
+          (entry) => entry.id === prep.planBriefingId,
+        );
+        if (plan?.variant !== 'plan' || plan.page !== procedure.page)
+          fail(
+            `Theatre Prep needs the procedure's plan panel: ${prep.planBriefingId}`,
+          );
+        for (const gap of prep.gaps)
+          if (
+            blocks.find((block) => block.id === gap.blockId)?.type !==
+            'sourceNote'
+          )
+            fail(`Theatre Prep gap must be an editorial note: ${gap.blockId}`);
+        for (const section of theatrePrepSectionIds) {
+          const labels = prep[section].map((row) => row.label);
+          if (new Set(labels).size !== labels.length)
+            fail(`Duplicate Theatre Prep row in ${section}`);
+          for (const row of prep[section]) {
+            for (const extract of row.extracts) checkExtract(extract, false);
+            if (row.link) checkLink(row.link);
+            // A row is never shown at a shallower depth than its sources.
+            const deepest = Math.max(
+              ...row.extracts.map((extract) =>
+                trainingLevelRank(
+                  blocks.find((block) => block.id === extract.blockId)
+                    ?.minimumLevel ?? 'medical-student',
+                ),
+              ),
+            );
+            if (
+              trainingLevelRank(row.minimumLevel ?? 'medical-student') < deepest
+            )
+              fail(
+                `Theatre Prep row is shallower than its source: ${row.label}`,
               );
           }
         }

@@ -1247,7 +1247,7 @@ export const experience = {
     {
       id: 'theatre-prep',
       page: 'appendicectomy',
-      title: '5-minute theatre prep',
+      title: 'Theatre prep at a glance',
       caption:
         'Seeing or assisting with this case soon? Start here — the walkthrough below goes deeper.',
       variant: 'prep',
@@ -1763,6 +1763,261 @@ export const experience = {
         {
           text: 'Relate the variable appendix position and exposure to the structures actually in view',
           blockId: 'structures-at-risk',
+        },
+      ],
+    },
+  ],
+  // Theatre Prep composes existing content only: verbatim extracts, plus the
+  // anatomy view, walkthrough and plan panel by ID.
+  theatrePreps: [
+    {
+      procedureId: 'laparoscopic-appendicectomy',
+      anatomyViewId: 'appendicectomy-anatomy',
+      walkthroughId: 'appendicectomy',
+      planBriefingId: 'what-changes-the-plan',
+      patient: [
+        {
+          label: 'Why this operation',
+          extracts: [
+            {
+              text: 'Laparoscopic appendicectomy remains a standard operative pathway',
+              blockId: 'operative-pathway',
+            },
+            {
+              text: 'Antibiotics alone can be an option in selected uncomplicated disease; the choice requires an informed discussion rather than a universal treatment rule',
+              blockId: 'operative-pathway',
+            },
+          ],
+          link: {
+            label: 'Management',
+            page: 'management',
+            blockId: 'operative-pathway',
+          },
+        },
+        {
+          label: 'Why it is urgent',
+          extracts: [
+            {
+              text: 'Perforation and systemic illness can develop',
+              blockId: 'at-a-glance',
+            },
+          ],
+        },
+        {
+          label: 'The diagnosis',
+          extracts: [
+            {
+              text: 'Combine clinical assessment, laboratory findings and imaging',
+              blockId: 'diagnostic-synthesis',
+            },
+          ],
+        },
+        {
+          label: 'Non-operative option',
+          minimumLevel: 'registrar',
+          extracts: [
+            {
+              text: 'Antibiotic treatment can avoid immediate surgery in selected uncomplicated cases, but later recurrence or appendicectomy remains possible',
+              blockId: 'nonoperative-discussion',
+            },
+          ],
+        },
+      ],
+      before: [
+        {
+          label: 'History',
+          extracts: [
+            {
+              text: 'For anaesthetic preparation, establish medical conditions, current medicines and previous allergic reactions to medicines',
+              blockId: 'anaesthetic-history',
+            },
+          ],
+        },
+        {
+          label: 'Bloods and urine',
+          extracts: [
+            {
+              text: 'FBC and CRP can support the assessment of inflammation',
+              blockId: 'inflammatory-markers',
+            },
+            {
+              text: 'Include pregnancy testing when pregnancy is possible',
+              blockId: 'urine-pregnancy',
+            },
+          ],
+          link: { label: 'Investigations', page: 'investigations' },
+        },
+        {
+          label: 'Imaging',
+          extracts: [
+            {
+              text: 'Imaging helps resolve diagnostic uncertainty alongside clinical assessment',
+              blockId: 'imaging-choice',
+            },
+          ],
+        },
+        {
+          label: 'Team and checklist',
+          minimumLevel: 'foundation',
+          extracts: [
+            {
+              text: 'Arrange surgical assessment and senior help appropriate to urgency and your competence',
+              blockId: 'initial-support',
+            },
+            {
+              text: 'Agree a perioperative plan with the surgical and anaesthetic teams; complete the surgical safety checklist',
+              blockId: 'initial-support',
+            },
+          ],
+        },
+        {
+          label: 'Perioperative risk',
+          minimumLevel: 'foundation',
+          extracts: [
+            {
+              text: 'Review frailty, comorbidity and individual perioperative risk with the surgical and anaesthetic teams',
+              blockId: 'patient-factors',
+            },
+          ],
+        },
+        {
+          label: 'VTE',
+          minimumLevel: 'foundation',
+          extracts: [
+            {
+              text: 'Assess VTE and bleeding risk and agree appropriate prophylaxis; reassess if the clinical situation changes',
+              blockId: 'operative-preparation',
+            },
+          ],
+        },
+        {
+          label: 'Antibiotics',
+          minimumLevel: 'foundation',
+          extracts: [
+            {
+              text: 'Choose antimicrobial agents, doses and allergy alternatives through local policy',
+              blockId: 'antimicrobial-policy',
+            },
+          ],
+        },
+        {
+          label: 'Escalate',
+          minimumLevel: 'foundation',
+          extracts: [
+            {
+              text: 'New confusion, circulatory compromise, increasing respiratory rate or reduced urine output warrant urgent reassessment and escalation for possible sepsis',
+              blockId: 'deterioration',
+            },
+          ],
+        },
+      ],
+      consent: [
+        {
+          label: 'Why and what',
+          extracts: [
+            {
+              text: 'Explain why intervention is proposed and what the expected operation involves',
+              blockId: 'supported-decision',
+            },
+          ],
+        },
+        {
+          label: 'Alternatives',
+          extracts: [
+            {
+              text: 'Discuss reasonable alternatives, including non-operative treatment when applicable and what no treatment could mean',
+              blockId: 'supported-decision',
+            },
+          ],
+        },
+        {
+          label: 'What patients are told',
+          extracts: [
+            {
+              text: 'It is usually keyhole surgery through small cuts using a camera; sometimes a larger cut in the lower right abdomen (open surgery) is needed',
+              blockId: 'patient-understanding',
+            },
+            {
+              text: 'Complications are rare but can include wound infection, bleeding, an abscess where the appendix was, scar tissue (adhesions) that rarely blocks the bowel, and stump appendicitis',
+              blockId: 'patient-understanding',
+            },
+          ],
+        },
+        {
+          label: 'Risks to discuss',
+          minimumLevel: 'cst',
+          extracts: [
+            {
+              text: 'Discuss anaesthetic considerations, bleeding, infection, collection, injury to adjacent structures and possible further intervention in relation to this patient',
+              blockId: 'procedure-specific-discussion',
+            },
+            {
+              text: 'Explain that findings may change the approach; do not promise an uncomplicated laparoscopic course',
+              blockId: 'procedure-specific-discussion',
+            },
+          ],
+        },
+      ],
+      after: [
+        {
+          label: 'Recovery',
+          extracts: [
+            {
+              text: 'Review progress, pain and the wound; support return to drinking, eating and activity as recovery allows',
+              blockId: 'recovery-basics',
+            },
+          ],
+        },
+        {
+          label: 'Red flags',
+          extracts: [
+            {
+              text: 'Persistent vomiting, increasing wound pain/redness or fever need reassessment',
+              blockId: 'recovery-basics',
+            },
+            {
+              text: 'New calf pain or breathlessness needs prompt assessment for possible VTE',
+              blockId: 'vte-complication',
+            },
+          ],
+        },
+        {
+          label: 'Ward review',
+          minimumLevel: 'foundation',
+          extracts: [
+            {
+              text: 'Review observations, symptoms and the operative findings; escalate deterioration promptly',
+              blockId: 'postoperative-review',
+            },
+          ],
+        },
+        {
+          label: 'Antibiotics',
+          minimumLevel: 'foundation',
+          extracts: [
+            {
+              text: 'The postoperative antibiotic plan depends on uncomplicated versus complicated disease and the operative findings',
+              blockId: 'postoperative-antibiotics',
+            },
+          ],
+        },
+        {
+          label: 'Histology',
+          minimumLevel: 'foundation',
+          extracts: [
+            {
+              text: 'Ensure responsibility for reviewing and communicating histology is clear',
+              blockId: 'histology-follow-up',
+            },
+          ],
+        },
+      ],
+      gaps: [
+        { section: 'before', blockId: 'preoperative-preparation-todo' },
+        {
+          section: 'consent',
+          blockId: 'operation-consent-todo',
+          belowLevel: 'cst',
         },
       ],
     },

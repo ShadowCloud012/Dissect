@@ -211,6 +211,38 @@ const anatomyViewSchema = z.strictObject({
   // Where the view connects to operative judgement, e.g. what changes the plan.
   links: z.array(topicLinkSchema).default([]),
 });
+// Theatre Prep composes existing content for one procedure: verbatim extract
+// rows for the patient, before-theatre, consent and after-surgery sections,
+// and references to the anatomy view, walkthrough and plan panel. It holds no
+// clinical prose of its own; gaps are existing editorial TODO blocks.
+export const theatrePrepSectionIds = [
+  'patient',
+  'before',
+  'consent',
+  'after',
+] as const;
+const theatrePrepSchema = z.strictObject({
+  procedureId: stableIdSchema,
+  anatomyViewId: stableIdSchema,
+  walkthroughId: stableIdSchema,
+  planBriefingId: stableIdSchema,
+  patient: z.array(extractRowSchema).min(1),
+  before: z.array(extractRowSchema).min(1),
+  consent: z.array(extractRowSchema).min(1),
+  after: z.array(extractRowSchema).min(1),
+  // Clinical-review TODO blocks shown as visible gaps in a section. With
+  // belowLevel, the gap shows only to readers below that depth, where the
+  // sourced content (e.g. operation-specific consent) is not yet available.
+  gaps: z
+    .array(
+      z.strictObject({
+        section: z.enum(theatrePrepSectionIds),
+        blockId: stableIdSchema,
+        belowLevel: trainingLevelSchema.optional(),
+      }),
+    )
+    .default([]),
+});
 export const topicExperienceSchema = z.strictObject({
   pages: z.array(topicPageSchema).min(1),
   quickReferenceGroups: z.array(quickReferenceGroupSchema).min(1),
@@ -231,6 +263,7 @@ export const topicExperienceSchema = z.strictObject({
   walkthroughs: z.array(walkthroughSchema).default([]),
   briefings: z.array(briefingSchema).default([]),
   anatomyViews: z.array(anatomyViewSchema).default([]),
+  theatrePreps: z.array(theatrePrepSchema).default([]),
   // Explanatory cross-links shown beneath a block.
   blockLinks: z
     .array(
@@ -250,6 +283,7 @@ export type TopicLink = z.infer<typeof topicLinkSchema>;
 export type Walkthrough = z.infer<typeof walkthroughSchema>;
 export type Briefing = z.infer<typeof briefingSchema>;
 export type AnatomyView = z.infer<typeof anatomyViewSchema>;
+export type TheatrePrep = z.infer<typeof theatrePrepSchema>;
 export function isExtractSelection(
   selection: z.infer<typeof selectionSchema>,
 ): selection is ExtractSelection {

@@ -2,7 +2,12 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { topicRegistry } from '@/content/registry';
 import { specialties } from '@/content/specialties';
-import { linkHref, resolveWalkthroughs, topicHref } from '@/lib/topic-pages';
+import {
+  linkHref,
+  resolveTheatrePrep,
+  resolveWalkthroughs,
+  topicHref,
+} from '@/lib/topic-pages';
 import type { TopicLink } from '@/schemas/topic-experience';
 import { EditorialStatus } from '@/components/topic/editorial-status';
 import { UpcomingSpecialties } from '@/components/navigation/upcoming-specialties';
@@ -18,6 +23,13 @@ const flagship = topicRegistry.getTopic(
   'acute-appendicitis',
 )!;
 const flagshipHref = topicHref(flagship.metadata);
+// The flagship procedure's Theatre Prep page; the build fails if it goes.
+function flagshipTheatrePrep() {
+  const prep = resolveTheatrePrep(flagship, 'appendicectomy');
+  if (!prep)
+    throw new Error('Homepage example links to a missing Theatre Prep');
+  return prep.href;
+}
 function example(link: TopicLink) {
   const page = flagship.experience?.pages.find(
     (entry) => entry.slug === link.page,
@@ -47,10 +59,7 @@ const capabilities = [
   {
     title: 'Prepare for theatre',
     description: 'Pre-op, consent, anatomy and what to expect.',
-    example: example({
-      label: '5-minute theatre prep',
-      page: 'appendicectomy',
-    }),
+    example: { label: 'Theatre Prep', href: flagshipTheatrePrep() },
   },
   {
     title: 'Understand the anatomy',

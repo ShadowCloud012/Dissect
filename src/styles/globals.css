@@ -335,6 +335,114 @@
   .anatomy-text :is(th, td) {
     @apply border-b border-dissect-border py-1.5 pr-2 align-top;
   }
+  /* Theatre Prep: a dense, scannable briefing with a sticky section bar. */
+  .prep-entry {
+    @apply mt-3 flex max-w-3xl flex-wrap items-center gap-x-3 border border-l-4 border-dissect-border border-l-dissect-green-800 bg-dissect-green-50 px-3 sm:px-4;
+  }
+  .prep-entry a {
+    @apply inline-flex min-h-11 items-center font-semibold text-dissect-green-800 underline decoration-dissect-green-200 underline-offset-4 hover:decoration-dissect-green-800 sm:min-h-9;
+  }
+  .prep-entry span {
+    @apply hidden text-sm text-dissect-muted sm:inline;
+  }
+  .kind-link .kind-link-secondary {
+    @apply font-mono text-xs font-medium;
+  }
+  .prep-nav {
+    @apply sticky top-0 z-10 -mx-4 mt-4 overflow-x-auto border-y border-dissect-border bg-dissect-paper px-4 sm:-mx-8 sm:px-8;
+  }
+  .prep-nav ol {
+    @apply flex gap-1 whitespace-nowrap;
+  }
+  .prep-nav li + li::before {
+    @apply mr-1 text-dissect-muted content-['→'];
+  }
+  .prep-nav a {
+    @apply inline-flex min-h-11 items-center px-1 font-mono text-xs text-dissect-green-800 underline-offset-4 hover:underline;
+  }
+  .prep-grid {
+    @apply mt-2 max-w-4xl;
+  }
+  .prep-section {
+    @apply scroll-mt-14 border-b border-dissect-border py-4;
+  }
+  .prep-section-title {
+    @apply mb-2 text-lg font-semibold;
+  }
+  .prep-more {
+    @apply mt-2 flex flex-wrap gap-x-4 text-sm;
+  }
+  .prep-more a,
+  .prep-risk-steps a,
+  .prep-deeper a {
+    @apply inline-flex min-h-11 items-center font-medium text-dissect-green-800 underline decoration-dissect-green-200 underline-offset-4 hover:decoration-dissect-green-800 sm:min-h-9;
+  }
+  .prep-risk-group + .prep-risk-group {
+    @apply mt-3;
+  }
+  .prep-risk-group-title {
+    @apply mb-1 font-mono text-xs font-medium tracking-wide text-dissect-muted uppercase;
+  }
+  .depth-summary {
+    @apply mt-1 text-xs leading-5 text-dissect-muted italic;
+  }
+  .prep-steps {
+    @apply grid gap-1.5 text-sm leading-6;
+  }
+  .prep-steps li {
+    @apply grid grid-cols-[1.75rem_minmax(0,1fr)] gap-2;
+  }
+  .prep-step-number {
+    @apply mt-0.5 inline-flex size-6 items-center justify-center rounded-full border border-dissect-ink font-mono text-xs;
+  }
+  .prep-step-label {
+    @apply font-semibold text-dissect-ink underline decoration-dissect-border underline-offset-4 hover:text-dissect-green-800;
+  }
+  .prep-risks {
+    @apply grid gap-3 text-sm leading-6;
+  }
+  .prep-risks dt {
+    @apply font-semibold;
+  }
+  .prep-risk-steps {
+    @apply mt-1 flex flex-wrap gap-x-3;
+  }
+  .prep-gaps {
+    @apply mt-2;
+  }
+  .prep-deeper {
+    @apply mt-6 max-w-4xl;
+  }
+  .prep-deeper ul {
+    @apply mt-2 flex flex-wrap gap-x-5 text-sm;
+  }
+  .anatomy-glance {
+    @apply grid gap-3 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)];
+  }
+  .anatomy-glance-key {
+    @apply grid gap-2 text-sm;
+  }
+  .anatomy-glance-key dt {
+    @apply font-mono text-xs text-dissect-muted;
+  }
+  .anatomy-glance-key ul {
+    @apply mt-1 flex flex-wrap gap-1;
+  }
+  .anatomy-glance-key button {
+    @apply inline-flex min-h-11 items-center gap-1.5 border border-dissect-border bg-dissect-surface px-2 text-left text-sm hover:border-dissect-green-800 sm:min-h-9;
+  }
+  .anatomy-glance-key button[aria-pressed='true'] {
+    @apply border-2 border-dissect-green-800 bg-dissect-green-50 font-semibold;
+  }
+  .anatomy-glance-also {
+    @apply font-mono text-[11px] font-normal text-dissect-muted;
+  }
+  .anatomy-glance-detail {
+    @apply mt-2 grid gap-1 text-sm leading-6;
+  }
+  .anatomy-glance-detail [data-kind='risk'] .eyebrow {
+    @apply text-dissect-red;
+  }
   /* Search: one field, compact rows with thin dividers. */
   .browse-search {
     @apply mt-4 text-sm text-dissect-muted;

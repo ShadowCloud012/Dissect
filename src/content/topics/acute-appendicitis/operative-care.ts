@@ -410,6 +410,13 @@ export const operativeCareSections = [
         referenceIds: ['leicester-appendicectomy', 'rcs-consent'],
       },
       {
+        id: 'operation-consent-todo',
+        type: 'sourceNote',
+        minimumLevel: 'medical-student',
+        text: 'Clinical-review TODO: operation-specific consent — clinical/editorial content needed. The operation-specific risks to discuss are sourced only at CST depth for this topic; content suitable for Medical Student and FY1/2 depth is not yet written.',
+        referenceIds: [],
+      },
+      {
         id: 'consent-depth',
         type: 'prose',
         minimumLevel: 'cst',

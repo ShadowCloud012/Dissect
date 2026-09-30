@@ -159,11 +159,18 @@ export function TopicExperience({
                 {condition.title}
               </Link>
             ))}
-            <span className="text-sm text-dissect-muted">
+            {/* One line on phones, leaving room for the Theatre Prep entry. */}
+            <span className="hidden text-sm text-dissect-muted sm:inline">
               Presentation, investigations and management of the condition
               behind this operation.
             </span>
           </aside>
+        )}
+        {currentProcedure?.theatrePrepHref && (
+          <p className="prep-entry">
+            <Link href={currentProcedure.theatrePrepHref}>Theatre Prep</Link>
+            <span>Get ready for this operation in 5 minutes.</span>
+          </p>
         )}
       </header>
       <div className="topic-columns">
@@ -194,6 +201,14 @@ export function TopicExperience({
                   >
                     <span className="eyebrow">Related procedure</span>
                     <Link href={procedure.href}>{procedure.title}</Link>
+                    {procedure.theatrePrepHref && (
+                      <Link
+                        href={procedure.theatrePrepHref}
+                        className="kind-link-secondary hidden sm:inline-flex"
+                      >
+                        Theatre Prep
+                      </Link>
+                    )}
                     {/* One line on phones so the snapshot stays in view. */}
                     <span className="hidden text-sm text-dissect-muted sm:inline">
                       {procedure.summary}

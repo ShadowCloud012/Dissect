@@ -30,6 +30,7 @@ export const acuteAppendicitis = composeTopic({
         anatomyPage: 'anatomy',
         complicationsPage: 'complications',
         aftercarePage: 'post-op',
+        consentPage: 'consent',
         title: 'Laparoscopic appendicectomy',
         page: 'appendicectomy',
         summary:

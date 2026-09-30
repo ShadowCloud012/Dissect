@@ -39,6 +39,7 @@ export const gallstoneDisease = composeTopic({
         anatomyPage: 'anatomy',
         complicationsPage: 'complications',
         aftercarePage: 'post-op',
+        consentPage: 'consent',
         title: 'Laparoscopic cholecystectomy',
         page: 'laparoscopic-cholecystectomy',
         summary:

@@ -2,7 +2,7 @@ import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { trainingLevels, type TrainingLevel } from '@/lib/training-level';
 import type { ResolvedRow } from '@/lib/topic-pages';
-import { LevelContent } from '@/components/topic/topic-depth';
+import { HiddenAtDepth, LevelContent } from '@/components/topic/topic-depth';
 
 // Display-only capitalisation of a verbatim fragment.
 export const sentenceCase = (text: string) =>
@@ -47,10 +47,38 @@ function RowLink({ row }: { row: ResolvedRow }) {
 export function ExtractRows({
   rows,
   numbered,
+  compactHints,
 }: {
   rows: ResolvedRow[];
   numbered?: boolean;
+  // Name rows above the reader's depth in one summary line, not a row each.
+  compactHints?: boolean;
 }) {
+  if (compactHints && !numbered)
+    return (
+      <>
+        <dl className="quick-rows">
+          {rows.map((row) => (
+            <Gate key={row.label} level={row.minimumLevel} hint={null}>
+              <div>
+                <dt className="quick-row-label">{row.label}</dt>
+                <dd>
+                  {joinExtracts(row.extracts)}
+                  <RowLink row={row} />
+                </dd>
+              </div>
+            </Gate>
+          ))}
+        </dl>
+        <HiddenAtDepth
+          rows={rows.flatMap((row) =>
+            row.minimumLevel
+              ? [{ label: row.label, level: row.minimumLevel }]
+              : [],
+          )}
+        />
+      </>
+    );
   return numbered ? (
     <ol className="quick-rows quick-rows-numbered">
       {rows.map((row, index) => (

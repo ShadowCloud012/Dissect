@@ -50,6 +50,36 @@ export function TopicDepth({
     </DepthContext>
   );
 }
+// One line naming the rows above the reader's depth, instead of one hint row
+// each, so a dense briefing stays scannable without hiding what exists.
+export function HiddenAtDepth({
+  rows,
+}: {
+  rows: { label: string; level: TrainingLevel }[];
+}) {
+  const { level, showAdvanced } = useContext(DepthContext);
+  const hidden = rows.filter(
+    (row) => !canShowContent(level, row.level, showAdvanced),
+  );
+  if (hidden.length === 0) return null;
+  const byLevel = trainingLevels
+    .map((entry) => ({
+      label: entry.label,
+      rows: hidden.filter((row) => row.level === entry.id),
+    }))
+    .filter((group) => group.rows.length > 0);
+  return (
+    <p className="depth-summary">
+      {byLevel.map((group, index) => (
+        <span key={group.label}>
+          {index > 0 && ' · '}
+          Also at {group.label} depth:{' '}
+          {group.rows.map((row) => row.label).join(', ')}
+        </span>
+      ))}
+    </p>
+  );
+}
 export function TrainingLevelSummary() {
   const { level } = useTrainingLevel();
   return (

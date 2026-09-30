@@ -7,20 +7,10 @@ import {
   Gate,
   joinExtracts,
 } from '@/components/content/extract-rows';
-import {
-  anatomyArtwork,
-  orientationCues,
-  type StructureState,
-} from './artwork';
+import type { StructureState } from './artwork';
+import { AnatomyFigure } from './anatomy-figure';
+import { roleLabels } from './roles';
 
-const roleLabels: Record<string, string> = {
-  landmark: 'Landmark',
-  controlled: 'Controlled and divided',
-  removed: 'Removed',
-  orientation: 'Orientation',
-  'at-risk': 'Structure at risk',
-  'bleeding-risk': 'Bleeding risk',
-};
 const fieldLabels: Record<string, string> = {
   what: 'Structure',
   why: 'Why it matters',
@@ -56,8 +46,6 @@ export function OperativeAnatomy({
   sources: Record<string, ReactNode>;
   noteSources?: ReactNode;
 }) {
-  const artwork = anatomyArtwork[view.id];
-  const orientation = orientationCues[artwork.orientation];
   // A link such as …/anatomy#<view>-step-3 opens with that step selected.
   const hash = useSyncExternalStore(
     subscribeToHash,
@@ -117,7 +105,6 @@ export function OperativeAnatomy({
           ? 'emphasised'
           : 'dimmed'
         : 'normal';
-  const Artwork = artwork.Component;
   const titleId = `${view.id}-title`;
   return (
     <section
@@ -153,43 +140,18 @@ export function OperativeAnatomy({
         ))}
       </div>
       <div className="anatomy-layout">
-        <figure className="anatomy-figure">
-          {/* Laterality cannot be misread: every artwork declares its view. */}
-          <p className="anatomy-orientation-summary">{orientation.summary}</p>
-          <p className="anatomy-orientation" aria-hidden="true">
-            <span>← {orientation.viewerLeft}</span>
-            <span>{orientation.viewerRight} →</span>
-          </p>
-          <svg
-            viewBox={artwork.viewBox}
-            role="img"
-            aria-label={`Schematic: ${view.title}`}
-            aria-describedby={`${view.id}-svg-desc`}
-          >
-            <desc id={`${view.id}-svg-desc`}>
-              {`${orientation.summary}. Numbered structures: ${view.structures
-                .map((item, index) => `${index + 1} ${item.label}`)
-                .join(', ')}. Select them from the list of structures.`}
-            </desc>
-            <Artwork
-              stateOf={stateOf}
-              numberOf={numberOf}
-              riskShown={(id) =>
-                riskRoles.some(
-                  (role) =>
-                    (mode === role || structure?.id === id) &&
-                    hasRole(id, role),
-                )
-              }
-              onSelect={(id) => choose({ kind: 'structure', id })}
-            />
-          </svg>
-          <figcaption>
-            Schematic, not to scale: it shows relationships described in the
-            sourced anatomy text on this page.
-            {artwork.legend && ` ${artwork.legend}`}
-          </figcaption>
-        </figure>
+        <AnatomyFigure
+          view={view}
+          stateOf={stateOf}
+          numberOf={numberOf}
+          riskShown={(id) =>
+            riskRoles.some(
+              (role) =>
+                (mode === role || structure?.id === id) && hasRole(id, role),
+            )
+          }
+          onSelect={(id) => choose({ kind: 'structure', id })}
+        />
         {/* Directly under the drawing, where a tap on it is visible. */}
         <div className="anatomy-detail" aria-live="polite">
           {structure ? (
